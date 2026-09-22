@@ -476,8 +476,32 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
   </main>
 </div>
 
+  // ARMAZENAMENTO LOCAL & PERSISTÊNCIA REATIVA
+  // ============================================================
+  const STORAGE_KEY = 'acervo_database_v2';
+=======
 <script>
   // ============================================================
+  // CONFIGURAÇÃO
+  // ============================================================
+  const GOOGLE_CLIENT_ID = '1032170606542-dukbmb70h332gpjtbuncl76bvobv6dvi.apps.googleusercontent.com';
+  const firebaseConfig = {
+    apiKey: 'AIzaSyBKDvELUvYH1TESB7M_JjojW4nxUpf6cgQ',
+    authDomain: 'acervo-15e48.firebaseapp.com',
+    projectId: 'acervo-15e48',
+    storageBucket: 'acervo-15e48.firebasestorage.app',
+    messagingSenderId: '1032170606542',
+    appId: '1:1032170606542:web:d8cca054a21a3b52dce59f'
+  };
+
+  function aoLogar(resposta) {
+    fazerLoginSimulado();
+  }
+
+  // ============================================================
+  // ARMAZENAMENTO LOCAL & PERSISTÊNCIA REATIVA
+  // ============================================================
+  const STORAGE_KEY = 'acervo_database_v2';============================================================
   // ARMAZENAMENTO LOCAL & PERSISTÊNCIA REATIVA
   // ============================================================
   const STORAGE_KEY = 'acervo_database_v2';

@@ -264,15 +264,8 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
     <div class="icone">🗄</div>
     <h1>Acervo</h1>
     <p>Gestão documental</p>
-    <button type="button" class="btn-google" onclick="fazerLoginSimulado()">
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none">
-        <path d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z" fill="#4285F4"/>
-        <path d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z" fill="#34A853"/>
-        <path d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z" fill="#FBBC05"/>
-        <path d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z" fill="#EA4335"/>
-      </svg>
-      Entrar com Google
-    </button>
+    <div id="botao-google" style="display: flex; justify-content: center;"></div>
+    <div id="erro-google" style="display: none; margin-top: 12px; font-size: 12px; color: #B3261E; background: #FBEAE9; border-radius: 8px; padding: 10px 12px; text-align: left;"></div>
     <p class="nota-restrito">Acesso restrito a contas autorizadas</p>
   </div>
 </div>
@@ -476,8 +469,58 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
   </main>
 </div>
 
+  const STORAGE_KEY = 'acervo_database_v2';
+=======
+<script>
+  // ============================================================
+  // CONFIGURAÇÃO
+  // ============================================================
+  const GOOGLE_CLIENT_ID = '1032170606542-dukbmb70h332gpjtbuncl76bvobv6dvi.apps.googleusercontent.com';
+  const firebaseConfig = {
+    apiKey: 'AIzaSyBKDvELUvYH1TESB7M_JjojW4nxUpf6cgQ',
+    authDomain: 'acervo-15e48.firebaseapp.com',
+    projectId: 'acervo-15e48',
+    storageBucket: 'acervo-15e48.firebasestorage.app',
+    messagingSenderId: '1032170606542',
+    appId: '1:1032170606542:web:d8cca054a21a3b52dce59f'
+  };
+
+  function aoLogar(resposta) {
+    fazerLoginSimulado();
+  }
+
+  // ============================================================
   // ARMAZENAMENTO LOCAL & PERSISTÊNCIA REATIVA
   // ============================================================
+  const STORAGE_KEY = 'acervo_database_v2';============================================================
+  // ARMAZENAMENTO LOCAL & PERSISTÊNCIA REATIVA
+  // ============================================================
+  const STORAGE_KEY = 'acervo_database_v2';
+  const CURRENT_USER_KEY = 'acervo_current_user_v2';
+=======
+<script>
+  // ============================================================
+  // CONFIGURAÇÃO
+  // ============================================================
+  const GOOGLE_CLIENT_ID = '1032170606542-dukbmb70h332gpjtbuncl76bvobv6dvi.apps.googleusercontent.com';
+  const firebaseConfig = {
+    apiKey: 'AIzaSyBKDvELUvYH1TESB7M_JjojW4nxUpf6cgQ',
+    authDomain: 'acervo-15e48.firebaseapp.com',
+    projectId: 'acervo-15e48',
+    storageBucket: 'acervo-15e48.firebasestorage.app',
+    messagingSenderId: '1032170606542',
+    appId: '1:1032170606542:web:d8cca054a21a3b52dce59f'
+  };
+
+  function aoLogar(resposta) {
+    fazerLoginSimulado();
+  }
+
+  // ============================================================
+  // ARMAZENAMENTO LOCAL & PERSISTÊNCIA REATIVA
+  // ============================================================
+  const STORAGE_KEY = 'acervo_database_v2';
+  const CURRENT_USER_KEY = 'acervo_current_user_v2';============================================================
   const STORAGE_KEY = 'acervo_database_v2';
 =======
 <script>
@@ -614,6 +657,38 @@ table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 
     telaAntesDaAjuda: null,
     itemConflitante: null
   };
+
+  var vetGoogleTentativas = 0;
+  function inicializarBotaoGoogle() {
+    var container = document.getElementById('botao-google');
+    var erroEl = document.getElementById('erro-google');
+    if (!container) return;
+    if (typeof google === 'undefined' || !google.accounts || !google.accounts.id) {
+      vetGoogleTentativas++;
+      if (vetGoogleTentativas < 20) { setTimeout(inicializarBotaoGoogle, 300); }
+      else if (erroEl) { erroEl.style.display = 'block'; erroEl.textContent = 'O script do Google não carregou. Recarregue a página ou verifique sua conexão.'; }
+      return;
+    }
+    try {
+      google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: aoLogar, auto_select: false });
+      google.accounts.id.renderButton(container, { type: 'standard', theme: 'outline', size: 'large', width: 260 });
+    } catch (e) {
+      if (erroEl) { erroEl.style.display = 'block'; erroEl.textContent = 'Erro ao iniciar o login do Google: ' + (e && e.message ? e.message : e) + '. Confira se o domínio diogocamps.github.io está autorizado em Authentication > Configurações > Domínios autorizados.'; }
+    }
+  }
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', inicializarBotaoGoogle);
+  } else {
+    inicializarBotaoGoogle();
+  }
+  setTimeout(function () {
+    var container = document.getElementById('botao-google');
+    var erroEl = document.getElementById('erro-google');
+    if (container && container.childElementCount === 0 && erroEl) {
+      erroEl.style.display = 'block';
+      erroEl.textContent = 'O botão do Google não apareceu. Possíveis causas: cache do navegador (use Ctrl+Shift+R), origem não autorizada (Firebase Authentication > Configurações > Domínios autorizados: adicione diogocamps.github.io) ou client ID incorreto. Abra o console (F12) e veja os erros em vermelho.';
+    }
+  }, 8000);
 
   // ============================================================
   // MODAL & TOAST

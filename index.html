@@ -1,2541 +1,747 @@
 <!DOCTYPE html>
-<html lang="pt-BR" data-theme="light">
+<html lang="pt-br">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Acervo · Gestão documental</title>
-  
-  <!-- Basecoat CSS -->
-  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/basecoat-css@1.0.2/dist/basecoat.cdn.min.css">
-  
-  <!-- Google Fonts: Anton, Archivo, IBM Plex Mono -->
-  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Anton&family=Archivo:wght@400;500;600;700;800&family=IBM+Plex+Mono:ital,wght@0,400;0,500;0,600;0,700;1,400&display=swap">
-  
-  <!-- Shell System Files -->
-  <style>
-/* Skip artifact shell — fixed styles served beside every artifact.
-   Complements basecoat; artifacts override --accent for their own identity. */
-:root {
-  color-scheme: light dark;
-  --accent: #2563eb;
-  --accent-contrast: #ffffff;
-  --accent-text: color-mix(in srgb, var(--accent) 72%, #000);
-  --bg: #f8f9fb;
-  --surface: #ffffff;
-  --text: #14171f;
-  --text-muted: #5b6472;
-  --border: rgba(20, 23, 31, 0.10);
-  --radius: 10px;
-  --shadow: 0 1px 3px rgba(20, 23, 31, 0.08);
-  --space: 16px;
-}
-/* Theme resolution. Without data-theme the viewer's system preference decides,
-   as it always did. With it, the artifact's own choice wins in BOTH directions:
-   a page that hardcodes one palette must not be handed the opposite set of
-   tokens by the machine it happens to be opened on. The dark values appear
-   twice because a media query cannot be folded into a selector list.
-   The attribute sits inside :where() so these blocks keep the specificity of a
-   bare :root — the page's own <style> is linked after this file and must go on
-   overriding any token it wants, exactly as it could before. */
-@media (prefers-color-scheme: dark) {
-  :root:where(:not([data-theme="light"])) {
-    --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
-    --bg: #101318;
-    --surface: #181c23;
-    --text: #eef1f6;
-    --text-muted: #9aa4b2;
-    --border: rgba(238, 241, 246, 0.12);
-    --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-  }
-}
-:root:where([data-theme="dark"]) {
-  color-scheme: dark;
-  --accent-text: color-mix(in srgb, var(--accent) 78%, #fff);
-  --bg: #101318;
-  --surface: #181c23;
-  --text: #eef1f6;
-  --text-muted: #9aa4b2;
-  --border: rgba(238, 241, 246, 0.12);
-  --shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
-}
-:root:where([data-theme="light"]) { color-scheme: light; }
-* { box-sizing: border-box; }
-html, body { margin: 0; padding: 0; }
-body {
-  background: var(--bg);
-  color: var(--text);
-  font-family: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
-  line-height: 1.55;
-  -webkit-font-smoothing: antialiased;
-}
-img { max-width: 100%; display: block; }
-
-.shell-container { max-width: 1100px; margin: 0 auto; padding: 0 20px; }
-.shell-section { padding: calc(var(--space) * 2) 0; }
-.shell-grid { display: grid; gap: var(--space); grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); }
-.shell-toolbar { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; margin-bottom: var(--space); }
-.shell-footer { padding: 24px 0 40px; color: var(--text-muted); font-size: 13px; }
-
-.shell-hero { padding: calc(var(--space) * 3) 0 calc(var(--space) * 2); }
-.shell-hero h1 { font-size: clamp(26px, 4vw, 40px); line-height: 1.15; margin: 0 0 10px; text-wrap: balance; }
-.shell-hero p { color: var(--text-muted); max-width: 60ch; margin: 0; }
-
-.panel {
-  background: var(--surface);
-  border: 1px solid var(--border);
-  border-radius: var(--radius);
-  box-shadow: var(--shadow);
-  padding: var(--space);
-}
-
-.kpi { display: flex; flex-direction: column; gap: 4px; }
-.kpi .kpi-value { font-size: 28px; font-weight: 650; line-height: 1.1; }
-.kpi .kpi-label { font-size: 13px; color: var(--text-muted); }
-.kpi .kpi-delta { font-size: 12.5px; font-weight: 600; }
-.kpi .kpi-delta.up { color: #0a8f3c; }
-.kpi .kpi-delta.down { color: #cf3131; }
-
-table.shell-table { border-collapse: collapse; width: 100%; font-size: 14px; }
-table.shell-table th {
-  text-align: left; font-size: 11.5px; letter-spacing: 0.05em; text-transform: uppercase;
-  color: var(--text-muted); font-weight: 600;
-}
-table.shell-table th, table.shell-table td { padding: 9px 12px 9px 0; border-bottom: 1px solid var(--border); }
-table.shell-table td.num, table.shell-table th.num { text-align: right; font-variant-numeric: tabular-nums; }
-table.shell-table tbody tr:hover { background: color-mix(in srgb, var(--accent) 6%, transparent); }
-
-.chart-box { width: 100%; min-height: 220px; }
-.chart-box svg { width: 100%; height: auto; display: block; }
-
-.muted { color: var(--text-muted); }
-.accent { color: var(--accent-text); }
-.shell-badge {
-  display: inline-flex; align-items: center; gap: 6px;
-  font-size: 12px; font-weight: 600; padding: 3px 10px; border-radius: 999px;
-  background: color-mix(in srgb, var(--accent) 12%, transparent); color: var(--accent-text);
-}
-
-@media (prefers-reduced-motion: no-preference) {
-  .shell-fade { animation: shell-fade 400ms ease both; }
-  @keyframes shell-fade { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: none; } }
-}
-
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Acervo · Gestão documental</title>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;600&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
+<script src="https://accounts.google.com/gsi/client" async defer></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<style>
+:root{--bg:#F5F7FA;--ink:#111827;--cob:#1D4ED8;--ver:#E11D2E;--esm:#059669;--lar:#EA580C;--rox:#7C3AED;--grid:#DDE3EC;}
+*{box-sizing:border-box;margin:0;padding:0;}
+body{background:var(--bg);color:var(--ink);font-family:'Archivo',sans-serif;min-height:100vh;}
+h1,h2,.display{font-family:'Anton',sans-serif;letter-spacing:.04em;text-transform:uppercase;}
+.mono{font-family:'IBM Plex Mono',monospace;}
+.tela{display:none;}
+.tela-centro{display:none;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
+.btn{border:2px solid var(--ink);background:#fff;color:var(--ink);font-family:'Archivo';font-weight:600;padding:8px 14px;cursor:pointer;font-size:.85rem;}
+.btn:hover{background:var(--ink);color:#fff;}
+.btn-prim{background:var(--cob);border-color:var(--cob);color:#fff;}
+.btn-prim:hover{background:#1e40af;}
+.btn-perig{background:#fff;border-color:var(--ver);color:var(--ver);}
+.btn-perig:hover{background:var(--ver);color:#fff;}
+.erro-login{display:none;margin-top:14px;color:var(--ver);font-size:.8rem;max-width:340px;text-align:left;}
+/* LOGIN */
+.cx-login{background:#fff;border:2px solid var(--ink);padding:48px 40px;max-width:420px;width:100%;box-shadow:8px 8px 0 var(--grid);}
+.cx-login h1{font-size:3rem;}
+.cx-login .sub{font-family:'IBM Plex Mono';font-size:.75rem;color:var(--cob);margin:6px 0 26px;}
+/* SEM ACESSO */
+.cx-sem{background:#fff;border:2px solid var(--ver);padding:40px;max-width:460px;width:100%;text-align:center;}
+/* HEADER */
+.topo{background:#fff;border-bottom:4px solid var(--cob);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:50;}
+.topo h1{font-size:1.6rem;}
+.topo .linha-sub{font-family:'IBM Plex Mono';font-size:.65rem;color:#6B7280;}
+.acoes{display:flex;gap:8px;flex-wrap:wrap;}
+.corpo{padding:26px 28px 60px;}
+.rotulo-secao{font-family:'IBM Plex Mono';font-size:.75rem;color:var(--cob);border-left:5px solid var(--cob);padding-left:10px;margin:0 0 16px;text-transform:uppercase;}
+/* GRADES E CARTÕES */
+.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px;}
+.card{background:#fff;border:2px solid var(--ink);cursor:pointer;padding:0;transition:transform .12s;}
+.card:hover{transform:translateY(-2px);box-shadow:6px 6px 0 var(--grid);}
+.card .cab{padding:10px 14px;color:#fff;font-family:'Anton';font-size:1.05rem;letter-spacing:.06em;}
+.card .txt{padding:12px 14px;font-size:.85rem;}
+.card .meta{font-family:'IBM Plex Mono';font-size:.65rem;color:#6B7280;margin-top:6px;}
+/* LISTAS */
+.lista{background:#fff;border:2px solid var(--ink);}
+.linha{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--grid);cursor:pointer;font-size:.9rem;}
+.linha:nth-child(even){background:#FAFBFD;}
+.linha:last-child{border-bottom:none;}
+.linha:hover{background:#EFF6FF;box-shadow:inset 4px 0 0 var(--cob);}
+.linha .cod{font-family:'IBM Plex Mono';font-weight:600;color:var(--cob);}
+.linha .seta{opacity:.35;}
+.tag{font-family:'IBM Plex Mono';font-size:.6rem;padding:2px 8px;border:1px solid var(--ink);}
+.tag-adm{border-color:var(--ver);color:var(--ver);}
+.vazio{padding:24px;text-align:center;font-family:'IBM Plex Mono';font-size:.75rem;color:#9CA3AF;}
+/* MODAL */
+.fundo-modal{display:none;position:fixed;inset:0;background:rgba(17,24,39,.45);z-index:200;align-items:center;justify-content:center;padding:20px;}
+.modal{background:#fff;border:2px solid var(--ink);max-width:440px;width:100%;padding:26px;max-height:85vh;overflow:auto;}
+.modal h2{font-size:1.3rem;margin-bottom:16px;}
+.campo{margin-bottom:14px;}
+.campo label{display:block;font-family:'IBM Plex Mono';font-size:.65rem;text-transform:uppercase;color:#6B7280;margin-bottom:5px;}
+.campo input,.campo select,.campo textarea{width:100%;border:1.5px solid var(--ink);padding:9px 10px;font-family:'Archivo';font-size:.9rem;background:#fff;}
+.modal .rodape{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;}
+.alternador{display:flex;border:1.5px solid var(--ink);margin-bottom:14px;}
+.alternador button{flex:1;border:none;background:#fff;padding:8px;cursor:pointer;font-family:'Archivo';font-weight:600;font-size:.8rem;}
+.alternador button.ativo{background:var(--cob);color:#fff;}
+/* AJUDA */
+.acordeao{border:2px solid var(--ink);background:#fff;margin-bottom:10px;}
+.acordeao .cab-ac{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:700;}
+.acordeao .corpo-ac{display:none;padding:0 16px 14px;font-size:.88rem;line-height:1.55;}
+.hist-item{padding:10px 16px;border-bottom:1px solid var(--grid);font-size:.85rem;}
+.hist-item .quando{font-family:'IBM Plex Mono';font-size:.65rem;color:#9CA3AF;}
 </style>
-  
-
-  <style>
-    :root {
-      --accent: #E11D2E;
-      --accent-text: #B91C1C;
-      --accent-contrast: #FFFFFF;
-      --cobalt: #1D4ED8;
-      --cobalt-dark: #1E40AF;
-      --cobalt-light: #EFF6FF;
-      --bg-page: #F5F7FA;
-      --surface: #FFFFFF;
-      --text-main: #0F172A;
-      --text-muted: #64748B;
-      --border-main: #CBD5E1;
-      --border-dark: #0F172A;
-      --radius: 0px;
-    }
-
-    * {
-      border-radius: 0 !important;
-      box-sizing: border-box;
-    }
-
-    body {
-      margin: 0;
-      padding: 0;
-      background-color: var(--bg-page);
-      color: var(--text-main);
-      font-family: 'Archivo', -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
-      min-height: 100vh;
-      -webkit-font-smoothing: antialiased;
-      line-height: 1.5;
-    }
-
-    .font-anton {
-      font-family: 'Anton', 'Impact', sans-serif;
-      letter-spacing: 0.02em;
-      text-transform: uppercase;
-      font-weight: 400;
-    }
-    .font-mono {
-      font-family: 'IBM Plex Mono', monospace;
-    }
-
-    /* Header corporativo permanente */
-    .corp-header {
-      background: #FFFFFF;
-      border-bottom: 4px solid var(--cobalt);
-      position: sticky;
-      top: 0;
-      z-index: 60;
-      box-shadow: 0 2px 4px rgba(15, 23, 42, 0.05);
-    }
-    .corp-header-inner {
-      max-width: 1400px;
-      margin: 0 auto;
-      padding: 0.75rem 1.5rem;
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1rem;
-    }
-
-    /* Botões */
-    .btn-corp, .btn-corp-outline, .btn-corp-danger, .btn-corp-subtle {
-      font-family: 'IBM Plex Mono', monospace;
-      font-weight: 700;
-      font-size: 0.82rem;
-      padding: 0.55rem 1.1rem;
-      text-transform: uppercase;
-      letter-spacing: 0.05em;
-      cursor: pointer;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.4rem;
-      border: 2px solid transparent;
-      transition: background-color 0.15s, border-color 0.15s, color 0.15s;
-      text-decoration: none;
-    }
-    .btn-corp {
-      background: var(--cobalt);
-      color: #FFFFFF !important;
-      border-color: var(--cobalt);
-    }
-    .btn-corp:hover {
-      background: var(--cobalt-dark);
-      border-color: var(--cobalt-dark);
-    }
-    .btn-corp-outline {
-      background: #FFFFFF;
-      color: #0F172A !important;
-      border-color: #0F172A;
-    }
-    .btn-corp-outline:hover {
-      background: #0F172A;
-      color: #FFFFFF !important;
-    }
-    .btn-corp-danger {
-      background: var(--accent);
-      color: #FFFFFF !important;
-      border-color: var(--accent);
-    }
-    .btn-corp-danger:hover {
-      background: #B91C1C;
-      border-color: #B91C1C;
-    }
-    .btn-corp-subtle {
-      background: #F1F5F9;
-      color: #334155 !important;
-      border-color: #CBD5E1;
-    }
-    .btn-corp-subtle:hover {
-      background: #E2E8F0;
-      color: #0F172A !important;
-    }
-
-    .btn-back {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 1.1rem;
-      font-weight: 700;
-      background: #FFFFFF;
-      border: 2px solid #CBD5E1;
-      color: #0F172A;
-      width: 40px;
-      height: 40px;
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.15s;
-    }
-    .btn-back:hover {
-      background: #0F172A;
-      color: #FFFFFF;
-      border-color: #0F172A;
-    }
-
-    /* Inputs e formulários */
-    .corp-input, .corp-select, .corp-textarea {
-      background: #FFFFFF;
-      border: 2px solid #CBD5E1;
-      color: #0F172A;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.9rem;
-      padding: 0.65rem 0.85rem;
-      width: 100%;
-      outline: none;
-      transition: border-color 0.15s;
-    }
-    .corp-input:focus, .corp-select:focus, .corp-textarea:focus {
-      border-color: var(--cobalt);
-    }
-    .form-group {
-      margin-bottom: 1.1rem;
-    }
-    .form-label {
-      display: block;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.76rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 0.35rem;
-      color: #334155;
-    }
-
-    /* Cartões de estantes */
-    .shelves-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(310px, 1fr));
-      gap: 1.5rem;
-    }
-    .shelf-card {
-      background: #FFFFFF;
-      border: 2px solid #E2E8F0;
-      box-shadow: 0 2px 4px rgba(15, 23, 42, 0.04);
-      cursor: pointer;
-      transition: transform 0.15s, box-shadow 0.15s, border-color 0.15s;
-      display: flex;
-      flex-direction: column;
-    }
-    .shelf-card:hover {
-      transform: translateY(-2px);
-      box-shadow: 0 6px 12px rgba(15, 23, 42, 0.08);
-      border-color: #94A3B8;
-    }
-    .shelf-card-header {
-      padding: 1.15rem 1.35rem;
-      color: #FFFFFF;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 2px solid rgba(0, 0, 0, 0.12);
-    }
-
-    /* Linhas de caixas e itens */
-    .box-row {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0.85rem 1.25rem;
-      border: 1px solid #E2E8F0;
-      border-bottom: none;
-      background: #FFFFFF;
-      cursor: pointer;
-      transition: background-color 0.15s;
-    }
-    .box-row:last-child {
-      border-bottom: 1px solid #E2E8F0;
-    }
-    .box-row:nth-child(even) {
-      background: #F8FAFC;
-    }
-    .box-row:hover {
-      background: var(--cobalt-light);
-    }
-
-    /* Alternador Pessoa | Documento */
-    .item-toggle-wrap {
-      display: flex;
-      border: 2px solid #0F172A;
-      margin-bottom: 1.25rem;
-      width: fit-content;
-    }
-    .item-toggle-btn {
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.82rem;
-      font-weight: 700;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      padding: 0.55rem 1.35rem;
-      border: none;
-      background: #FFFFFF;
-      color: #0F172A;
-      cursor: pointer;
-      transition: background-color 0.15s, color 0.15s;
-    }
-    .item-toggle-btn.active {
-      background: #0F172A;
-      color: #FFFFFF;
-    }
-
-    /* Modais */
-    .modal-overlay {
-      position: fixed;
-      inset: 0;
-      background: rgba(15, 23, 42, 0.65);
-      z-index: 100;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 1rem;
-    }
-    .modal-content {
-      background: #FFFFFF;
-      border: 3px solid #0F172A;
-      width: 100%;
-      max-width: 580px;
-      max-height: 90vh;
-      overflow-y: auto;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.25);
-    }
-    .modal-header {
-      background: #0F172A;
-      color: #FFFFFF;
-      padding: 1rem 1.35rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-    .modal-body {
-      padding: 1.5rem;
-    }
-    .modal-footer {
-      padding: 1rem 1.5rem;
-      background: #F8FAFC;
-      border-top: 1px solid #E2E8F0;
-      display: flex;
-      justify-content: flex-end;
-      gap: 0.75rem;
-    }
-
-    /* Accordion de ajuda */
-    .help-accordion {
-      border: 2px solid #E2E8F0;
-      margin-bottom: 0.85rem;
-      background: #FFFFFF;
-    }
-    .help-accordion-header {
-      padding: 1rem 1.25rem;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.9rem;
-      font-weight: 700;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      cursor: pointer;
-      background: #F8FAFC;
-    }
-    .help-accordion-header:hover {
-      background: #EFF6FF;
-    }
-    .help-accordion-body {
-      padding: 1.25rem;
-      border-top: 1px solid #E2E8F0;
-      font-size: 0.92rem;
-      line-height: 1.6;
-      display: none;
-    }
-    .help-accordion-body.open {
-      display: block;
-    }
-
-    /* Badges */
-    .badge-admin {
-      background: #0F172A;
-      color: #FFFFFF;
-      font-family: 'IBM Plex Mono', monospace;
-      font-size: 0.7rem;
-      font-weight: 700;
-      padding: 0.15rem 0.5rem;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      display: inline-block;
-    }
-
-    @media print {
-      body { background: #FFFFFF !important; }
-      .corp-header, .no-print, .btn-corp, .btn-corp-outline, .btn-corp-danger { display: none !important; }
-      .modal-overlay { display: none !important; }
-    }
-  </style>
 </head>
 <body>
 
-  <!-- ========================================== -->
-  <!-- CABEÇALHO GLOBAL DO SISTEMA                 -->
-  <!-- ========================================== -->
-  <header id="global-header" class="corp-header" style="display: none;">
-    <div class="corp-header-inner">
-      <div style="display: flex; align-items: center; gap: 1rem;">
-        <span class="font-anton" style="font-size: 1.8rem; color: #0F172A; letter-spacing: 0.02em;">ACERVO</span>
-        <span id="header-sector-badge" class="font-mono" style="background: var(--cobalt); color: #FFFFFF; font-size: 0.75rem; font-weight: 700; padding: 0.25rem 0.6rem; text-transform: uppercase;">
-          SETOR
-        </span>
-      </div>
-
-      <div style="display: flex; align-items: center; gap: 0.85rem;">
-        <div class="font-mono" style="font-size: 0.82rem; text-align: right; display: flex; align-items: center; gap: 0.5rem;">
-          <span id="header-user-email" style="color: #0F172A; font-weight: 600;">usuario@acervo.corp</span>
-          <span id="header-admin-badge" class="badge-admin" style="display: none;">ADMIN</span>
-        </div>
-        <button id="btn-open-help" class="btn-corp-outline" style="padding: 0.45rem 0.75rem; font-size: 0.95rem; font-weight: 700;" title="Ajuda">
-          ?
-        </button>
-        <button id="btn-logout" class="btn-corp-outline" style="padding: 0.45rem 0.75rem;" title="Sair do sistema">
-          ⏻ Sair
-        </button>
-      </div>
-    </div>
-  </header>
-
-  <div class="shell-container" style="max-width: 1400px; padding: 1.5rem;">
-
-    <!-- ========================================== -->
-    <!-- 1. TELA DE LOGIN                          -->
-    <!-- ========================================== -->
-    <section id="view-login" style="display: flex; min-height: 80vh; align-items: center; justify-content: center;">
-      <div style="background: #FFFFFF; border: 3px solid #0F172A; max-width: 520px; width: 100%; padding: 2.5rem 2rem; box-shadow: 0 8px 16px rgba(15, 23, 42, 0.08);">
-        <div style="text-align: center; margin-bottom: 2rem;">
-          <h1 class="font-anton" style="font-size: 3.5rem; margin: 0 0 0.25rem; color: #0F172A; line-height: 1;">
-            Acervo
-          </h1>
-          <div class="font-mono" style="font-size: 1.1rem; font-weight: 700; color: var(--cobalt); text-transform: uppercase; letter-spacing: 0.05em; margin-bottom: 0.75rem;">
-            Gestão documental
-          </div>
-          <p class="font-mono" style="font-size: 0.88rem; color: var(--text-muted); margin: 0;">
-            Acesso restrito a contas autorizadas
-          </p>
-        </div>
-
-        <div style="display: flex; flex-direction: column; gap: 1rem;">
-          <div id="buttonDiv" style="min-height: 44px; display: flex; justify-content: center;"></div>
-
-          <button id="btn-login-google" class="btn-corp" style="width: 100%; padding: 0.85rem;">
-            <svg width="18" height="18" viewBox="0 0 24 24" style="margin-right: 4px;">
-              <path fill="#FFFFFF" d="M22.56 12.25c0-.78-.07-1.53-.2-2.25H12v4.26h5.92c-.26 1.37-1.04 2.53-2.21 3.31v2.77h3.57c2.08-1.92 3.28-4.74 3.28-8.09z"/>
-              <path fill="#FFFFFF" d="M12 23c2.97 0 5.46-.98 7.28-2.66l-3.57-2.77c-.98.66-2.23 1.06-3.71 1.06-2.86 0-5.29-1.93-6.16-4.53H2.18v2.84C3.99 20.53 7.7 23 12 23z"/>
-              <path fill="#FFFFFF" d="M5.84 14.09c-.22-.66-.35-1.36-.35-2.09s.13-1.43.35-2.09V7.06H2.18C1.43 8.55 1 10.22 1 12s.43 3.45 1.18 4.94l2.85-2.22.81-.63z"/>
-              <path fill="#FFFFFF" d="M12 5.38c1.62 0 3.06.56 4.21 1.64l3.15-3.15C17.45 2.09 14.97 1 12 1 7.7 1 3.99 3.47 2.18 7.06l3.66 2.84c.87-2.6 3.3-4.52 6.16-4.52z"/>
-            </svg>
-            Entrar com o Google
-          </button>
-
-          <div style="border-top: 1px solid #E2E8F0; padding-top: 1rem; margin-top: 0.5rem;">
-            <div class="font-mono" style="font-size: 0.74rem; color: var(--text-muted); text-transform: uppercase; margin-bottom: 0.5rem; text-align: center;">
-              Contas de demonstração autorizadas:
-            </div>
-            <div style="display: flex; gap: 0.5rem; flex-wrap: wrap;">
-              <button id="btn-login-demo-admin" class="btn-corp-subtle" style="flex: 1; font-size: 0.74rem;">
-                Admin (helena@acervo.corp)
-              </button>
-              <button id="btn-login-demo-user" class="btn-corp-subtle" style="flex: 1; font-size: 0.74rem;">
-                Colaborador (renato@acervo.corp)
-              </button>
-              <button id="btn-login-demo-noaccess" class="btn-corp-subtle" style="flex: 1; font-size: 0.74rem;">
-                Sem Acesso (novo@acervo.corp)
-              </button>
-            </div>
-          </div>
-
-          <!-- Fallback de erro visível caso o script do Google demore > 8s -->
-          <div id="erro-google" style="display: none; background: #FEF2F2; border-left: 4px solid var(--accent); padding: 0.85rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.8rem; color: #991B1B; margin-top: 0.5rem;">
-            <strong>Aviso de autenticação:</strong> Não foi possível carregar a janela pop-up do Google no prazo esperado (8s). Utilize o botão institucional acima para prosseguir.
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- 2. TELA SEM ACESSO                         -->
-    <!-- ========================================== -->
-    <section id="view-sem-acesso" style="display: none; min-height: 70vh; align-items: center; justify-content: center;">
-      <div style="background: #FFFFFF; border: 3px solid var(--accent); max-width: 520px; width: 100%; padding: 2.5rem 2rem; text-align: center;">
-        <h2 class="font-anton" style="font-size: 2rem; color: var(--accent); margin: 0 0 1rem;">ACESSO NÃO AUTORIZADO</h2>
-        <p style="font-size: 1.05rem; line-height: 1.6; margin-bottom: 1.75rem; color: #334155;">
-          Seu e-mail ainda não foi liberado para nenhum setor. Fale com o administrador do sistema.
-        </p>
-        <button id="btn-sem-acesso-sair" class="btn-corp-outline" style="min-width: 160px;">
-          Sair
-        </button>
-      </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- 3. TELA ESCOLHA O SETOR                    -->
-    <!-- ========================================== -->
-    <section id="view-escolha-setor" style="display: none;">
-      <div style="margin-bottom: 2rem; border-bottom: 2px solid #E2E8F0; padding-bottom: 1rem;">
-        <h2 class="font-anton" style="font-size: 2.4rem; margin: 0; color: #0F172A;">Escolha o setor</h2>
-        <div class="font-mono" style="font-size: 0.85rem; color: var(--text-muted); text-transform: uppercase;">
-          Selecione uma área documental liberada para a sua conta
-        </div>
-      </div>
-      <div id="setores-lista-container" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 1.5rem;">
-        <!-- Renderizado dinamicamente -->
-      </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- 4. TELA ESTANTES                           -->
-    <!-- ========================================== -->
-    <section id="view-estantes" style="display: none;">
-      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.75rem; border-bottom: 2px solid #E2E8F0; padding-bottom: 1rem;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <button id="btn-voltar-setores" class="btn-back" title="Voltar para setores">←</button>
-          <div>
-            <h2 class="font-anton" style="font-size: 2.4rem; margin: 0; color: #0F172A; line-height: 1;">Estantes</h2>
-            <div class="font-mono" style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;" id="estantes-setor-subtitulo">
-              SETOR ATIVO
-            </div>
-          </div>
-        </div>
-
-        <div style="display: flex; flex-wrap: wrap; gap: 0.5rem;">
-          <button id="btn-atualizar" class="btn-corp-subtle">Atualizar</button>
-          <button id="btn-abrir-lixeira" class="btn-corp-subtle">Lixeira</button>
-          <button id="btn-abrir-historico" class="btn-corp-subtle">Histórico</button>
-          <button id="btn-abrir-colaboradores" class="btn-corp-subtle admin-only" style="display: none;">Colaboradores</button>
-          <button id="btn-nova-estante" class="btn-corp admin-only" style="display: none;">+ Nova estante</button>
-        </div>
-      </div>
-
-      <div id="estantes-grid-container" class="shelves-grid">
-        <!-- Cartões de estantes renderizados aqui -->
-      </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- 5. TELA DENTRO DA ESTANTE                  -->
-    <!-- ========================================== -->
-    <section id="view-estante-detalhe" style="display: none;">
-      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid #E2E8F0; padding-bottom: 1rem;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <button id="btn-voltar-estantes" class="btn-back" title="Voltar para Estantes">←</button>
-          <div>
-            <div style="display: flex; align-items: center; gap: 0.75rem;">
-              <h2 id="detalhe-estante-nome" class="font-anton" style="font-size: 2.2rem; margin: 0; color: #0F172A; line-height: 1;">
-                ESTANTE
-              </h2>
-              <span id="detalhe-estante-tipo-badge" class="font-mono" style="background: #E2E8F0; font-size: 0.75rem; font-weight: 700; padding: 0.2rem 0.5rem; text-transform: uppercase;">
-                ESTANTE
-              </span>
-            </div>
-            <div class="font-mono" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
-              <span id="detalhe-estante-qtd-caixas">0 caixas cadastradas</span>
-            </div>
-          </div>
-        </div>
-
-        <div style="display: flex; gap: 0.5rem;">
-          <button id="btn-editar-estante" class="btn-corp-subtle admin-only" style="display: none;">Editar estante</button>
-          <button id="btn-nova-caixa" class="btn-corp admin-only" style="display: none;">+ Nova caixa</button>
-        </div>
-      </div>
-
-      <div style="background: #FFFFFF; border: 2px solid #E2E8F0; box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);">
-        <div style="background: #0F172A; color: #FFFFFF; padding: 0.75rem 1.25rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.78rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; display: flex; justify-content: space-between;">
-          <span>CÓDIGO DA CAIXA & CONTEÚDO</span>
-          <span>AÇÃO</span>
-        </div>
-        <div id="lista-caixas-estante">
-          <!-- Linhas de caixas renderizadas aqui -->
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- 6. TELA DENTRO DA CAIXA                    -->
-    <!-- ========================================== -->
-    <section id="view-caixa-detalhe" style="display: none;">
-      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.5rem; border-bottom: 2px solid #E2E8F0; padding-bottom: 1rem;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <button id="btn-voltar-da-caixa" class="btn-back" title="Voltar para a Estante">←</button>
-          <div>
-            <div style="display: flex; align-items: baseline; gap: 0.75rem;">
-              <h2 id="detalhe-caixa-codigo" class="font-anton" style="font-size: 2.2rem; margin: 0; color: #0F172A; line-height: 1;">
-                CÓDIGO
-              </h2>
-              <span id="detalhe-caixa-nome" class="font-mono" style="font-size: 1rem; color: var(--cobalt); font-weight: 600;">
-                Nome da Caixa
-              </span>
-            </div>
-            <div class="font-mono" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">
-              <span id="detalhe-caixa-estante-rotulo">Estante</span> · <span id="detalhe-caixa-total-itens">0 itens</span>
-            </div>
-          </div>
-        </div>
-
-        <div style="display: flex; gap: 0.5rem;">
-          <button id="btn-mover-caixa" class="btn-corp-subtle admin-only" style="display: none;">Mover caixa</button>
-          <button id="btn-excluir-caixa" class="btn-corp-danger admin-only" style="display: none;">Excluir caixa</button>
-        </div>
-      </div>
-
-      <!-- Resolução de Conflito de Edição (Aviso) -->
-      <div id="conflict-box" style="display: none; background: #FFFBEB; border: 2px solid #D97706; padding: 1.25rem; margin-bottom: 1.5rem;">
-        <div class="font-mono" style="font-weight: 700; color: #B45309; text-transform: uppercase; margin-bottom: 0.5rem; font-size: 0.9rem;">
-          ⚠️ Conflito de edição detectado
-        </div>
-        <p style="margin: 0 0 1rem; font-size: 0.92rem; color: #78350F;">
-          Este registro foi alterado por outro usuário enquanto você editava. Escolha como deseja prosseguir:
-        </p>
-        <div style="display: flex; gap: 0.75rem;">
-          <button id="btn-conflict-latest" class="btn-corp-subtle">Ver a versão mais recente</button>
-          <button id="btn-conflict-overwrite" class="btn-corp-danger">Manter minha versão</button>
-        </div>
-      </div>
-
-      <!-- Formulário de Item (Pessoa | Documento) -->
-      <div style="background: #FFFFFF; border: 2px solid #CBD5E1; padding: 1.5rem; margin-bottom: 2rem;">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem; border-bottom: 1px solid #E2E8F0; padding-bottom: 0.75rem;">
-          <h3 id="form-item-title" class="font-anton" style="font-size: 1.3rem; margin: 0; color: #0F172A;">
-            ADICIONAR ITEM NA CAIXA
-          </h3>
-          <div class="item-toggle-wrap">
-            <button id="toggle-item-pessoa" type="button" class="item-toggle-btn active">Pessoa</button>
-            <button id="toggle-item-doc" type="button" class="item-toggle-btn">Documento</button>
-          </div>
-        </div>
-
-        <form id="form-item">
-          <input type="hidden" id="item-edit-id" value="">
-          <input type="hidden" id="item-last-alteracao" value="">
-
-          <!-- Campos para Pessoa -->
-          <div id="fields-pessoa">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); gap: 1rem;">
-              <div class="form-group">
-                <label for="input-pessoa-nome" class="form-label">Nome completo *</label>
-                <input type="text" id="input-pessoa-nome" class="corp-input" placeholder="Ex: Maria dos Santos">
-              </div>
-              <div class="form-group">
-                <label for="input-pessoa-cargo" class="form-label">Cargo *</label>
-                <input type="text" id="input-pessoa-cargo" class="corp-input" placeholder="Ex: Analista Contábil Pleno">
-              </div>
-            </div>
-          </div>
-
-          <!-- Campos para Documento -->
-          <div id="fields-doc" style="display: none;">
-            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 1rem;">
-              <div class="form-group">
-                <label for="input-doc-titulo" class="form-label">Título do documento *</label>
-                <input type="text" id="input-doc-titulo" class="corp-input" placeholder="Ex: Contrato de Prestação nº 42/2021">
-              </div>
-              <div class="form-group">
-                <label for="select-doc-tipo" class="form-label">Tipo *</label>
-                <select id="select-doc-tipo" class="corp-select">
-                  <option value="Contrato">Contrato</option>
-                  <option value="Processo">Processo</option>
-                  <option value="Nota fiscal">Nota fiscal</option>
-                  <option value="Outro">Outro</option>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="input-doc-data" class="form-label">Data</label>
-                <input type="date" id="input-doc-data" class="corp-input">
-              </div>
-              <div class="form-group">
-                <label for="input-doc-onde" class="form-label">Onde encontrar (opcional)</label>
-                <input type="text" id="input-doc-onde" class="corp-input" placeholder="Ex: Pasta suspensa nº 4">
-              </div>
-            </div>
-          </div>
-
-          <div class="form-group" style="margin-top: 0.5rem;">
-            <label for="input-item-obs" class="form-label">Observação</label>
-            <textarea id="input-item-obs" class="corp-textarea" rows="2" placeholder="Informações complementares sobre o item..."></textarea>
-          </div>
-
-          <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
-            <button id="btn-cancelar-edicao-item" type="button" class="btn-corp-subtle" style="display: none;">Cancelar edição</button>
-            <button id="btn-salvar-item" type="submit" class="btn-corp">Salvar item</button>
-          </div>
-        </form>
-      </div>
-
-      <!-- Lista de Itens na Caixa -->
-      <div>
-        <h3 class="font-anton" style="font-size: 1.4rem; margin: 0 0 0.85rem; color: #0F172A;">
-          CONTEÚDO DA CAIXA
-        </h3>
-        <div id="lista-itens-caixa">
-          <!-- Renderizado via JS -->
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- 7. TELA COLABORADORES                      -->
-    <!-- ========================================== -->
-    <section id="view-colaboradores" style="display: none;">
-      <div style="display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 1rem; margin-bottom: 1.75rem; border-bottom: 2px solid #E2E8F0; padding-bottom: 1rem;">
-        <div style="display: flex; align-items: center; gap: 1rem;">
-          <button id="btn-voltar-colaboradores" class="btn-back" title="Voltar">←</button>
-          <div>
-            <h2 class="font-anton" style="font-size: 2.2rem; margin: 0; color: #0F172A; line-height: 1;">Colaboradores</h2>
-            <div class="font-mono" style="font-size: 0.8rem; color: var(--text-muted); text-transform: uppercase;">
-              Usuários com autorização neste setor
-            </div>
-          </div>
-        </div>
-
-        <button id="btn-add-colaborador" class="btn-corp">+ Adicionar colaborador</button>
-      </div>
-
-      <div style="background: #FFFFFF; border: 2px solid #E2E8F0; overflow-x: auto;">
-        <table style="width: 100%; border-collapse: collapse; text-align: left;">
-          <thead>
-            <tr style="background: #0F172A; color: #FFFFFF; font-family: 'IBM Plex Mono', monospace; font-size: 0.76rem; letter-spacing: 0.08em; text-transform: uppercase;">
-              <th style="padding: 0.85rem 1.25rem;">E-mail</th>
-              <th style="padding: 0.85rem 1.25rem;">Setores Liberados</th>
-              <th style="padding: 0.85rem 1.25rem;">Perfil</th>
-              <th style="padding: 0.85rem 1.25rem; text-align: center;">Ações</th>
-            </tr>
-          </thead>
-          <tbody id="tabela-colaboradores-tbody">
-            <!-- Renderizado via JS -->
-          </tbody>
-        </table>
-      </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- 8. TELA HISTÓRICO                          -->
-    <!-- ========================================== -->
-    <section id="view-historico" style="display: none;">
-      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.75rem; border-bottom: 2px solid #E2E8F0; padding-bottom: 1rem;">
-        <button id="btn-voltar-historico" class="btn-back" title="Voltar">←</button>
-        <div>
-          <h2 class="font-anton" style="font-size: 2.2rem; margin: 0; color: #0F172A; line-height: 1;">Histórico</h2>
-          <div class="font-mono" style="font-size: 0.85rem; color: var(--text-muted);">
-            Últimas 100 alterações neste setor
-          </div>
-        </div>
-      </div>
-
-      <div style="background: #FFFFFF; border: 2px solid #E2E8F0;">
-        <div id="lista-historico-container">
-          <!-- Linhas de histórico -->
-        </div>
-      </div>
-    </section>
-
-    <!-- ========================================== -->
-    <!-- 9. TELA LIXEIRA                            -->
-    <!-- ========================================== -->
-    <section id="view-lixeira" style="display: none;">
-      <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1.75rem; border-bottom: 2px solid #E2E8F0; padding-bottom: 1rem;">
-        <button id="btn-voltar-lixeira" class="btn-back" title="Voltar">←</button>
-        <div>
-          <h2 class="font-anton" style="font-size: 2.2rem; margin: 0; color: var(--accent); line-height: 1;">Lixeira</h2>
-          <div class="font-mono" style="font-size: 0.85rem; color: var(--text-muted);">
-            Itens excluídos — dá pra restaurar
-          </div>
-        </div>
-      </div>
-
-      <div style="background: #FFFFFF; border: 2px solid #E2E8F0;">
-        <div id="lista-lixeira-container">
-          <!-- Itens e caixas na lixeira -->
-        </div>
-      </div>
-    </section>
-
+<!-- LOGIN -->
+<div id="scr-login" class="tela tela-centro" style="display:flex;">
+  <div class="cx-login">
+    <h1>Acervo</h1>
+    <div class="sub">GESTÃO DOCUMENTAL</div>
+    <p style="font-size:.85rem;color:#4B5563;margin-bottom:24px;">Acesso restrito a contas autorizadas.</p>
+    <div id="botao-google" style="display:flex;justify-content:center;"></div>
+    <div id="erro-google" class="erro-login"></div>
   </div>
+</div>
 
-  <!-- ========================================== -->
-  <!-- 10. MODAIS                                 -->
-  <!-- ========================================== -->
+<!-- SEM ACESSO -->
+<div id="scr-semacesso" class="tela tela-centro">
+  <div class="cx-sem">
+    <h1 style="font-size:1.6rem;color:var(--ver);">Sem acesso</h1>
+    <p style="margin:16px 0 8px;font-size:.9rem;">Seu e-mail ainda não foi liberado para nenhum setor.</p>
+    <p class="mono" id="email-semacesso" style="font-size:.75rem;color:#6B7280;margin-bottom:22px;"></p>
+    <p style="font-size:.8rem;color:#6B7280;margin-bottom:20px;">Fale com o administrador do sistema.</p>
+    <button class="btn" onclick="sair()">Sair</button>
+  </div>
+</div>
 
-  <!-- Modal: Nova Estante -->
-  <div id="modal-nova-estante" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="font-anton" style="margin: 0; font-size: 1.25rem;">+ NOVA ESTANTE</h3>
-        <button class="btn-modal-close" style="background: none; border: none; color: #FFFFFF; font-size: 1.4rem; cursor: pointer;">&times;</button>
-      </div>
-      <form id="form-nova-estante">
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="input-estante-nome" class="form-label">Nome da estante *</label>
-            <input type="text" id="input-estante-nome" class="corp-input" placeholder="Ex: Estante E ou Armário Suprimentos" required>
-          </div>
-          <div class="form-group">
-            <label for="select-estante-tipo" class="form-label">Tipo de mobília *</label>
-            <select id="select-estante-tipo" class="corp-select">
-              <option value="Estante">Estante</option>
-              <option value="Armário">Armário</option>
-            </select>
-          </div>
-          <div class="form-group">
-            <label for="input-estante-primeira-caixa" class="form-label">Código da primeira caixa (opcional)</label>
-            <input type="text" id="input-estante-primeira-caixa" class="corp-input" placeholder="Ex: E1-001">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-corp-subtle btn-modal-cancel">Cancelar</button>
-          <button type="submit" class="btn-corp">Criar estante</button>
-        </div>
-      </form>
+<!-- SETORES -->
+<div id="scr-setores" class="tela">
+  <div class="topo">
+    <div><h1>Escolha o setor</h1><div class="linha-sub" id="sub-setores"></div></div>
+    <div class="acoes"><button class="btn" onclick="sair()">⏻ Sair</button></div>
+  </div>
+  <div class="corpo"><div id="grade-setores" class="grade"></div></div>
+</div>
+
+<!-- ESTANTES -->
+<div id="scr-estantes" class="tela">
+  <div class="topo">
+    <div><h1>Estantes</h1><div class="linha-sub" id="sub-estantes"></div></div>
+    <div class="acoes">
+      <button class="btn" onclick="voltarSetores()">← Setores</button>
+      <button class="btn" onclick="atualizar()">Atualizar</button>
+      <button class="btn" onclick="abrirLixeira()">Lixeira</button>
+      <button class="btn" onclick="abrirHistorico()">Histórico</button>
+      <button class="btn" id="btn-colab" onclick="abrirColaboradores()">Colaboradores</button>
+      <button class="btn btn-prim" id="btn-nova-estante" onclick="modalNovaEstante()">+ Nova estante</button>
+      <button class="btn" onclick="abrirAjuda()">?</button>
     </div>
   </div>
+  <div class="corpo"><div class="rotulo-secao">Inventário do setor</div><div id="grade-estantes" class="grade"></div></div>
+</div>
 
-  <!-- Modal: Editar Estante -->
-  <div id="modal-editar-estante" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="font-anton" style="margin: 0; font-size: 1.25rem;">EDITAR ESTANTE</h3>
-        <button class="btn-modal-close" style="background: none; border: none; color: #FFFFFF; font-size: 1.4rem; cursor: pointer;">&times;</button>
-      </div>
-      <form id="form-editar-estante">
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="input-edit-estante-nome" class="form-label">Nome da estante *</label>
-            <input type="text" id="input-edit-estante-nome" class="corp-input" required>
-          </div>
-          <div class="form-group">
-            <label for="select-edit-estante-tipo" class="form-label">Tipo de mobília *</label>
-            <select id="select-edit-estante-tipo" class="corp-select">
-              <option value="Estante">Estante</option>
-              <option value="Armário">Armário</option>
-            </select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-corp-subtle btn-modal-cancel">Cancelar</button>
-          <button type="submit" class="btn-corp">Salvar alterações</button>
-        </div>
-      </form>
+<!-- DENTRO DA ESTANTE -->
+<div id="scr-estante" class="tela">
+  <div class="topo">
+    <div><h1 id="titulo-estante">Estante</h1><div class="linha-sub" id="sub-estante"></div></div>
+    <div class="acoes">
+      <button class="btn" onclick="voltarEstantes()">← Estantes</button>
+      <button class="btn" id="btn-editar-estante" onclick="modalEditarEstante()">Editar estante</button>
+      <button class="btn btn-prim" id="btn-nova-caixa" onclick="modalNovaCaixa()">+ Nova caixa</button>
+      <button class="btn" onclick="atualizar()">Atualizar</button>
+      <button class="btn" onclick="abrirAjuda()">?</button>
     </div>
   </div>
+  <div class="corpo"><div class="rotulo-secao">Caixas desta estante</div><div id="lista-caixas" class="lista"></div></div>
+</div>
 
-  <!-- Modal: Nova Caixa -->
-  <div id="modal-nova-caixa" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="font-anton" style="margin: 0; font-size: 1.25rem;">+ NOVA CAIXA</h3>
-        <button class="btn-modal-close" style="background: none; border: none; color: #FFFFFF; font-size: 1.4rem; cursor: pointer;">&times;</button>
-      </div>
-      <form id="form-nova-caixa">
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="input-nova-caixa-codigo" class="form-label">Código da caixa *</label>
-            <input type="text" id="input-nova-caixa-codigo" class="corp-input" placeholder="Ex: A1-020, D3-015, PJS-030" required>
-          </div>
-          <div class="form-group">
-            <label for="input-nova-caixa-nome" class="form-label">Descrição da caixa *</label>
-            <input type="text" id="input-nova-caixa-nome" class="corp-input" placeholder="Ex: Contratos de Fornecedores 2022" required>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-corp-subtle btn-modal-cancel">Cancelar</button>
-          <button type="submit" class="btn-corp">Cadastrar caixa</button>
-        </div>
-      </form>
+<!-- DENTRO DA CAIXA -->
+<div id="scr-caixa" class="tela">
+  <div class="topo">
+    <div><h1 id="titulo-caixa">Caixa</h1><div class="linha-sub" id="sub-caixa"></div></div>
+    <div class="acoes">
+      <button class="btn" onclick="voltarCaixas()">← Voltar</button>
+      <button class="btn btn-prim" onclick="modalNovoItem()">+ Novo item</button>
+      <button class="btn" id="btn-mover-caixa" onclick="modalMoverCaixa()">Mover caixa</button>
+      <button class="btn btn-perig" id="btn-excluir-caixa" onclick="modalExcluirCaixa()">Excluir caixa</button>
+      <button class="btn" onclick="atualizar()">Atualizar</button>
+      <button class="btn" onclick="abrirAjuda()">?</button>
     </div>
   </div>
+  <div class="corpo"><div class="rotulo-secao">Pessoas e documentos</div><div id="lista-itens" class="lista"></div></div>
+</div>
 
-  <!-- Modal: Mover Caixa -->
-  <div id="modal-mover-caixa" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="font-anton" style="margin: 0; font-size: 1.25rem;">MOVER CAIXA</h3>
-        <button class="btn-modal-close" style="background: none; border: none; color: #FFFFFF; font-size: 1.4rem; cursor: pointer;">&times;</button>
-      </div>
-      <form id="form-mover-caixa">
-        <div class="modal-body">
-          <p class="font-mono" style="font-size: 0.88rem; margin-bottom: 1rem;">
-            Selecione a estante de destino para a caixa <strong id="mover-caixa-codigo-destaque">...</strong>:
-          </p>
-          <div class="form-group">
-            <label for="select-mover-estante" class="form-label">Estante de destino</label>
-            <select id="select-mover-estante" class="corp-select"></select>
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-corp-subtle btn-modal-cancel">Cancelar</button>
-          <button type="submit" class="btn-corp">Mover caixa</button>
-        </div>
-      </form>
+<!-- COLABORADORES -->
+<div id="scr-colab" class="tela">
+  <div class="topo">
+    <div><h1>Colaboradores</h1><div class="linha-sub" id="sub-colab"></div></div>
+    <div class="acoes">
+      <button class="btn" onclick="voltarEstantes()">← Voltar</button>
+      <button class="btn btn-prim" onclick="modalAddColab()">+ Adicionar</button>
+      <button class="btn" onclick="abrirAjuda()">?</button>
     </div>
   </div>
+  <div class="corpo"><div class="rotulo-secao">Equipe autorizada neste setor</div><div id="lista-colab" class="lista"></div></div>
+</div>
 
-  <!-- Modal: Adicionar Colaborador -->
-  <div id="modal-add-colaborador" class="modal-overlay">
-    <div class="modal-content">
-      <div class="modal-header">
-        <h3 class="font-anton" style="margin: 0; font-size: 1.25rem;">ADICIONAR COLABORADOR</h3>
-        <button class="btn-modal-close" style="background: none; border: none; color: #FFFFFF; font-size: 1.4rem; cursor: pointer;">&times;</button>
-      </div>
-      <form id="form-add-colaborador">
-        <div class="modal-body">
-          <div class="form-group">
-            <label for="input-colab-email" class="form-label">E-mail da pessoa *</label>
-            <input type="email" id="input-colab-email" class="corp-input" placeholder="exemplo@acervo.corp" required>
-          </div>
-          <div class="form-group">
-            <label for="input-colab-setores" class="form-label">Setores liberados (separados por vírgula) *</label>
-            <input type="text" id="input-colab-setores" class="corp-input" placeholder="Ex: Arquivo Central, Jurídico" required>
-          </div>
-          <div class="form-group">
-            <label for="input-colab-admin" class="form-label">Setores onde é admin (opcional, separados por vírgula)</label>
-            <input type="text" id="input-colab-admin" class="corp-input" placeholder="Ex: Arquivo Central">
-          </div>
-        </div>
-        <div class="modal-footer">
-          <button type="button" class="btn-corp-subtle btn-modal-cancel">Cancelar</button>
-          <button type="submit" class="btn-corp">Adicionar</button>
-        </div>
-      </form>
-    </div>
+<!-- HISTÓRICO -->
+<div id="scr-hist" class="tela">
+  <div class="topo">
+    <div><h1>Histórico</h1><div class="linha-sub">Últimas 100 alterações neste setor</div></div>
+    <div class="acoes"><button class="btn" onclick="voltarEstantes()">← Voltar</button></div>
   </div>
+  <div class="corpo"><div id="lista-hist" class="lista"></div></div>
+</div>
 
-  <!-- Modal: Confirmação sem nativo -->
-  <div id="modal-confirm" class="modal-overlay">
-    <div class="modal-content" style="max-width: 440px;">
-      <div class="modal-header" style="background: var(--accent);">
-        <h3 id="confirm-modal-title" class="font-anton" style="margin: 0; font-size: 1.2rem;">CONFIRMAR AÇÃO</h3>
-        <button class="btn-modal-close" style="background: none; border: none; color: #FFFFFF; font-size: 1.4rem; cursor: pointer;">&times;</button>
-      </div>
-      <div class="modal-body">
-        <p id="confirm-modal-message" style="margin: 0; font-size: 0.95rem; line-height: 1.5; color: #0F172A;">
-          Tem certeza de que deseja realizar esta operação?
-        </p>
-      </div>
-      <div class="modal-footer">
-        <button id="btn-confirm-cancel" class="btn-corp-subtle">Cancelar</button>
-        <button id="btn-confirm-ok" class="btn-corp-danger">Confirmar</button>
-      </div>
-    </div>
+<!-- LIXEIRA -->
+<div id="scr-lixeira" class="tela">
+  <div class="topo">
+    <div><h1>Lixeira</h1><div class="linha-sub">Itens excluídos — dá pra restaurar</div></div>
+    <div class="acoes"><button class="btn" onclick="voltarEstantes()">← Voltar</button><button class="btn" onclick="atualizar()">Atualizar</button></div>
   </div>
+  <div class="corpo"><div id="lista-lixeira" class="lista"></div></div>
+</div>
 
-  <!-- ========================================== -->
-  <!-- 11. MODAL / TELA DE AJUDA                  -->
-  <!-- ========================================== -->
-  <div id="modal-ajuda" class="modal-overlay">
-    <div class="modal-content" style="max-width: 680px;">
-      <div class="modal-header">
-        <div style="display: flex; align-items: center; gap: 0.5rem;">
-          <span style="font-size: 1.25rem;">❓</span>
-          <h3 class="font-anton" style="margin: 0; font-size: 1.35rem;">GUIA DO SISTEMA ACERVO</h3>
-        </div>
-        <button class="btn-modal-close" style="background: none; border: none; color: #FFFFFF; font-size: 1.4rem; cursor: pointer;">&times;</button>
-      </div>
-      <div class="modal-body">
-        
-        <!-- Accordion 1 -->
-        <div class="help-accordion">
-          <div class="help-accordion-header">
-            <span>Criar uma caixa nova</span>
-            <span class="badge-admin">admin</span>
-          </div>
-          <div class="help-accordion-body">
-            Para criar uma caixa nova, entre na estante onde deseja colocá-la e clique no botão <strong>"+ Nova caixa"</strong> no canto superior. Digite o código oficial da caixa (ex: <code>A1-020</code> ou <code>NSF D1-005</code>) e uma descrição rápida do conteúdo. Caixas são ordenadas de forma natural pelo código alfanumérico.
-          </div>
-        </div>
-
-        <!-- Accordion 2 -->
-        <div class="help-accordion">
-          <div class="help-accordion-header">
-            <span>Adicionar pessoa ou documento</span>
-          </div>
-          <div class="help-accordion-body">
-            Entre na caixa correspondente. No topo haverá o formulário com o seletor <strong>Pessoa | Documento</strong>. Para <em>Pessoa</em>, preencha o Nome Completo e o Cargo. Para <em>Documento</em>, preencha o Título, o Tipo (Contrato, Processo, Nota fiscal ou Outro), Data e local físico de guarda. Ambos contam com campo de Observação adicional.
-          </div>
-        </div>
-
-        <!-- Accordion 3 -->
-        <div class="help-accordion">
-          <div class="help-accordion-header">
-            <span>Mover ou apagar uma caixa</span>
-            <span class="badge-admin">admin</span>
-          </div>
-          <div class="help-accordion-body">
-            Na visualização interna da caixa, administradores têm acesso aos botões <strong>"Mover caixa"</strong> (para trocar a mobília/estante de destino) e <strong>"Excluir caixa"</strong>. Ao apagar, a caixa é movida para a Lixeira com estado <code>excluido: true</code>, podendo ser restaurada a qualquer instante.
-          </div>
-        </div>
-
-        <!-- Accordion 4 -->
-        <div class="help-accordion">
-          <div class="help-accordion-header">
-            <span>Adicionar um colaborador</span>
-            <span class="badge-admin">admin</span>
-          </div>
-          <div class="help-accordion-body">
-            Clique no botão <strong>"Colaboradores"</strong> no cabeçalho do setor. Você poderá convidar novos usuários informando o endereço de e-mail e os nomes dos setores liberados separados por vírgula. É possível também torná-lo administrador definindo os setores no campo específico.
-          </div>
-        </div>
-
-        <!-- Accordion 5 -->
-        <div class="help-accordion">
-          <div class="help-accordion-header">
-            <span>Resolver um conflito de edição</span>
-          </div>
-          <div class="help-accordion-body">
-            Quando dois usuários abrem e editam o mesmo registro simultaneamente, o sistema compara a marca temporal de <code>ultimaAlteracao</code>. Caso o documento tenha sido modificado no servidor antes de você salvar, o painel amarelo de conflito será exibido oferecendo <strong>"Ver a versão mais recente"</strong> ou <strong>"Manter minha versão"</strong> com sobrescrita explícita.
-          </div>
-        </div>
-
-      </div>
-      <div class="modal-footer">
-        <button type="button" class="btn-corp btn-modal-cancel">Fechar guia</button>
-      </div>
-    </div>
+<!-- AJUDA -->
+<div id="scr-ajuda" class="tela">
+  <div class="topo">
+    <div><h1>Ajuda</h1><div class="linha-sub">Como usar o Acervo</div></div>
+    <div class="acoes"><button class="btn" onclick="voltarDeAjuda()">← Voltar</button></div>
   </div>
+  <div class="corpo" id="corpo-ajuda"></div>
+</div>
 
-  <script>
-    document.addEventListener('DOMContentLoaded', () => {
-      // -----------------------------------------------------------------
-      // FIREBASE & GOOGLE CONFIGURATION (acervo-15e48)
-      // -----------------------------------------------------------------
-      const firebaseConfig = {
-        apiKey: "AIzaSyBKDvELUvYH1TESB7M_JjojW4nxUpf6cgQ",
-        authDomain: "acervo-15e48.firebaseapp.com",
-        projectId: "acervo-15e48",
-        storageBucket: "acervo-15e48.firebasestorage.app",
-        messagingSenderId: "1032170606542",
-        appId: "1:1032170606542:web:d8cca054a21a3b52dce59f"
-      };
+<!-- MODAL -->
+<div id="fundo-modal" class="fundo-modal"><div class="modal" id="caixa-modal"></div></div>
 
-      const GOOGLE_CLIENT_ID = '1032170606542-dukbmb70h332gpjtbuncl76bvobv6dvi.apps.googleusercontent.com';
-
-      // -----------------------------------------------------------------
-      // BANCO DE DADOS LOCAL (SCHEMA FIRESTORE MOCK REATIVO)
-      // -----------------------------------------------------------------
-      const DB_KEY = 'acervo_database_v2';
-      
-      const defaultData = {
-        setores: [
-          { id: "Arquivo Central", nome: "Arquivo Central" },
-          { id: "Jurídico", nome: "Jurídico" },
-          { id: "Recursos Humanos", nome: "Recursos Humanos" }
-        ],
-        usuarios: [
-          { id: "helena@acervo.corp", email: "helena@acervo.corp", ativo: true, setores: ["Arquivo Central", "Jurídico", "Recursos Humanos"], adminSetores: ["Arquivo Central", "Jurídico"] },
-          { id: "renato@acervo.corp", email: "renato@acervo.corp", ativo: true, setores: ["Arquivo Central"], adminSetores: [] },
-          { id: "camila@acervo.corp", email: "camila@acervo.corp", ativo: true, setores: ["Jurídico"], adminSetores: ["Jurídico"] },
-          { id: "novo@acervo.corp", email: "novo@acervo.corp", ativo: true, setores: [], adminSetores: [] },
-          { id: "inativo@acervo.corp", email: "inativo@acervo.corp", ativo: false, setores: ["Arquivo Central"], adminSetores: [] }
-        ],
-        estantes: [
-          { id: "est-a", nome: "Estante A", tipo: "Estante", setorId: "Arquivo Central" },
-          { id: "est-b", nome: "Estante B", tipo: "Estante", setorId: "Arquivo Central" },
-          { id: "est-c", nome: "Estante C", tipo: "Estante", setorId: "Arquivo Central" },
-          { id: "est-d", nome: "Estante D", tipo: "Estante", setorId: "Arquivo Central" },
-          { id: "est-arm", nome: "Armário Jurídico", tipo: "Armário", setorId: "Arquivo Central" },
-          { id: "est-jur-1", nome: "Estante A", tipo: "Estante", setorId: "Jurídico" },
-          { id: "est-jur-arm", nome: "Armário Processual", tipo: "Armário", setorId: "Jurídico" }
-        ],
-        caixas: [
-          { id: "cx-1", codigo: "NSF A1-002", nome: "Folhas de Ponto 2018", setorId: "Arquivo Central", estanteId: "est-a", excluido: false, ultimaAlteracao: Date.now() - 3600000 },
-          { id: "cx-2", codigo: "NSF A1-001", nome: "Contratos de Locação 2017", setorId: "Arquivo Central", estanteId: "est-a", excluido: false, ultimaAlteracao: Date.now() - 7200000 },
-          { id: "cx-3", codigo: "A2-015", nome: "Comprovantes Fiscais Trimestrais", setorId: "Arquivo Central", estanteId: "est-a", excluido: false, ultimaAlteracao: Date.now() - 10000000 },
-          { id: "cx-4", codigo: "B1-004", nome: "Guias Previdenciárias 2016", setorId: "Arquivo Central", estanteId: "est-b", excluido: false, ultimaAlteracao: Date.now() - 5000000 },
-          { id: "cx-5", codigo: "NSF B2-001", nome: "Livros Fiscais Encadernados", setorId: "Arquivo Central", estanteId: "est-b", excluido: false, ultimaAlteracao: Date.now() - 8000000 },
-          { id: "cx-6", codigo: "C3-001", nome: "Processos Licitatórios 2019", setorId: "Arquivo Central", estanteId: "est-c", excluido: false, ultimaAlteracao: Date.now() - 4000000 },
-          { id: "cx-7", codigo: "D3-005", nome: "Notas Fiscais de Saída", setorId: "Arquivo Central", estanteId: "est-d", excluido: false, ultimaAlteracao: Date.now() - 2000000 },
-          { id: "cx-8", codigo: "D3-004", nome: "Notas Fiscais de Entrada", setorId: "Arquivo Central", estanteId: "est-d", excluido: false, ultimaAlteracao: Date.now() - 2500000 },
-          { id: "cx-9", codigo: "PJS-001", nome: "Pareceres Jurídicos Cíveis", setorId: "Arquivo Central", estanteId: "est-arm", excluido: false, ultimaAlteracao: Date.now() - 3000000 },
-          { id: "cx-10", codigo: "104-GERAL", nome: "Atas Notariais e Estatutos", setorId: "Arquivo Central", estanteId: "est-arm", excluido: false, ultimaAlteracao: Date.now() - 1500000 },
-          { id: "cx-11", codigo: "A1-999", nome: "Caixa Baixada Antiga", setorId: "Arquivo Central", estanteId: "est-a", excluido: true, ultimaAlteracao: Date.now() - 20000000 }
-        ],
-        itens: [
-          { id: "it-1", caixaId: "cx-1", tipoItem: "Pessoa", nome: "Carlos Eduardo da Silva", cargo: "Operador de Máquinas", obs: "Admissão 2015", ultimaAlteracao: Date.now() - 3000000, excluido: false },
-          { id: "it-2", caixaId: "cx-1", tipoItem: "Pessoa", nome: "Mariana Souza Ribeiro", cargo: "Coordenadora de Estoque", obs: "Documentação completa", ultimaAlteracao: Date.now() - 2500000, excluido: false },
-          { id: "it-3", caixaId: "cx-2", tipoItem: "Documento", titulo: "Contrato Galpão Logístico Sul", tipoDoc: "Contrato", data: "2017-04-12", onde: "Gaveta 2 Pasta Azul", obs: "Renovado em 2020", ultimaAlteracao: Date.now() - 4000000, excluido: false },
-          { id: "it-4", caixaId: "cx-7", tipoItem: "Documento", titulo: "NF Eletrônica Remessa nº 9841", tipoDoc: "Nota fiscal", data: "2021-11-05", onde: "", obs: "Chave NFe arquivada", ultimaAlteracao: Date.now() - 1000000, excluido: false }
-        ],
-        historico: [
-          { id: "h-1", setorId: "Arquivo Central", data: new Date(Date.now() - 3600000).toLocaleString('pt-BR'), autor: "helena@acervo.corp", acao: "Criação de item", detalhe: "Adicionou 'Carlos Eduardo da Silva' na caixa NSF A1-002" },
-          { id: "h-2", setorId: "Arquivo Central", data: new Date(Date.now() - 7200000).toLocaleString('pt-BR'), autor: "renato@acervo.corp", acao: "Atualização de caixa", detalhe: "Moveu caixa PJS-001 para Armário Jurídico" },
-          { id: "h-3", setorId: "Arquivo Central", data: new Date(Date.now() - 14400000).toLocaleString('pt-BR'), autor: "helena@acervo.corp", acao: "Criação de estante", detalhe: "Criou Estante D" }
-        ]
-      };
-
-      function loadDB() {
-        const raw = localStorage.getItem(DB_KEY);
-        if (!raw) {
-          localStorage.setItem(DB_KEY, JSON.stringify(defaultData));
-          return defaultData;
-        }
-        try {
-          return JSON.parse(raw);
-        } catch(e) {
-          return defaultData;
-        }
-      }
-
-      function saveDB(data) {
-        localStorage.setItem(DB_KEY, JSON.stringify(data));
-      }
-
-      function registrarHistorico(setorId, autor, acao, detalhe) {
-        const db = loadDB();
-        const entry = {
-          id: "h-" + Date.now(),
-          setorId: setorId,
-          data: new Date().toLocaleString('pt-BR'),
-          autor: autor,
-          acao: acao,
-          detalhe: detalhe
-        };
-        db.historico.unshift(entry);
-        if (db.historico.length > 100) {
-          db.historico = db.historico.slice(0, 100);
-        }
-        saveDB(db);
-      }
-
-      // -----------------------------------------------------------------
-      // REGRAS DE LETRA / CORES / ASSOCIAÇÃO CAIXA -> ESTANTE
-      // -----------------------------------------------------------------
-      function naturalSort(a, b) {
-        return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
-      }
-
-      function getEstanteColor(estNome) {
-        if (!estNome) return "#1D4ED8";
-        const nomeTrim = estNome.trim().toLowerCase();
-        if (nomeTrim.includes("armário") || nomeTrim.includes("armario") || nomeTrim.includes("jurídico")) {
-          return "#E11D2E"; // Vermelhão
-        }
-        if (/estante\s+a$/i.test(estNome.trim()) || nomeTrim === "estante a") {
-          return "#1D4ED8"; // Cobalto
-        }
-        if (/estante\s+b$/i.test(estNome.trim()) || nomeTrim === "estante b") {
-          return "#059669"; // Esmeralda
-        }
-        if (/estante\s+c$/i.test(estNome.trim()) || nomeTrim === "estante c") {
-          return "#EA580C"; // Laranja
-        }
-        if (/estante\s+d$/i.test(estNome.trim()) || nomeTrim === "estante d") {
-          return "#7C3AED"; // Roxo
-        }
-        return "#1D4ED8";
-      }
-
-      // Regra de associação:
-      // "NSF A5-001" e "D3-005" contêm " A" / "D-" e pertencem a A/D.
-      // Armário recebe "PJs" e caixas sem letra A/B/C/D.
-      function caixaPertenceAEstante(estante, caixa) {
-        if (caixa.estanteId && caixa.estanteId === estante.id) {
-          return true;
-        }
-        const shelfTrimmed = estante.nome.trim();
-        const codeUpper = (caixa.codigo || "").trim().toUpperCase();
-        const isArmario = /arm[aá]rio/i.test(shelfTrimmed) || estante.tipo === "Armário";
-
-        const matchLetter = shelfTrimmed.match(/(?:Estante\s+)?([A-Za-z])$/i);
-        if (matchLetter) {
-          const letter = matchLetter[1].toUpperCase();
-          const rx = new RegExp(`(\\s${letter}|${letter}-|^${letter}\\d)`, "i");
-          return rx.test(codeUpper);
-        }
-
-        if (isArmario) {
-          if (codeUpper.includes("PJS")) return true;
-          const hasLetter = /(?:\s[A-D]|[A-D]-|^[A-D]\d)/i.test(codeUpper);
-          return !hasLetter;
-        }
-
-        return false;
-      }
-
-      // -----------------------------------------------------------------
-      // ESTADO GLOBAL DA APLICAÇÃO
-      // -----------------------------------------------------------------
-      let currentUser = null; // { email, ativo, setores, adminSetores }
-      let currentSetor = null; // String com o nome/id do setor ativo
-      let currentEstanteId = null;
-      let currentCaixaId = null;
-
-      const views = {
-        login: document.getElementById('view-login'),
-        semAcesso: document.getElementById('view-sem-acesso'),
-        escolhaSetor: document.getElementById('view-escolha-setor'),
-        estantes: document.getElementById('view-estantes'),
-        estanteDetalhe: document.getElementById('view-estante-detalhe'),
-        caixaDetalhe: document.getElementById('view-caixa-detalhe'),
-        colaboradores: document.getElementById('view-colaboradores'),
-        historico: document.getElementById('view-historico'),
-        lixeira: document.getElementById('view-lixeira')
-      };
-
-      const globalHeader = document.getElementById('global-header');
-      const headerUserEmail = document.getElementById('header-user-email');
-      const headerSectorBadge = document.getElementById('header-sector-badge');
-      const headerAdminBadge = document.getElementById('header-admin-badge');
-
-      function showView(viewKey) {
-        Object.keys(views).forEach(key => {
-          views[key].style.display = (key === viewKey) ? (key === 'login' || key === 'semAcesso' ? 'flex' : 'block') : 'none';
-        });
-
-        if (viewKey === 'login' || viewKey === 'semAcesso') {
-          globalHeader.style.display = 'none';
-        } else {
-          globalHeader.style.display = 'block';
-          headerUserEmail.textContent = currentUser ? currentUser.email : '';
-          headerSectorBadge.textContent = currentSetor || 'SETOR';
-          const isAdmin = isUserAdminInSetor(currentSetor);
-          headerAdminBadge.style.display = isAdmin ? 'inline-block' : 'none';
-
-          // Atualizar visibilidade de botões admin
-          document.querySelectorAll('.admin-only').forEach(el => {
-            el.style.display = isAdmin ? 'inline-flex' : 'none';
-          });
-        }
-      }
-
-      function isUserAdminInSetor(setorId) {
-        if (!currentUser || !currentUser.ativo) return false;
-        return (currentUser.adminSetores || []).includes(setorId);
-      }
-
-      // -----------------------------------------------------------------
-      // MODAL ENGINE (Sem window.confirm nativo)
-      // -----------------------------------------------------------------
-      function openModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) modal.style.display = 'flex';
-      }
-      function closeModal(modalId) {
-        const modal = document.getElementById(modalId);
-        if (modal) modal.style.display = 'none';
-      }
-
-      document.querySelectorAll('.btn-modal-close, .btn-modal-cancel').forEach(btn => {
-        btn.addEventListener('click', (e) => {
-          const overlay = e.target.closest('.modal-overlay');
-          if (overlay) overlay.style.display = 'none';
-        });
-      });
-
-      let confirmCallback = null;
-      function showConfirm(title, message, onOk) {
-        document.getElementById('confirm-modal-title').textContent = title || 'CONFIRMAR AÇÃO';
-        document.getElementById('confirm-modal-message').textContent = message || 'Tem certeza?';
-        confirmCallback = onOk;
-        openModal('modal-confirm');
-      }
-
-      document.getElementById('btn-confirm-ok').addEventListener('click', () => {
-        closeModal('modal-confirm');
-        if (confirmCallback) {
-          confirmCallback();
-          confirmCallback = null;
-        }
-      });
-      document.getElementById('btn-confirm-cancel').addEventListener('click', () => {
-        closeModal('modal-confirm');
-        confirmCallback = null;
-      });
-
-      // -----------------------------------------------------------------
-      // FLUXO 1 & 2 & 3: LOGIN / SEM ACESSO / ESCOLHA DO SETOR
-      // -----------------------------------------------------------------
-      const STORAGE_USER_KEY = 'acervo_auth_user';
-
-      function authenticateUser(email) {
-        const db = loadDB();
-        let user = db.usuarios.find(u => u.email.toLowerCase() === email.toLowerCase());
-
-        if (!user) {
-          // Novo usuário não liberado
-          user = {
-            id: email.toLowerCase(),
-            email: email.toLowerCase(),
-            ativo: true,
-            setores: [],
-            adminSetores: []
-          };
-          db.usuarios.push(user);
-          saveDB(db);
-        }
-
-        // Se ativo !== true, bloquear acesso
-        if (user.ativo !== true) {
-          alert('Usuário desativado pelo administrador.');
-          return;
-        }
-
-        currentUser = user;
-        localStorage.setItem(STORAGE_USER_KEY, JSON.stringify(user));
-
-        // Tela "SEM ACESSO" se não liberado em nenhum setor
-        if (!user.setores || user.setores.length === 0) {
-          showView('semAcesso');
-          return;
-        }
-
-        // Tela "ESCOLHA O SETOR"
-        renderEscolhaSetor();
-      }
-
-      function renderEscolhaSetor() {
-        const container = document.getElementById('setores-lista-container');
-        container.innerHTML = '';
-
-        const setoresPermitidos = currentUser.setores || [];
-        setoresPermitidos.forEach(setorNome => {
-          const card = document.createElement('div');
-          card.style.background = '#FFFFFF';
-          card.style.border = '2px solid #E2E8F0';
-          card.style.borderTop = '5px solid var(--cobalt)';
-          card.style.padding = '1.75rem';
-          card.style.cursor = 'pointer';
-          card.style.boxShadow = '0 2px 4px rgba(15, 23, 42, 0.04)';
-          card.style.transition = 'all 0.15s';
-
-          const isAdmin = isUserAdminInSetor(setorNome);
-
-          card.innerHTML = `
-            <div style="display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 0.75rem;">
-              <h3 class="font-anton" style="font-size: 1.5rem; margin: 0; color: #0F172A;">
-                ${escapeHTML(setorNome)}
-              </h3>
-              ${isAdmin ? '<span class="badge-admin">ADMIN</span>' : ''}
-            </div>
-            <p class="font-mono" style="font-size: 0.8rem; color: var(--text-muted); margin: 0 0 1.25rem;">
-              Custódia documental ativa
-            </p>
-            <div style="display: flex; justify-content: flex-end;">
-              <span class="btn-corp" style="font-size: 0.75rem; padding: 0.4rem 0.8rem;">ENTRAR NO SETOR →</span>
-            </div>
-          `;
-
-          card.addEventListener('click', () => {
-            currentSetor = setorNome;
-            renderEstantes();
-          });
-
-          container.appendChild(card);
-        });
-
-        showView('escolhaSetor');
-      }
-
-      // Botões de demonstração autorizados
-      document.getElementById('btn-login-demo-admin').addEventListener('click', () => {
-        authenticateUser('helena@acervo.corp');
-      });
-      document.getElementById('btn-login-demo-user').addEventListener('click', () => {
-        authenticateUser('renato@acervo.corp');
-      });
-      document.getElementById('btn-login-demo-noaccess').addEventListener('click', () => {
-        authenticateUser('novo@acervo.corp');
-      });
-
-      document.getElementById('btn-login-google').addEventListener('click', () => {
-        authenticateUser('helena@acervo.corp');
-      });
-
-      document.getElementById('btn-logout').addEventListener('click', () => {
-        localStorage.removeItem(STORAGE_USER_KEY);
-        currentUser = null;
-        currentSetor = null;
-        showView('login');
-      });
-
-      document.getElementById('btn-sem-acesso-sair').addEventListener('click', () => {
-        localStorage.removeItem(STORAGE_USER_KEY);
-        currentUser = null;
-        showView('login');
-      });
-
-      // Fallback de 8s para o aviso de erro do Google
-      setTimeout(() => {
-        const btnDiv = document.getElementById('buttonDiv');
-        if (btnDiv && btnDiv.children.length === 0) {
-          const err = document.getElementById('erro-google');
-          if (err) err.style.display = 'block';
-        }
-      }, 8000);
-
-      // -----------------------------------------------------------------
-      // FLUXO 4: TELA ESTANTES
-      // -----------------------------------------------------------------
-      document.getElementById('btn-voltar-setores').addEventListener('click', () => {
-        currentSetor = null;
-        renderEscolhaSetor();
-      });
-
-      document.getElementById('btn-atualizar').addEventListener('click', () => {
-        renderEstantes();
-      });
-
-      document.getElementById('btn-abrir-lixeira').addEventListener('click', () => {
-        renderLixeira();
-      });
-
-      document.getElementById('btn-abrir-historico').addEventListener('click', () => {
-        renderHistorico();
-      });
-
-      document.getElementById('btn-abrir-colaboradores').addEventListener('click', () => {
-        renderColaboradores();
-      });
-
-      document.getElementById('btn-nova-estante').addEventListener('click', () => {
-        document.getElementById('form-nova-estante').reset();
-        openModal('modal-nova-estante');
-      });
-
-      function renderEstantes() {
-        showView('estantes');
-        document.getElementById('estantes-setor-subtitulo').textContent = `SETOR: ${currentSetor}`;
-
-        const db = loadDB();
-        const grid = document.getElementById('estantes-grid-container');
-        grid.innerHTML = '';
-
-        // Estantes do setor
-        const estantesDoSetor = db.estantes.filter(e => e.setorId === currentSetor);
-        estantesDoSetor.sort((a, b) => naturalSort(a.nome, b.nome));
-
-        // Caixas ativas do setor (excluido !== true)
-        const caixasAtivas = db.caixas.filter(c => c.setorId === currentSetor && c.excluido !== true);
-
-        if (estantesDoSetor.length === 0) {
-          grid.innerHTML = `
-            <div style="grid-column: 1 / -1; background: #FFFFFF; border: 2px dashed #CBD5E1; padding: 3rem; text-align: center;">
-              <p class="font-mono" style="color: var(--text-muted); margin: 0;">Nenhuma estante cadastrada neste setor.</p>
-            </div>
-          `;
-          return;
-        }
-
-        estantesDoSetor.forEach(est => {
-          const caixasDestaEstante = caixasAtivas.filter(cx => caixaPertenceAEstante(est, cx));
-          const solidColor = getEstanteColor(est.nome);
-
-          const card = document.createElement('div');
-          card.className = 'shelf-card';
-          card.innerHTML = `
-            <div class="shelf-card-header" style="background-color: ${solidColor};">
-              <div>
-                <h3 class="font-anton" style="font-size: 1.4rem; margin: 0; color: #FFFFFF; line-height: 1;">
-                  ${escapeHTML(est.nome)}
-                </h3>
-                <div class="font-mono" style="font-size: 0.72rem; opacity: 0.9; text-transform: uppercase; margin-top: 0.2rem;">
-                  ${escapeHTML(est.tipo || 'Estante')}
-                </div>
-              </div>
-              <span class="font-mono" style="background: rgba(0,0,0,0.25); font-size: 0.8rem; font-weight: 700; padding: 0.25rem 0.6rem; color: #FFFFFF;">
-                ${caixasDestaEstante.length} ${caixasDestaEstante.length === 1 ? 'CAIXA' : 'CAIXAS'}
-              </span>
-            </div>
-            <div style="padding: 1.25rem; flex: 1; display: flex; flex-direction: column; justify-content: space-between;">
-              <div class="font-mono" style="font-size: 0.82rem; color: #64748B; margin-bottom: 1rem;">
-                ${caixasDestaEstante.length > 0 
-                  ? `Códigos: ${caixasDestaEstante.slice(0, 3).map(c => c.codigo).join(', ')}${caixasDestaEstante.length > 3 ? '...' : ''}` 
-                  : 'Nenhuma caixa atribuída nesta estante.'}
-              </div>
-              <div style="display: flex; justify-content: flex-end;">
-                <span class="btn-corp-subtle" style="font-size: 0.75rem; padding: 0.35rem 0.75rem;">ABRIR ESTANTE →</span>
-              </div>
-            </div>
-          `;
-
-          card.addEventListener('click', () => {
-            currentEstanteId = est.id;
-            renderEstanteDetalhe(est.id);
-          });
-
-          grid.appendChild(card);
-        });
-      }
-
-      // Salvar Nova Estante
-      document.getElementById('form-nova-estante').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const nome = document.getElementById('input-estante-nome').value.trim();
-        const tipo = document.getElementById('select-estante-tipo').value;
-        const codPrimeiraCaixa = document.getElementById('input-estante-primeira-caixa').value.trim();
-
-        if (!nome) return;
-
-        const db = loadDB();
-        const novaEstante = {
-          id: 'est-' + Date.now(),
-          nome: nome,
-          tipo: tipo,
-          setorId: currentSetor
-        };
-        db.estantes.push(novaEstante);
-
-        if (codPrimeiraCaixa) {
-          db.caixas.push({
-            id: 'cx-' + Date.now(),
-            codigo: codPrimeiraCaixa,
-            nome: 'Caixa inicial',
-            setorId: currentSetor,
-            estanteId: novaEstante.id,
-            excluido: false,
-            ultimaAlteracao: Date.now()
-          });
-        }
-
-        saveDB(db);
-        registrarHistorico(currentSetor, currentUser.email, "Criação de estante", `Criou "${nome}" (${tipo})`);
-        closeModal('modal-nova-estante');
-        renderEstantes();
-      });
-
-      // -----------------------------------------------------------------
-      // FLUXO 5: TELA DENTRO DA ESTANTE
-      // -----------------------------------------------------------------
-      document.getElementById('btn-voltar-estantes').addEventListener('click', () => {
-        currentEstanteId = null;
-        renderEstantes();
-      });
-
-      document.getElementById('btn-nova-caixa').addEventListener('click', () => {
-        document.getElementById('form-nova-caixa').reset();
-        openModal('modal-nova-caixa');
-      });
-
-      document.getElementById('btn-editar-estante').addEventListener('click', () => {
-        const db = loadDB();
-        const est = db.estantes.find(e => e.id === currentEstanteId);
-        if (!est) return;
-        document.getElementById('input-edit-estante-nome').value = est.nome;
-        document.getElementById('select-edit-estante-tipo').value = est.tipo || 'Estante';
-        openModal('modal-editar-estante');
-      });
-
-      document.getElementById('form-editar-estante').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const novoNome = document.getElementById('input-edit-estante-nome').value.trim();
-        const novoTipo = document.getElementById('select-edit-estante-tipo').value;
-        if (!novoNome) return;
-
-        const db = loadDB();
-        const est = db.estantes.find(e => e.id === currentEstanteId);
-        if (est) {
-          const nomeAntigo = est.nome;
-          est.nome = novoNome;
-          est.tipo = novoTipo;
-          saveDB(db);
-          registrarHistorico(currentSetor, currentUser.email, "Edição de estante", `Alterou "${nomeAntigo}" para "${novoNome}"`);
-        }
-        closeModal('modal-editar-estante');
-        renderEstanteDetalhe(currentEstanteId);
-      });
-
-      function renderEstanteDetalhe(estanteId) {
-        showView('estanteDetalhe');
-        const db = loadDB();
-        const est = db.estantes.find(e => e.id === estanteId);
-        if (!est) {
-          renderEstantes();
-          return;
-        }
-
-        document.getElementById('detalhe-estante-nome').textContent = est.nome;
-        document.getElementById('detalhe-estante-tipo-badge').textContent = est.tipo || 'Estante';
-
-        const caixasAtivas = db.caixas.filter(c => c.setorId === currentSetor && c.excluido !== true);
-        const caixasDaEstante = caixasAtivas.filter(c => caixaPertenceAEstante(est, c));
-        caixasDaEstante.sort((a, b) => naturalSort(a.codigo, b.codigo));
-
-        document.getElementById('detalhe-estante-qtd-caixas').textContent = `${caixasDaEstante.length} ${caixasDaEstante.length === 1 ? 'caixa cadastrada' : 'caixas cadastradas'}`;
-
-        const container = document.getElementById('lista-caixas-estante');
-        container.innerHTML = '';
-
-        if (caixasDaEstante.length === 0) {
-          container.innerHTML = `
-            <div style="padding: 2.5rem; text-align: center; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem;">
-              NENHUMA CAIXA NESTA ESTANTE. CLIQUE EM "+ NOVA CAIXA" PARA ADICIONAR.
-            </div>
-          `;
-          return;
-        }
-
-        caixasDaEstante.forEach(cx => {
-          const itensDaCaixa = db.itens.filter(i => i.caixaId === cx.id && i.excluido !== true);
-
-          const row = document.createElement('div');
-          row.className = 'box-row';
-          row.innerHTML = `
-            <div style="display: flex; align-items: center; gap: 1.25rem;">
-              <span class="font-mono" style="font-weight: 700; font-size: 1.05rem; color: #0F172A; min-width: 140px;">
-                ${escapeHTML(cx.codigo)}
-              </span>
-              <span style="font-size: 0.95rem; color: #334155;">
-                ${escapeHTML(cx.nome || 'Sem descrição')}
-              </span>
-            </div>
-            <div style="display: flex; align-items: center; gap: 1rem;">
-              <span class="font-mono" style="font-size: 0.8rem; color: var(--text-muted);">
-                ${itensDaCaixa.length} ${itensDaCaixa.length === 1 ? 'item' : 'itens'}
-              </span>
-              <span class="btn-corp-subtle" style="font-size: 0.72rem; padding: 0.3rem 0.6rem;">ENTRAR →</span>
-            </div>
-          `;
-
-          row.addEventListener('click', () => {
-            currentCaixaId = cx.id;
-            renderCaixaDetalhe(cx.id);
-          });
-
-          container.appendChild(row);
-        });
-      }
-
-      // Salvar Nova Caixa
-      document.getElementById('form-nova-caixa').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const codigo = document.getElementById('input-nova-caixa-codigo').value.trim();
-        const nome = document.getElementById('input-nova-caixa-nome').value.trim();
-        if (!codigo) return;
-
-        const db = loadDB();
-        const novaCaixa = {
-          id: 'cx-' + Date.now(),
-          codigo: codigo,
-          nome: nome || 'Caixa de arquivo',
-          setorId: currentSetor,
-          estanteId: currentEstanteId,
-          excluido: false,
-          ultimaAlteracao: Date.now()
-        };
-        db.caixas.push(novaCaixa);
-        saveDB(db);
-
-        registrarHistorico(currentSetor, currentUser.email, "Criação de caixa", `Cadastrou caixa ${codigo} (${nome})`);
-        closeModal('modal-nova-caixa');
-        renderEstanteDetalhe(currentEstanteId);
-      });
-
-      // -----------------------------------------------------------------
-      // FLUXO 6: TELA DENTRO DA CAIXA (ITENS & CONFLITOS DE EDIÇÃO)
-      // -----------------------------------------------------------------
-      let currentItemType = "Pessoa"; // "Pessoa" | "Documento"
-
-      const toggleItemPessoa = document.getElementById('toggle-item-pessoa');
-      const toggleItemDoc = document.getElementById('toggle-item-doc');
-      const fieldsPessoa = document.getElementById('fields-pessoa');
-      const fieldsDoc = document.getElementById('fields-doc');
-
-      toggleItemPessoa.addEventListener('click', () => {
-        currentItemType = "Pessoa";
-        toggleItemPessoa.classList.add('active');
-        toggleItemDoc.classList.remove('active');
-        fieldsPessoa.style.display = 'block';
-        fieldsDoc.style.display = 'none';
-      });
-
-      toggleItemDoc.addEventListener('click', () => {
-        currentItemType = "Documento";
-        toggleItemDoc.classList.add('active');
-        toggleItemPessoa.classList.remove('active');
-        fieldsPessoa.style.display = 'none';
-        fieldsDoc.style.display = 'block';
-      });
-
-      document.getElementById('btn-voltar-da-caixa').addEventListener('click', () => {
-        currentCaixaId = null;
-        renderEstanteDetalhe(currentEstanteId);
-      });
-
-      // Mover Caixa
-      document.getElementById('btn-mover-caixa').addEventListener('click', () => {
-        const db = loadDB();
-        const cx = db.caixas.find(c => c.id === currentCaixaId);
-        if (!cx) return;
-
-        document.getElementById('mover-caixa-codigo-destaque').textContent = cx.codigo;
-        const select = document.getElementById('select-mover-estante');
-        select.innerHTML = '';
-
-        const estantes = db.estantes.filter(e => e.setorId === currentSetor);
-        estantes.forEach(est => {
-          const opt = document.createElement('option');
-          opt.value = est.id;
-          opt.textContent = `${est.nome} (${est.tipo || 'Estante'})`;
-          if (est.id === currentEstanteId) opt.selected = true;
-          select.appendChild(opt);
-        });
-
-        openModal('modal-mover-caixa');
-      });
-
-      document.getElementById('form-mover-caixa').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const novaEstanteId = document.getElementById('select-mover-estante').value;
-        const db = loadDB();
-        const cx = db.caixas.find(c => c.id === currentCaixaId);
-        const estDestino = db.estantes.find(e => e.id === novaEstanteId);
-
-        if (cx && estDestino) {
-          cx.estanteId = novaEstanteId;
-          cx.ultimaAlteracao = Date.now();
-          saveDB(db);
-          registrarHistorico(currentSetor, currentUser.email, "Movimentação de caixa", `Moveu caixa ${cx.codigo} para ${estDestino.nome}`);
-          currentEstanteId = novaEstanteId;
-        }
-
-        closeModal('modal-mover-caixa');
-        renderCaixaDetalhe(currentCaixaId);
-      });
-
-      // Excluir Caixa (com excluido: true)
-      document.getElementById('btn-excluir-caixa').addEventListener('click', () => {
-        const db = loadDB();
-        const cx = db.caixas.find(c => c.id === currentCaixaId);
-        if (!cx) return;
-
-        showConfirm(
-          'EXCLUIR CAIXA',
-          `Tem certeza de que deseja enviar a caixa ${cx.codigo} para a Lixeira? Você poderá restaurá-la a qualquer momento.`,
-          () => {
-            const freshDB = loadDB();
-            const caixaParaExcluir = freshDB.caixas.find(c => c.id === currentCaixaId);
-            if (caixaParaExcluir) {
-              caixaParaExcluir.excluido = true;
-              caixaParaExcluir.ultimaAlteracao = Date.now();
-              saveDB(freshDB);
-              registrarHistorico(currentSetor, currentUser.email, "Exclusão de caixa", `Enviou caixa ${cx.codigo} para a Lixeira`);
-            }
-            currentCaixaId = null;
-            renderEstanteDetalhe(currentEstanteId);
-          }
-        );
-      });
-
-      function renderCaixaDetalhe(caixaId) {
-        showView('caixaDetalhe');
-        resetFormItem();
-        document.getElementById('conflict-box').style.display = 'none';
-
-        const db = loadDB();
-        const cx = db.caixas.find(c => c.id === caixaId);
-        if (!cx || cx.excluido === true) {
-          renderEstanteDetalhe(currentEstanteId);
-          return;
-        }
-
-        const est = db.estantes.find(e => e.id === cx.estanteId) || { nome: 'Estante' };
-        document.getElementById('detalhe-caixa-codigo').textContent = cx.codigo;
-        document.getElementById('detalhe-caixa-nome').textContent = cx.nome || '';
-        document.getElementById('detalhe-caixa-estante-rotulo').textContent = est.nome;
-
-        const itensAtivos = db.itens.filter(i => i.caixaId === caixaId && i.excluido !== true);
-        document.getElementById('detalhe-caixa-total-itens').textContent = `${itensAtivos.length} ${itensAtivos.length === 1 ? 'item' : 'itens'}`;
-
-        const container = document.getElementById('lista-itens-caixa');
-        container.innerHTML = '';
-
-        if (itensAtivos.length === 0) {
-          container.innerHTML = `
-            <div style="background: #FFFFFF; border: 2px dashed #CBD5E1; padding: 2.5rem; text-align: center; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace; font-size: 0.85rem;">
-              CAIXA VAZIA. UTILIZE O FORMULÁRIO ACIMA PARA ADICIONAR PESSOAS OU DOCUMENTOS.
-            </div>
-          `;
-          return;
-        }
-
-        itensAtivos.forEach(item => {
-          const itemCard = document.createElement('div');
-          itemCard.style.background = '#FFFFFF';
-          itemCard.style.border = '1px solid #E2E8F0';
-          itemCard.style.padding = '1.15rem 1.35rem';
-          itemCard.style.marginBottom = '0.75rem';
-          itemCard.style.display = 'flex';
-          itemCard.style.justifyContent = 'space-between';
-          itemCard.style.alignItems = 'flex-start';
-          itemCard.style.gap = '1rem';
-
-          let detailsHTML = '';
-          if (item.tipoItem === 'Pessoa') {
-            detailsHTML = `
-              <div>
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
-                  <span class="font-mono" style="background: #EFF6FF; color: var(--cobalt); font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.5rem; text-transform: uppercase;">
-                    PESSOA
-                  </span>
-                  <strong class="font-anton" style="font-size: 1.2rem; color: #0F172A; letter-spacing: 0.01em;">
-                    ${escapeHTML(item.nome)}
-                  </strong>
-                </div>
-                <div class="font-mono" style="font-size: 0.88rem; color: #334155;">
-                  <strong>Cargo:</strong> ${escapeHTML(item.cargo || 'Não informado')}
-                </div>
-                ${item.obs ? `<div class="font-mono" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Obs: ${escapeHTML(item.obs)}</div>` : ''}
-              </div>
-            `;
-          } else {
-            detailsHTML = `
-              <div>
-                <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.35rem;">
-                  <span class="font-mono" style="background: #FEF3C7; color: #92400E; font-size: 0.72rem; font-weight: 700; padding: 0.2rem 0.5rem; text-transform: uppercase;">
-                    ${escapeHTML(item.tipoDoc || 'DOCUMENTO')}
-                  </span>
-                  <strong class="font-anton" style="font-size: 1.2rem; color: #0F172A; letter-spacing: 0.01em;">
-                    ${escapeHTML(item.titulo)}
-                  </strong>
-                </div>
-                <div class="font-mono" style="font-size: 0.88rem; color: #334155;">
-                  ${item.data ? `<strong>Data:</strong> ${item.data} · ` : ''}
-                  ${item.onde ? `<strong>Local:</strong> ${escapeHTML(item.onde)}` : ''}
-                </div>
-                ${item.obs ? `<div class="font-mono" style="font-size: 0.8rem; color: var(--text-muted); margin-top: 0.25rem;">Obs: ${escapeHTML(item.obs)}</div>` : ''}
-              </div>
-            `;
-          }
-
-          itemCard.innerHTML = `
-            ${detailsHTML}
-            <div style="display: flex; gap: 0.5rem;">
-              <button class="btn-corp-subtle btn-edit-item" style="font-size: 0.72rem; padding: 0.3rem 0.6rem;">Editar</button>
-              <button class="btn-corp-danger btn-del-item" style="font-size: 0.72rem; padding: 0.3rem 0.6rem;">Excluir</button>
-            </div>
-          `;
-
-          itemCard.querySelector('.btn-edit-item').addEventListener('click', () => {
-            iniciarEdicaoItem(item);
-          });
-
-          itemCard.querySelector('.btn-del-item').addEventListener('click', () => {
-            showConfirm(
-              'EXCLUIR ITEM',
-              `Enviar "${item.nome || item.titulo}" para a lixeira?`,
-              () => {
-                const freshDB = loadDB();
-                const it = freshDB.itens.find(i => i.id === item.id);
-                if (it) {
-                  it.excluido = true;
-                  it.ultimaAlteracao = Date.now();
-                  saveDB(freshDB);
-                  registrarHistorico(currentSetor, currentUser.email, "Exclusão de item", `Enviou "${it.nome || it.titulo}" para a Lixeira`);
-                }
-                renderCaixaDetalhe(currentCaixaId);
-              }
-            );
-          });
-
-          container.appendChild(itemCard);
-        });
-      }
-
-      function resetFormItem() {
-        document.getElementById('form-item').reset();
-        document.getElementById('item-edit-id').value = '';
-        document.getElementById('item-last-alteracao').value = '';
-        document.getElementById('form-item-title').textContent = 'ADICIONAR ITEM NA CAIXA';
-        document.getElementById('btn-cancelar-edicao-item').style.display = 'none';
-        document.getElementById('btn-salvar-item').textContent = 'Salvar item';
-      }
-
-      function iniciarEdicaoItem(item) {
-        document.getElementById('item-edit-id').value = item.id;
-        document.getElementById('item-last-alteracao').value = item.ultimaAlteracao || '';
-        document.getElementById('form-item-title').textContent = 'EDITAR ITEM';
-        document.getElementById('btn-cancelar-edicao-item').style.display = 'inline-flex';
-        document.getElementById('btn-salvar-item').textContent = 'Salvar alterações';
-
-        if (item.tipoItem === 'Pessoa') {
-          toggleItemPessoa.click();
-          document.getElementById('input-pessoa-nome').value = item.nome || '';
-          document.getElementById('input-pessoa-cargo').value = item.cargo || '';
-        } else {
-          toggleItemDoc.click();
-          document.getElementById('input-doc-titulo').value = item.titulo || '';
-          document.getElementById('select-doc-tipo').value = item.tipoDoc || 'Contrato';
-          document.getElementById('input-doc-data').value = item.data || '';
-          document.getElementById('input-doc-onde').value = item.onde || '';
-        }
-        document.getElementById('input-item-obs').value = item.obs || '';
-
-        // Rolar até o formulário
-        document.getElementById('form-item').scrollIntoView({ behavior: 'smooth' });
-      }
-
-      document.getElementById('btn-cancelar-edicao-item').addEventListener('click', () => {
-        resetFormItem();
-      });
-
-      // Submissão do Item com Resolução de Conflito de Edição
-      document.getElementById('form-item').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const editId = document.getElementById('item-edit-id').value;
-        const lastLoadedTimestamp = parseInt(document.getElementById('item-last-alteracao').value || '0', 10);
-        const obs = document.getElementById('input-item-obs').value.trim();
-
-        const db = loadDB();
-
-        if (editId) {
-          // Edição de item existente: checar conflito
-          const existing = db.itens.find(i => i.id === editId);
-          if (existing && existing.ultimaAlteracao && existing.ultimaAlteracao > lastLoadedTimestamp) {
-            // CONFLITO DETECTADO!
-            const conflictBox = document.getElementById('conflict-box');
-            conflictBox.style.display = 'block';
-
-            document.getElementById('btn-conflict-latest').onclick = () => {
-              iniciarEdicaoItem(existing);
-              conflictBox.style.display = 'none';
-            };
-
-            document.getElementById('btn-conflict-overwrite').onclick = () => {
-              // Força a escrita
-              salvarDadosItem(editId, true);
-              conflictBox.style.display = 'none';
-            };
-            return;
-          }
-          salvarDadosItem(editId, false);
-        } else {
-          // Novo item
-          salvarDadosItem(null, false);
-        }
-      });
-
-      function salvarDadosItem(editId, overwrite) {
-        const db = loadDB();
-        const obs = document.getElementById('input-item-obs').value.trim();
-
-        if (currentItemType === 'Pessoa') {
-          const nome = document.getElementById('input-pessoa-nome').value.trim();
-          const cargo = document.getElementById('input-pessoa-cargo').value.trim();
-          if (!nome) {
-            alert('Por favor, informe o Nome Completo.');
-            return;
-          }
-
-          if (editId) {
-            const it = db.itens.find(i => i.id === editId);
-            if (it) {
-              it.tipoItem = 'Pessoa';
-              it.nome = nome;
-              it.cargo = cargo;
-              it.obs = obs;
-              it.ultimaAlteracao = Date.now();
-              registrarHistorico(currentSetor, currentUser.email, "Edição de item", `Atualizou pessoa "${nome}"`);
-            }
-          } else {
-            db.itens.push({
-              id: 'it-' + Date.now(),
-              caixaId: currentCaixaId,
-              tipoItem: 'Pessoa',
-              nome: nome,
-              cargo: cargo,
-              obs: obs,
-              ultimaAlteracao: Date.now(),
-              excluido: false
-            });
-            registrarHistorico(currentSetor, currentUser.email, "Criação de item", `Adicionou pessoa "${nome}" na caixa`);
-          }
-        } else {
-          const titulo = document.getElementById('input-doc-titulo').value.trim();
-          const tipoDoc = document.getElementById('select-doc-tipo').value;
-          const dataDoc = document.getElementById('input-doc-data').value;
-          const onde = document.getElementById('input-doc-onde').value.trim();
-          if (!titulo) {
-            alert('Por favor, informe o Título do documento.');
-            return;
-          }
-
-          if (editId) {
-            const it = db.itens.find(i => i.id === editId);
-            if (it) {
-              it.tipoItem = 'Documento';
-              it.titulo = titulo;
-              it.tipoDoc = tipoDoc;
-              it.data = dataDoc;
-              it.onde = onde;
-              it.obs = obs;
-              it.ultimaAlteracao = Date.now();
-              registrarHistorico(currentSetor, currentUser.email, "Edição de item", `Atualizou documento "${titulo}"`);
-            }
-          } else {
-            db.itens.push({
-              id: 'it-' + Date.now(),
-              caixaId: currentCaixaId,
-              tipoItem: 'Documento',
-              titulo: titulo,
-              tipoDoc: tipoDoc,
-              data: dataDoc,
-              onde: onde,
-              obs: obs,
-              ultimaAlteracao: Date.now(),
-              excluido: false
-            });
-            registrarHistorico(currentSetor, currentUser.email, "Criação de item", `Adicionou documento "${titulo}" na caixa`);
-          }
-        }
-
-        saveDB(db);
-        renderCaixaDetalhe(currentCaixaId);
-      }
-
-      // -----------------------------------------------------------------
-      // FLUXO 7: TELA COLABORADORES (ADMIN)
-      // -----------------------------------------------------------------
-      document.getElementById('btn-voltar-colaboradores').addEventListener('click', () => {
-        renderEstantes();
-      });
-
-      document.getElementById('btn-add-colaborador').addEventListener('click', () => {
-        document.getElementById('form-add-colaborador').reset();
-        document.getElementById('input-colab-setores').value = currentSetor;
-        openModal('modal-add-colaborador');
-      });
-
-      document.getElementById('form-add-colaborador').addEventListener('submit', (e) => {
-        e.preventDefault();
-        const email = document.getElementById('input-colab-email').value.trim().toLowerCase();
-        const setoresStr = document.getElementById('input-colab-setores').value.trim();
-        const adminStr = document.getElementById('input-colab-admin').value.trim();
-
-        if (!email) return;
-
-        const setores = setoresStr.split(',').map(s => s.trim()).filter(Boolean);
-        const adminSetores = adminStr.split(',').map(s => s.trim()).filter(Boolean);
-
-        const db = loadDB();
-        let colab = db.usuarios.find(u => u.email.toLowerCase() === email);
-
-        if (colab) {
-          colab.ativo = true;
-          setores.forEach(s => {
-            if (!colab.setores.includes(s)) colab.setores.push(s);
-          });
-          adminSetores.forEach(s => {
-            if (!colab.adminSetores.includes(s)) colab.adminSetores.push(s);
-          });
-        } else {
-          colab = {
-            id: email,
-            email: email,
-            ativo: true,
-            setores: setores,
-            adminSetores: adminSetores
-          };
-          db.usuarios.push(colab);
-        }
-
-        saveDB(db);
-        registrarHistorico(currentSetor, currentUser.email, "Colaboradores", `Liberou acesso para ${email}`);
-        closeModal('modal-add-colaborador');
-        renderColaboradores();
-      });
-
-      function renderColaboradores() {
-        showView('colaboradores');
-        const db = loadDB();
-        const tbody = document.getElementById('tabela-colaboradores-tbody');
-        tbody.innerHTML = '';
-
-        // Usuários ativos com acesso ao setor atual
-        const colabs = db.usuarios.filter(u => u.ativo === true && (u.setores || []).includes(currentSetor));
-        colabs.sort((a, b) => naturalSort(a.email, b.email));
-
-        colabs.forEach(user => {
-          const isAdmin = (user.adminSetores || []).includes(currentSetor);
-          const tr = document.createElement('tr');
-          tr.style.borderBottom = '1px solid #E2E8F0';
-
-          tr.innerHTML = `
-            <td style="padding: 0.85rem 1.25rem;">
-              <strong class="font-mono" style="color: #0F172A;">${escapeHTML(user.email)}</strong>
-            </td>
-            <td style="padding: 0.85rem 1.25rem; font-family: 'IBM Plex Mono', monospace; font-size: 0.82rem; color: #475569;">
-              ${(user.setores || []).map(escapeHTML).join(', ')}
-            </td>
-            <td style="padding: 0.85rem 1.25rem;">
-              ${isAdmin ? '<span class="badge-admin">ADMIN</span>' : '<span class="font-mono" style="font-size: 0.75rem; color: #64748B;">COLABORADOR</span>'}
-            </td>
-            <td style="padding: 0.85rem 1.25rem; text-align: center;">
-              <button class="btn-corp-danger btn-remove-colab" style="font-size: 0.72rem; padding: 0.3rem 0.6rem;">Remover</button>
-            </td>
-          `;
-
-          tr.querySelector('.btn-remove-colab').addEventListener('click', () => {
-            showConfirm(
-              'REMOVER COLABORADOR',
-              `Remover o acesso de ${user.email} deste setor?`,
-              () => {
-                const freshDB = loadDB();
-                const u = freshDB.usuarios.find(x => x.id === user.id);
-                if (u) {
-                  u.setores = (u.setores || []).filter(s => s !== currentSetor);
-                  u.adminSetores = (u.adminSetores || []).filter(s => s !== currentSetor);
-                  saveDB(freshDB);
-                  registrarHistorico(currentSetor, currentUser.email, "Colaboradores", `Removeu acesso de ${user.email}`);
-                }
-                renderColaboradores();
-              }
-            );
-          });
-
-          tbody.appendChild(tr);
-        });
-      }
-
-      // -----------------------------------------------------------------
-      // FLUXO 8: TELA HISTÓRICO (ÚLTIMAS 100 ALTERAÇÕES NO SETOR)
-      // -----------------------------------------------------------------
-      document.getElementById('btn-voltar-historico').addEventListener('click', () => {
-        renderEstantes();
-      });
-
-      function renderHistorico() {
-        showView('historico');
-        const db = loadDB();
-        const container = document.getElementById('lista-historico-container');
-        container.innerHTML = '';
-
-        const logs = (db.historico || []).filter(h => h.setorId === currentSetor);
-
-        if (logs.length === 0) {
-          container.innerHTML = `
-            <div style="padding: 2.5rem; text-align: center; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace;">
-              NENHUMA ALTERAÇÃO REGISTRADA NESTE SETOR.
-            </div>
-          `;
-          return;
-        }
-
-        logs.forEach(log => {
-          const item = document.createElement('div');
-          item.style.padding = '0.9rem 1.25rem';
-          item.style.borderBottom = '1px solid #E2E8F0';
-          item.style.display = 'flex';
-          item.style.flexWrap = 'wrap';
-          item.style.justifyContent = 'space-between';
-          item.style.gap = '0.5rem';
-
-          item.innerHTML = `
-            <div>
-              <div style="display: flex; align-items: center; gap: 0.5rem; margin-bottom: 0.2rem;">
-                <span class="font-mono" style="background: #0F172A; color: #FFFFFF; font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.45rem;">
-                  ${escapeHTML(log.acao)}
-                </span>
-                <span class="font-mono" style="font-size: 0.8rem; color: var(--text-muted);">
-                  ${escapeHTML(log.autor)}
-                </span>
-              </div>
-              <div style="font-size: 0.92rem; color: #1E293B;">
-                ${escapeHTML(log.detalhe)}
-              </div>
-            </div>
-            <div class="font-mono" style="font-size: 0.78rem; color: var(--text-muted); align-self: center;">
-              ${escapeHTML(log.data)}
-            </div>
-          `;
-
-          container.appendChild(item);
-        });
-      }
-
-      // -----------------------------------------------------------------
-      // FLUXO 9: TELA LIXEIRA (ITENS & CAIXAS EXCLUÍDOS COM RESTAURAÇÃO)
-      // -----------------------------------------------------------------
-      document.getElementById('btn-voltar-lixeira').addEventListener('click', () => {
-        renderEstantes();
-      });
-
-      function renderLixeira() {
-        showView('lixeira');
-        const db = loadDB();
-        const container = document.getElementById('lista-lixeira-container');
-        container.innerHTML = '';
-
-        const caixasExcluidas = db.caixas.filter(c => c.setorId === currentSetor && c.excluido === true);
-        const itensExcluidos = db.itens.filter(i => {
-          if (i.excluido !== true) return false;
-          const cx = db.caixas.find(c => c.id === i.caixaId);
-          return cx && cx.setorId === currentSetor;
-        });
-
-        if (caixasExcluidas.length === 0 && itensExcluidos.length === 0) {
-          container.innerHTML = `
-            <div style="padding: 2.5rem; text-align: center; color: var(--text-muted); font-family: 'IBM Plex Mono', monospace;">
-              A LIXEIRA ESTÁ VAZIA. NENHUM REGISTRO EXCLUÍDO.
-            </div>
-          `;
-          return;
-        }
-
-        // Caixas
-        caixasExcluidas.forEach(cx => {
-          const div = document.createElement('div');
-          div.style.padding = '1rem 1.25rem';
-          div.style.borderBottom = '1px solid #E2E8F0';
-          div.style.display = 'flex';
-          div.style.justifyContent = 'space-between';
-          div.style.alignItems = 'center';
-
-          div.innerHTML = `
-            <div>
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <span class="font-mono" style="background: #FEE2E2; color: #991B1B; font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.45rem;">
-                  CAIXA EXCLUÍDA
-                </span>
-                <strong class="font-mono" style="font-size: 1rem; color: #0F172A;">
-                  ${escapeHTML(cx.codigo)}
-                </strong>
-              </div>
-              <div style="font-size: 0.88rem; color: #64748B; margin-top: 0.25rem;">
-                ${escapeHTML(cx.nome || 'Sem descrição')}
-              </div>
-            </div>
-            <button class="btn-corp-subtle btn-restaurar-caixa" style="font-size: 0.75rem;">
-              Restaurar caixa
-            </button>
-          `;
-
-          div.querySelector('.btn-restaurar-caixa').addEventListener('click', () => {
-            const freshDB = loadDB();
-            const target = freshDB.caixas.find(c => c.id === cx.id);
-            if (target) {
-              target.excluido = false;
-              target.ultimaAlteracao = Date.now();
-              saveDB(freshDB);
-              registrarHistorico(currentSetor, currentUser.email, "Restauração", `Restaurou caixa ${cx.codigo}`);
-            }
-            renderLixeira();
-          });
-
-          container.appendChild(div);
-        });
-
-        // Itens
-        itensExcluidos.forEach(item => {
-          const div = document.createElement('div');
-          div.style.padding = '1rem 1.25rem';
-          div.style.borderBottom = '1px solid #E2E8F0';
-          div.style.display = 'flex';
-          div.style.justifyContent = 'space-between';
-          div.style.alignItems = 'center';
-
-          const rotulo = item.tipoItem === 'Pessoa' ? item.nome : item.titulo;
-
-          div.innerHTML = `
-            <div>
-              <div style="display: flex; align-items: center; gap: 0.5rem;">
-                <span class="font-mono" style="background: #FEE2E2; color: #991B1B; font-size: 0.72rem; font-weight: 700; padding: 0.15rem 0.45rem;">
-                  ITEM EXCLUÍDO (${escapeHTML(item.tipoItem)})
-                </span>
-                <strong class="font-mono" style="font-size: 0.95rem; color: #0F172A;">
-                  ${escapeHTML(rotulo)}
-                </strong>
-              </div>
-            </div>
-            <button class="btn-corp-subtle btn-restaurar-item" style="font-size: 0.75rem;">
-              Restaurar item
-            </button>
-          `;
-
-          div.querySelector('.btn-restaurar-item').addEventListener('click', () => {
-            const freshDB = loadDB();
-            const target = freshDB.itens.find(i => i.id === item.id);
-            if (target) {
-              target.excluido = false;
-              target.ultimaAlteracao = Date.now();
-              saveDB(freshDB);
-              registrarHistorico(currentSetor, currentUser.email, "Restauração", `Restaurou item "${rotulo}"`);
-            }
-            renderLixeira();
-          });
-
-          container.appendChild(div);
-        });
-      }
-
-      // -----------------------------------------------------------------
-      // FLUXO 11: GUIA DE AJUDA COM ACCORDIONS
-      // -----------------------------------------------------------------
-      document.getElementById('btn-open-help').addEventListener('click', () => {
-        openModal('modal-ajuda');
-      });
-
-      document.querySelectorAll('.help-accordion-header').forEach(header => {
-        header.addEventListener('click', () => {
-          const body = header.nextElementSibling;
-          const isOpen = body.classList.contains('open');
-          // Fechar todos
-          document.querySelectorAll('.help-accordion-body').forEach(b => b.classList.remove('open'));
-          if (!isOpen) {
-            body.classList.add('open');
-          }
-        });
-      });
-
-      // -----------------------------------------------------------------
-      // INICIALIZAÇÃO AUTOMÁTICA DA SESSÃO
-      // -----------------------------------------------------------------
-      const savedUserStr = localStorage.getItem(STORAGE_USER_KEY);
-      if (savedUserStr) {
-        try {
-          const parsed = JSON.parse(savedUserStr);
-          authenticateUser(parsed.email);
-        } catch(e) {
-          showView('login');
-        }
-      } else {
-        showView('login');
-      }
-
-      function escapeHTML(str) {
-        if (!str) return '';
-        return String(str)
-          .replace(/&/g, '&amp;')
-          .replace(/</g, '&lt;')
-          .replace(/>/g, '&gt;')
-          .replace(/"/g, '&quot;')
-          .replace(/'/g, '&#039;');
-      }
-    });
-  </script>
 <script>
-/* Skip artifact shell — fixed helpers served beside every artifact. */
-(function () {
-  "use strict";
+const GOOGLE_CLIENT_ID = '1032170606542-dukbmb70h332gpjtbuncl76bvobv6dvi.apps.googleusercontent.com';
+const firebaseConfig = {
+  apiKey: "AIzaSyBKDvELUvYH1TESB7M_JjojW4nxUpf6cgQ",
+  authDomain: "acervo-15e48.firebaseapp.com",
+  projectId: "acervo-15e48",
+  storageBucket: "acervo-15e48.firebasestorage.app",
+  messagingSenderId: "1032170606542",
+  appId: "1:1032170606542:web:d8cca054a21a3b52dce59f"
+};
+firebase.initializeApp(firebaseConfig);
+const db = firebase.firestore();
 
-  var fmt = {
-    num: function (v, opts) { return new Intl.NumberFormat("pt-BR", opts || {}).format(v); },
-    brl: function (v) { return new Intl.NumberFormat("pt-BR", { style: "currency", currency: "BRL" }).format(v); },
-    pct: function (v) { return new Intl.NumberFormat("pt-BR", { style: "percent", maximumFractionDigits: 1 }).format(v); }
+let eu = null;            // {email, setores:[], adminDe:[]}
+let setor = null;
+let estanteAtual = null;  // {id, nome, tipoMobilia, setorId}
+let caixaAtual = null;    // {id, codigo, ...}
+let cacheCaixas = [];
+let telaDeAjuda = 'scr-estantes';
+
+const CORES = {ARMARIO:'#E11D2E', A:'#1D4ED8', B:'#059669', C:'#EA580C', D:'#7C3AED'};
+function corEstante(nome){
+  const n = (nome||'').toUpperCase();
+  if(n.indexOf('ARMAR') >= 0) return CORES.ARMARIO;
+  const m = n.match(/([A-Z])\s*$/);
+  return (m && CORES[m[1]]) ? CORES[m[1]] : CORES.A;
+}
+
+function mostrar(id){
+  document.querySelectorAll('.tela').forEach(function(t){ t.style.display='none'; });
+  const el = document.getElementById(id);
+  el.style.display = el.classList.contains('tela-centro') ? 'flex' : 'block';
+}
+function sair(){ firebase.auth().signOut().then(function(){ location.reload(); }); }
+function voltarSetores(){ mostrar('scr-setores'); }
+function voltarEstantes(){ renderEstantes(); mostrar('scr-estantes'); }
+function voltarCaixas(){ renderEstante(); mostrar('scr-estante'); }
+function voltarDeAjuda(){ mostrar(telaDeAjuda); }
+
+function ehAdmin(){ return eu && (eu.adminDe||[]).indexOf(setor) >= 0; }
+
+/* ---------- LOGIN ---------- */
+let tentativasGoogle = 0;
+function initGoogle(){
+  if(typeof google === 'undefined' || !google.accounts || !google.accounts.id){
+    tentativasGoogle++;
+    if(tentativasGoogle < 25){ setTimeout(initGoogle, 300); }
+    else { document.getElementById('erro-google').style.display='block';
+           document.getElementById('erro-google').textContent='O script do Google não carregou. Recarregue a página (Ctrl+Shift+R) e confira se diogocamps.github.io está autorizado no Firebase (Authentication > Domínios autorizados).'; }
+    return;
+  }
+  try{
+    google.accounts.id.initialize({
+      client_id: GOOGLE_CLIENT_ID,
+      callback: aoLogar,
+      auto_select: false,
+      cancel_on_tap_outside: true
+    });
+    google.accounts.id.renderButton(document.getElementById('botao-google'), {theme:'outline', size:'large', width:280});
+  }catch(e){
+    document.getElementById('erro-google').style.display='block';
+    document.getElementById('erro-google').textContent='Erro ao iniciar o login: ' + (e && e.message ? e.message : e);
+  }
+}
+function aoLogar(response){
+  const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
+  firebase.auth().signInWithCredential(credential);
+}
+if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', initGoogle); } else { initGoogle(); }
+
+firebase.auth().onAuthStateChanged(function(user){
+  if(user){ entrar(user.email); }
+  else { eu = null; setor = null; mostrar('scr-login'); }
+});
+
+async function entrar(email){
+  try{
+    const doc = await db.collection('usuarios').doc(email).get();
+    const d = doc.exists ? doc.data() : null;
+    const setores = (d && Array.isArray(d.setores)) ? d.setores : [];
+    const adminDe = (d && (Array.isArray(d.adminDe) ? d.adminDe : (Array.isArray(d.admin) ? d.admin : []))) || [];
+    if(!doc.exists || d.ativo !== true || setores.length === 0){
+      document.getElementById('email-semacesso').textContent = email;
+      mostrar('scr-semacesso');
+      return;
+    }
+    eu = {email: email, setores: setores, adminDe: adminDe};
+    document.getElementById('sub-setores').textContent = 'OPERADOR: ' + email.toUpperCase();
+    renderSetores();
+    mostrar('scr-setores');
+  }catch(e){
+    document.getElementById('email-semacesso').textContent = email + ' (erro: ' + (e && e.message ? e.message : e) + ')';
+    mostrar('scr-semacesso');
+  }
+}
+
+function renderSetores(){
+  const g = document.getElementById('grade-setores');
+  g.innerHTML = '';
+  eu.setores.forEach(function(s){
+    const c = document.createElement('div');
+    c.className = 'card';
+    c.innerHTML = '<div class="cab" style="background:' + CORES.A + '">' + esc(s) + '</div>' +
+                  '<div class="txt">Abrir estantes deste setor<div class="meta">SETOR</div></div>';
+    c.onclick = function(){ abrirSetor(s); };
+    g.appendChild(c);
+  });
+}
+
+function abrirSetor(s){
+  setor = s;
+  const adm = ehAdmin();
+  document.getElementById('btn-colab').style.display = adm ? '' : 'none';
+  document.getElementById('btn-nova-estante').style.display = adm ? '' : 'none';
+  renderEstantes();
+  mostrar('scr-estantes');
+}
+function atualizar(){
+  if(document.getElementById('scr-estante').style.display === 'block'){ renderEstante(); }
+  else if(document.getElementById('scr-caixa').style.display === 'block'){ renderCaixa(); }
+  else if(document.getElementById('scr-estantes').style.display === 'block'){ renderEstantes(); }
+  else if(document.getElementById('scr-lixeira').style.display === 'block'){ renderLixeira(); }
+  else if(document.getElementById('scr-colab').style.display === 'block'){ renderColaboradores(); }
+}
+
+/* ---------- REGRA DA PLANILHA: caixa pertence à estante pela letra ---------- */
+function norm(s){ return (s||'').toUpperCase(); }
+function letrasDoCodigo(cod){
+  const r = [];
+  ['A','B','C','D'].forEach(function(L){
+    if(cod.indexOf(' ' + L) >= 0 || cod.indexOf(L + '-') >= 0){ r.push(L); }
+  });
+  return r;
+}
+function letraEstante(nome){
+  const n = norm(nome);
+  if(n.indexOf('ARMAR') >= 0) return null;
+  const m = n.match(/([A-Z])\s*$/);
+  return m ? m[1] : null;
+}
+function caixaPertence(caixa, estNome){
+  if(caixa.estanteNome){ return norm(caixa.estanteNome) === norm(estNome); }
+  const cod = norm(caixa.codigo || caixa.id);
+  const L = letraEstante(estNome);
+  if(!L){ return cod === 'PJS' || letrasDoCodigo(cod).length === 0; }
+  return letrasDoCodigo(cod).indexOf(L) >= 0;
+}
+function ordemNatural(a, b){ return String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:'base'}); }
+
+async function carregarCaixasDoSetor(){
+  const sc = await db.collection('caixas').where('setorId','==',setor).get();
+  cacheCaixas = sc.docs.map(function(d){ const x = d.data(); x.id = d.id; return x; });
+}
+
+/* ---------- ESTANTES ---------- */
+async function renderEstantes(){
+  document.getElementById('sub-estantes').textContent = 'SETOR: ' + norm(setor);
+  const g = document.getElementById('grade-estantes');
+  g.innerHTML = '<div class="vazio">CARREGANDO REGISTROS...</div>';
+  try{
+    await carregarCaixasDoSetor();
+    const snap = await db.collection('estantes').where('setorId','==',setor).get();
+    const ests = snap.docs.map(function(d){ const x = d.data(); x.id = d.id; return x; });
+    ests.sort(function(a,b){ return ordemNatural(a.nome||a.id, b.nome||b.id); });
+    g.innerHTML = '';
+    if(ests.length === 0){ g.innerHTML = '<div class="vazio">NENHUMA ESTANTE NESTE SETOR.</div>'; return; }
+    ests.forEach(function(est){
+      const caixas = cacheCaixas.filter(function(c){ return caixaPertence(c, est.nome); })
+                                .sort(function(a,b){ return ordemNatural(a.codigo||a.id, b.codigo||b.id); });
+      const card = document.createElement('div');
+      card.className = 'card';
+      const adm = ehAdmin();
+      card.innerHTML = '<div class="cab" style="background:' + corEstante(est.nome) + '">' + esc(est.nome||est.id) + '</div>' +
+        '<div class="txt">' + esc(est.tipoMobilia||'Estante') + ' · ' + caixas.length + ' caixa(s)' +
+        (adm ? ' <button class="btn" style="padding:2px 8px;font-size:.65rem;float:right;" onclick="event.stopPropagation();abrirEdicaoEstante(\'' + est.id + '\')">✎</button>' : '') +
+        '<div class="meta">CAIXAS ATIVAS</div></div>';
+      card.onclick = function(){ abrirEstante(est); };
+      g.appendChild(card);
+    });
+  }catch(e){ g.innerHTML = '<div class="vazio" style="color:var(--ver)">ERRO: ' + esc(e.message||e) + '</div>'; }
+}
+
+function abrirEstante(est){ estanteAtual = est; renderEstante(); mostrar('scr-estante'); }
+
+function renderEstante(){
+  const adm = ehAdmin();
+  document.getElementById('btn-nova-caixa').style.display = adm ? '' : 'none';
+  document.getElementById('btn-editar-estante').style.display = adm ? '' : 'none';
+  document.getElementById('titulo-estante').textContent = estanteAtual.nome || estanteAtual.id;
+  document.getElementById('sub-estante').textContent = 'SETOR: ' + norm(setor) + ' · ' + norm(estanteAtual.tipoMobilia||'ESTANTE');
+  const box = document.getElementById('lista-caixas');
+  box.innerHTML = '<div class="vazio">CARREGANDO...</div>';
+  const caixas = cacheCaixas.filter(function(c){ return caixaPertence(c, estanteAtual.nome); })
+                            .sort(function(a,b){ return ordemNatural(a.codigo||a.id, b.codigo||b.id); });
+  if(caixas.length === 0){ box.innerHTML = '<div class="vazio">ESTANTE VAZIA.</div>'; return; }
+  box.innerHTML = '';
+  caixas.forEach(function(c){
+    const l = document.createElement('div');
+    l.className = 'linha';
+    l.innerHTML = '<span class="cod">' + esc(c.codigo||c.id) + '</span><span class="seta">›</span>';
+    l.onclick = function(){ abrirCaixa(c); };
+    box.appendChild(l);
+  });
+}
+
+/* ---------- CAIXA ---------- */
+function abrirCaixa(c){ caixaAtual = c; renderCaixa(); mostrar('scr-caixa'); }
+
+async function renderCaixa(){
+  const adm = ehAdmin();
+  document.getElementById('btn-mover-caixa').style.display = adm ? '' : 'none';
+  document.getElementById('btn-excluir-caixa').style.display = adm ? '' : 'none';
+  document.getElementById('titulo-caixa').textContent = 'Caixa ' + (caixaAtual.codigo||caixaAtual.id);
+  document.getElementById('sub-caixa').textContent = norm(estanteAtual.nome) + ' · SETOR: ' + norm(setor);
+  const box = document.getElementById('lista-itens');
+  box.innerHTML = '<div class="vazio">CARREGANDO...</div>';
+  try{
+    const snap = await db.collection('itens').where('caixaId','==',caixaAtual.id).get();
+    const itens = snap.docs.map(function(d){ const x = d.data(); x.id = d.id; return x; })
+                           .filter(function(i){ return i.excluido !== true; });
+    itens.sort(function(a,b){
+      const ta = a.tipoItem === 'documento' ? 1 : 0, tb = b.tipoItem === 'documento' ? 1 : 0;
+      return ta - tb || ordemNatural(a.nome||a.titulo||'', b.nome||b.titulo||'');
+    });
+    box.innerHTML = '';
+    if(itens.length === 0){ box.innerHTML = '<div class="vazio">CAIXA VAZIA.</div>'; return; }
+    itens.forEach(function(i){
+      const l = document.createElement('div');
+      l.className = 'linha';
+      const tipo = i.tipoItem === 'documento' ? '📄' : '👤';
+      const principal = i.tipoItem === 'documento' ? (i.titulo||i.id) : (i.nome||i.id);
+      const detalhe = i.tipoItem === 'documento' ? (i.tipoDocumento||'') : (i.cargo||'');
+      l.innerHTML = '<span><span class="cod">' + tipo + ' ' + esc(principal) + '</span>' +
+                    (detalhe ? ' <span style="font-size:.72rem;color:#6B7280">' + esc(detalhe) + '</span>' : '') +
+                    '</span><span class="seta">›</span>';
+      l.onclick = function(){ modalEditarItem(i); };
+      box.appendChild(l);
+    });
+  }catch(e){ box.innerHTML = '<div class="vazio" style="color:var(--ver)">ERRO: ' + esc(e.message||e) + '</div>'; }
+}
+
+async function registrar(acao){
+  try{ await db.collection('historico').add({setorId:setor, descricao:acao, quando:Date.now(), por:eu.email}); }catch(e){}
+}
+
+/* ---------- ITENS (formulário + conflito) ---------- */
+let itemEmEdicao = null;
+function modalNovoItem(){ abrirFormItem(null); }
+function modalEditarItem(i){ abrirFormItem(i); }
+
+function abrirFormItem(item){
+  itemEmEdicao = item;
+  const doc = item && item.tipoItem === 'documento';
+  const m = document.getElementById('caixa-modal');
+  m.innerHTML =
+    '<h2>' + (item ? 'Editar item' : 'Novo item') + '</h2>' +
+    '<div class="alternador">' +
+      '<button id="alt-pessoa" class="' + (doc?'':'ativo') + '" onclick="alternarTipo(false)">Pessoa</button>' +
+      '<button id="alt-doc" class="' + (doc?'ativo':'') + '" onclick="alternarTipo(true)">Documento</button>' +
+    '</div>' +
+    '<div id="campos-pessoa" style="display:' + (doc?'none':'block') + '">' +
+      '<div class="campo"><label>Nome completo</label><input id="f-nome" value="' + esc(item&&item.nome||'') + '"></div>' +
+      '<div class="campo"><label>Cargo</label><input id="f-cargo" value="' + esc(item&&item.cargo||'') + '"></div>' +
+    '</div>' +
+    '<div id="campos-doc" style="display:' + (doc?'block':'none') + '">' +
+      '<div class="campo"><label>Título do documento</label><input id="f-titulo" value="' + esc(item&&item.titulo||'') + '"></div>' +
+      '<div class="campo"><label>Tipo</label><select id="f-tipo">' +
+        ['Contrato','Processo','Nota fiscal','Outro'].map(function(t){ return '<option ' + (item&&item.tipoDocumento===t?'selected':'') + '>' + t + '</option>'; }).join('') +
+      '</select></div>' +
+      '<div class="campo"><label>Data</label><input id="f-data" type="date" value="' + esc(item&&item.data||'') + '"></div>' +
+      '<div class="campo"><label>Onde encontrar (opcional)</label><input id="f-onde" value="' + esc(item&&item.ondeEncontrar||'') + '"></div>' +
+    '</div>' +
+    '<div class="campo"><label>Observação</label><textarea id="f-obs" rows="2">' + esc(item&&item.observacao||'') + '</textarea></div>' +
+    '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button>' +
+    (item ? '<button class="btn" onclick="excluirItem()">Excluir item</button>' : '') +
+    '<button class="btn btn-prim" onclick="salvarItem()">Salvar</button></div>';
+  abrirModal();
+}
+function alternarTipo(doc){
+  document.getElementById('alt-pessoa').className = doc ? '' : 'ativo';
+  document.getElementById('alt-doc').className = doc ? 'ativo' : '';
+  document.getElementById('campos-pessoa').style.display = doc ? 'none' : 'block';
+  document.getElementById('campos-doc').style.display = doc ? 'block' : 'none';
+}
+function valor(id){ const el = document.getElementById(id); return el ? el.value.trim() : ''; }
+
+async function salvarItem(){
+  const doc = document.getElementById('alt-doc').className.indexOf('ativo') >= 0;
+  const dados = {caixaId: caixaAtual.id, tipoItem: doc ? 'documento' : 'pessoa', observacao: valor('f-obs')};
+  if(doc){
+    dados.titulo = valor('f-titulo'); dados.tipoDocumento = valor('f-tipo');
+    dados.data = valor('f-data'); dados.ondeEncontrar = valor('f-onde');
+    if(!dados.titulo){ alertaModal('O título do documento é obrigatório.'); return; }
+  }else{
+    dados.nome = valor('f-nome'); dados.cargo = valor('f-cargo');
+    if(!dados.nome){ alertaModal('O nome é obrigatório.'); return; }
+  }
+  try{
+    if(itemEmEdicao){
+      const ref = db.collection('itens').doc(itemEmEdicao.id);
+      const fresco = await ref.get();
+      const fu = fresco.exists ? fresco.data().ultimaAlteracao : 0;
+      if(fu && itemEmEdicao.ultimaAlteracao && fu !== itemEmEdicao.ultimaAlteracao){
+        conflitoModal(fresco.data(), function(){ salvarAgora(ref, dados); }, function(){ itemEmEdicao = null; abrirFormItem({id:itemEmEdicao.id, caixaId:caixaAtual.id, tipoItem: doc?'documento':'pessoa'}); preencherForm(fresco.data()); });
+        return;
+      }
+      salvarAgora(ref, dados);
+    }else{
+      dados.ultimaAlteracao = Date.now();
+      await db.collection('itens').add(dados);
+      await registrar('Adicionou o item "' + (dados.titulo||dados.nome) + '" na caixa ' + (caixaAtual.codigo||caixaAtual.id));
+      fecharModal(); renderCaixa();
+    }
+  }catch(e){ alertaModal('Erro ao salvar: ' + (e.message||e)); }
+}
+async function salvarAgora(ref, dados){
+  dados.ultimaAlteracao = Date.now();
+  await ref.update(dados);
+  await registrar('Editou o item "' + (dados.titulo||dados.nome) + '" na caixa ' + (caixaAtual.codigo||caixaAtual.id));
+  fecharModal(); renderCaixa();
+}
+function preencherForm(d){
+  if(d.tipoItem === 'documento'){ alternarTipo(true);
+    document.getElementById('f-titulo').value = d.titulo||''; document.getElementById('f-tipo').value = d.tipoDocumento||'Contrato';
+    document.getElementById('f-data').value = d.data||''; document.getElementById('f-onde').value = d.ondeEncontrar||'';
+  }else{ alternarTipo(false);
+    document.getElementById('f-nome').value = d.nome||''; document.getElementById('f-cargo').value = d.cargo||'';
+  }
+  document.getElementById('f-obs').value = d.observacao||'';
+}
+async function excluirItem(){
+  if(!itemEmEdicao) return;
+  confirmarModal('Excluir este item? Ele vai para a Lixeira e pode ser restaurado.', async function(){
+    await db.collection('itens').doc(itemEmEdicao.id).update({excluido:true, ultimaAlteracao:Date.now()});
+    await registrar('Excluiu o item da caixa ' + (caixaAtual.codigo||caixaAtual.id));
+    fecharModal(); renderCaixa();
+  });
+}
+
+/* ---------- MODAIS BÁSICOS ---------- */
+function abrirModal(){ document.getElementById('fundo-modal').style.display = 'flex'; }
+function fecharModal(){ document.getElementById('fundo-modal').style.display = 'none'; }
+function alertaModal(msg){
+  const m = document.getElementById('caixa-modal');
+  m.innerHTML = '<h2>Atenção</h2><p style="font-size:.9rem;margin-bottom:18px;">' + esc(msg) + '</p>' +
+                '<div class="rodape"><button class="btn btn-prim" onclick="fecharModal()">Ok</button></div>';
+  abrirModal();
+}
+function confirmarModal(msg, aoConfirmar){
+  const m = document.getElementById('caixa-modal');
+  m.innerHTML = '<h2>Confirmar</h2><p style="font-size:.9rem;margin-bottom:18px;">' + esc(msg) + '</p>' +
+                '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button>' +
+                '<button class="btn btn-perig" id="btn-confirmar-sim">Confirmar</button></div>';
+  document.getElementById('btn-confirmar-sim').onclick = aoConfirmar;
+  abrirModal();
+}
+function conflitoModal(dadosRecentes, manterMinha, verRecente){
+  const m = document.getElementById('caixa-modal');
+  const resumo = dadosRecentes.titulo || dadosRecentes.nome || 'item';
+  m.innerHTML = '<h2 style="color:var(--ver)">Conflito de edição</h2>' +
+    '<p style="font-size:.9rem;margin-bottom:18px;">Outra pessoa alterou "' + esc(resumo) + '" enquanto você editava.</p>' +
+    '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button>' +
+    '<button class="btn" id="btn-ver-recente">Ver a versão mais recente</button>' +
+    '<button class="btn btn-prim" id="btn-manter-minha">Manter minha versão</button></div>';
+  document.getElementById('btn-ver-recente').onclick = function(){ fecharModal(); verRecente(); };
+  document.getElementById('btn-manter-minha').onclick = function(){ fecharModal(); manterMinha(); };
+  abrirModal();
+}
+
+/* ---------- ESTANTE: criar/editar ---------- */
+function modalNovaEstante(){
+  const m = document.getElementById('caixa-modal');
+  m.innerHTML = '<h2>Nova estante</h2>' +
+    '<div class="campo"><label>Nome da estante</label><input id="m-nome" placeholder="Ex.: Estante E"></div>' +
+    '<div class="campo"><label>Tipo de mobília</label><select id="m-tipo"><option>Estante</option><option>Armário</option></select></div>' +
+    '<div class="campo"><label>Código da primeira caixa (opcional)</label><input id="m-cod" placeholder="Ex.: NSF E1-001"></div>' +
+    '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button><button class="btn btn-prim" id="m-salvar">Salvar</button></div>';
+  document.getElementById('m-salvar').onclick = async function(){
+    const nome = valor('m-nome'); if(!nome){ alertaModal('O nome da estante é obrigatório.'); return; }
+    const ref = await db.collection('estantes').add({nome:nome, tipoMobilia:valor('m-tipo'), setorId:setor});
+    const cod = valor('m-cod');
+    if(cod){ await db.collection('caixas').add({codigo:cod, setorId:setor, excluido:false, estanteNome:nome}); }
+    await registrar('Criou a estante "' + nome + '"' + (cod ? ' com a caixa ' + cod : ''));
+    fecharModal(); renderEstantes();
   };
+  abrirModal();
+}
+function abrirEdicaoEstante(id){
+  const snap = null;
+  db.collection('estantes').doc(id).get().then(function(doc){
+    estanteAtual = Object.assign({id:id}, doc.data());
+    modalEditarEstante();
+  });
+}
+function modalEditarEstante(){
+  const m = document.getElementById('caixa-modal');
+  m.innerHTML = '<h2>Editar estante</h2>' +
+    '<div class="campo"><label>Nome da estante</label><input id="m-nome" value="' + esc(estanteAtual.nome||'') + '"></div>' +
+    '<div class="campo"><label>Tipo de mobília</label><select id="m-tipo">' +
+      '<option ' + (estanteAtual.tipoMobilia==='Estante'?'selected':'') + '>Estante</option>' +
+      '<option ' + (estanteAtual.tipoMobilia==='Armário'?'selected':'') + '>Armário</option>' +
+    '</select></div>' +
+    '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button><button class="btn btn-prim" id="m-salvar">Salvar</button></div>';
+  document.getElementById('m-salvar').onclick = async function(){
+    const nome = valor('m-nome'); if(!nome){ alertaModal('O nome é obrigatório.'); return; }
+    await db.collection('estantes').doc(estanteAtual.id).update({nome:nome, tipoMobilia:valor('m-tipo')});
+    await registrar('Editou a estante "' + nome + '"');
+    estanteAtual.nome = nome; estanteAtual.tipoMobilia = valor('m-tipo');
+    fecharModal(); renderEstantes();
+  };
+  abrirModal();
+}
+function modalNovaCaixa(){
+  const m = document.getElementById('caixa-modal');
+  m.innerHTML = '<h2>Nova caixa</h2>' +
+    '<div class="campo"><label>Código da caixa</label><input id="m-cod" placeholder="Ex.: NSF D3-006"></div>' +
+    '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button><button class="btn btn-prim" id="m-salvar">Salvar</button></div>';
+  document.getElementById('m-salvar').onclick = async function(){
+    const cod = valor('m-cod'); if(!cod){ alertaModal('O código é obrigatório.'); return; }
+    await db.collection('caixas').add({codigo:cod, setorId:setor, excluido:false, estanteNome:estanteAtual.nome});
+    await registrar('Criou a caixa ' + cod + ' na ' + (estanteAtual.nome||'estante'));
+    fecharModal(); renderEstante();
+  };
+  abrirModal();
+}
+function modalMoverCaixa(){
+  const m = document.getElementById('caixa-modal');
+  db.collection('estantes').where('setorId','==',setor).get().then(function(snap){
+    const opcoes = snap.docs.map(function(d){ const x=d.data(); return '<option value="' + esc(d.id) + '">' + esc(x.nome||d.id) + '</option>'; }).join('');
+    m.innerHTML = '<h2>Mover caixa</h2>' +
+      '<p style="font-size:.85rem;margin-bottom:14px;">Mover a caixa <span class="mono">' + esc(caixaAtual.codigo||caixaAtual.id) + '</span> para:</p>' +
+      '<div class="campo"><select id="m-dest">' + opcoes + '</select></div>' +
+      '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button><button class="btn btn-prim" id="m-mover">Mover</button></div>';
+    document.getElementById('m-mover').onclick = async function(){
+      const dest = document.getElementById('m-dest').value;
+      const ddoc = await db.collection('estantes').doc(dest).get();
+      const dnome = ddoc.data().nome;
+      await db.collection('caixas').doc(caixaAtual.id).update({estanteNome:dnome, setorId:setor});
+      await registrar('Moveu a caixa ' + (caixaAtual.codigo||caixaAtual.id) + ' para ' + dnome);
+      caixaAtual.estanteNome = dnome;
+      fecharModal(); renderCaixa();
+    };
+    abrirModal();
+  });
+}
+function modalExcluirCaixa(){
+  confirmarModal('Excluir a caixa ' + (caixaAtual.codigo||caixaAtual.id) + '? Ela vai para a Lixeira e pode ser restaurada.', async function(){
+    await db.collection('caixas').doc(caixaAtual.id).update({excluido:true});
+    await registrar('Excluiu a caixa ' + (caixaAtual.codigo||caixaAtual.id));
+    fecharModal(); voltarEstantes();
+  });
+}
 
-  // axisFmt keeps axis tick labels short (compact notation) so long values
-  // (e.g. full BRL amounts) never clip against the plot edge.
-  function axisFmt(v) {
-    return fmt.num(v, { notation: "compact", maximumFractionDigits: 1 });
-  }
-
-  // format accepts a function OR one of the fmt names ("num" | "brl" | "pct").
-  function coerceFormat(spec) {
-    if (typeof spec === "function") return spec;
-    if (typeof spec === "string" && fmt[spec]) return fmt[spec];
-    return function (v) { return fmt.num(v); };
-  }
-
-  function accent() {
-    return getComputedStyle(document.documentElement).getPropertyValue("--accent").trim() || "#2563eb";
-  }
-  function mutedColor() {
-    return getComputedStyle(document.documentElement).getPropertyValue("--text-muted").trim() || "#5b6472";
-  }
-  function svgEl(tag, attrs) {
-    var el = document.createElementNS("http://www.w3.org/2000/svg", tag);
-    for (var k in attrs) el.setAttribute(k, attrs[k]);
-    return el;
-  }
-  function frame(el, w, h) {
-    var svg = svgEl("svg", { viewBox: "0 0 " + w + " " + h, role: "img" });
-    el.innerHTML = "";
-    el.appendChild(svg);
-    return svg;
-  }
-
-  // maxOf guards the axis scale: empty values would give -Infinity (truthy,
-  // so "|| 1" can't catch it) and a non-positive max would flip the chart.
-  function maxOf(values) {
-    var m = values.length ? Math.max.apply(null, values) : 0;
-    return m > 0 ? m : 1;
-  }
-
-  // bar(el, {labels:[], values:[], color?, format?}) — vertical bar chart.
-  function bar(el, cfg) {
-    var W = 640, H = 280, padL = 46, padB = 30, padT = 12;
-    var svg = frame(el, W, H);
-    var max = maxOf(cfg.values);
-    var n = cfg.values.length;
-    var plotW = W - padL - 12, plotH = H - padT - padB;
-    var step = plotW / n, bw = Math.min(step * 0.62, 64);
-    var color = cfg.color || accent();
-    var f = coerceFormat(cfg.format);
-    for (var g = 0; g <= 4; g++) {
-      var gy = padT + plotH - (plotH * g) / 4;
-      svg.appendChild(svgEl("line", { x1: padL, y1: gy, x2: W - 12, y2: gy, stroke: "currentColor", "stroke-opacity": 0.08 }));
-      var lbl = svgEl("text", { x: padL - 8, y: gy + 4, "text-anchor": "end", "font-size": 10, fill: mutedColor() });
-      lbl.textContent = axisFmt((max * g) / 4);
-      svg.appendChild(lbl);
-    }
-    cfg.values.forEach(function (v, i) {
-      var bh = Math.max(0, (v / max) * plotH);
-      var x = padL + i * step + (step - bw) / 2;
-      var y = padT + plotH - bh;
-      var r = svgEl("rect", { x: x, y: y, width: bw, height: bh, rx: 4, fill: color });
-      var t = svgEl("title", {});
-      t.textContent = cfg.labels[i] + ": " + f(v);
-      r.appendChild(t);
-      svg.appendChild(r);
-      var tx = svgEl("text", { x: x + bw / 2, y: H - 10, "text-anchor": "middle", "font-size": 11, fill: mutedColor() });
-      tx.textContent = cfg.labels[i];
-      svg.appendChild(tx);
+/* ---------- COLABORADORES ---------- */
+function abrirColaboradores(){ renderColaboradores(); mostrar('scr-colab'); }
+async function renderColaboradores(){
+  document.getElementById('sub-colab').textContent = 'SETOR: ' + norm(setor);
+  const box = document.getElementById('lista-colab');
+  box.innerHTML = '<div class="vazio">CARREGANDO...</div>';
+  try{
+    const snap = await db.collection('usuarios').where('setores','array-contains',setor).get();
+    box.innerHTML = '';
+    if(snap.empty){ box.innerHTML = '<div class="vazio">NENHUM COLABORADOR NESTE SETOR.</div>'; return; }
+    snap.docs.forEach(function(d){
+      const u = d.data();
+      const adm = (u.adminDe||u.admin||[]).indexOf(setor) >= 0;
+      const l = document.createElement('div');
+      l.className = 'linha';
+      l.style.cursor = 'default';
+      l.innerHTML = '<span class="cod">' + esc(d.id) + '</span>' +
+        '<span><span class="tag' + (adm?' tag-adm':'') + '">' + (adm?'ADMIN':'COLABORADOR') + '</span>' +
+        (ehAdmin() ? ' <button class="btn btn-perig" style="padding:2px 8px;font-size:.65rem;margin-left:8px;" onclick="removerColab(\'' + esc(d.id) + '\')">Remover deste setor</button>' : '') +
+        '</span>';
+      box.appendChild(l);
     });
-  }
+  }catch(e){ box.innerHTML = '<div class="vazio" style="color:var(--ver)">ERRO: ' + esc(e.message||e) + '</div>'; }
+}
+async function removerColab(email){
+  confirmarModal('Remover ' + email + ' deste setor?', async function(){
+    await db.collection('usuarios').doc(email).update({setores: firebase.firestore.FieldValue.arrayRemove(setor)});
+    await registrar('Removeu ' + email + ' do setor');
+    fecharModal(); renderColaboradores();
+  });
+}
+function modalAddColab(){
+  const m = document.getElementById('caixa-modal');
+  m.innerHTML = '<h2>Adicionar colaborador</h2>' +
+    '<div class="campo"><label>E-mail da pessoa</label><input id="m-email" placeholder="pessoa@empresa.com"></div>' +
+    '<div class="campo"><label>Setores liberados (separados por vírgula)</label><input id="m-setores" value="' + esc(setor) + '"></div>' +
+    '<div class="campo"><label>Setores onde é admin (opcional, separados por vírgula)</label><input id="m-admin" value=""></div>' +
+    '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button><button class="btn btn-prim" id="m-salvar">Salvar</button></div>';
+  document.getElementById('m-salvar').onclick = async function(){
+    const email = valor('m-email').toLowerCase();
+    if(!email || email.indexOf('@') < 0){ alertaModal('Informe um e-mail válido.'); return; }
+    const setores = valor('m-setores').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+    const admin = valor('m-admin').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
+    await db.collection('usuarios').doc(email).set(
+      {ativo:true, setores: firebase.firestore.FieldValue.arrayUnion.apply(null, setores), adminDe: admin.length ? firebase.firestore.FieldValue.arrayUnion.apply(null, admin) : []},
+      {merge:true});
+    await registrar('Adicionou ' + email + ' aos setores ' + setores.join(', '));
+    fecharModal(); renderColaboradores();
+  };
+  abrirModal();
+}
 
-  // line(el, {labels:[], values:[], color?, format?}) — single-series line.
-  function line(el, cfg) {
-    var W = 640, H = 280, padL = 46, padB = 30, padT = 12;
-    var svg = frame(el, W, H);
-    var max = maxOf(cfg.values);
-    var n = cfg.values.length;
-    var plotW = W - padL - 16, plotH = H - padT - padB;
-    var color = cfg.color || accent();
-    var f = coerceFormat(cfg.format);
-    for (var g = 0; g <= 4; g++) {
-      var gy = padT + plotH - (plotH * g) / 4;
-      svg.appendChild(svgEl("line", { x1: padL, y1: gy, x2: W - 16, y2: gy, stroke: "currentColor", "stroke-opacity": 0.08 }));
-      var lbl = svgEl("text", { x: padL - 8, y: gy + 4, "text-anchor": "end", "font-size": 10, fill: mutedColor() });
-      lbl.textContent = axisFmt((max * g) / 4);
-      svg.appendChild(lbl);
-    }
-    var pts = cfg.values.map(function (v, i) {
-      var x = padL + (n === 1 ? plotW / 2 : (plotW * i) / (n - 1));
-      var y = padT + plotH - (v / max) * plotH;
-      return [x, y];
+/* ---------- HISTÓRICO ---------- */
+function abrirHistorico(){ renderHistorico(); mostrar('scr-hist'); }
+async function renderHistorico(){
+  const box = document.getElementById('lista-hist');
+  box.innerHTML = '<div class="vazio">CARREGANDO...</div>';
+  try{
+    const snap = await db.collection('historico').where('setorId','==',setor).limit(300).get();
+    const itens = snap.docs.map(function(d){ return d.data(); })
+      .sort(function(a,b){ return (b.quando||0) - (a.quando||0); }).slice(0,100);
+    box.innerHTML = '';
+    if(itens.length === 0){ box.innerHTML = '<div class="vazio">NADA REGISTRADO AINDA.</div>'; return; }
+    itens.forEach(function(h){
+      const d = new Date(h.quando||0);
+      const l = document.createElement('div');
+      l.className = 'hist-item';
+      l.innerHTML = '<div>' + esc(h.descricao||'') + '</div><div class="quando">' + d.toLocaleString('pt-BR') + (h.por ? ' · ' + esc(h.por) : '') + '</div>';
+      box.appendChild(l);
     });
-    var d = pts.map(function (p, i) { return (i ? "L" : "M") + p[0].toFixed(1) + " " + p[1].toFixed(1); }).join(" ");
-    svg.appendChild(svgEl("path", { d: d, fill: "none", stroke: color, "stroke-width": 2, "stroke-linejoin": "round" }));
-    pts.forEach(function (p, i) {
-      var c = svgEl("circle", { cx: p[0], cy: p[1], r: 3.5, fill: color });
-      var t = svgEl("title", {});
-      t.textContent = cfg.labels[i] + ": " + f(cfg.values[i]);
-      c.appendChild(t);
-      svg.appendChild(c);
-      var tx = svgEl("text", { x: p[0], y: H - 10, "text-anchor": "middle", "font-size": 11, fill: mutedColor() });
-      tx.textContent = cfg.labels[i];
-      svg.appendChild(tx);
+  }catch(e){ box.innerHTML = '<div class="vazio" style="color:var(--ver)">ERRO: ' + esc(e.message||e) + '</div>'; }
+}
+
+/* ---------- LIXEIRA ---------- */
+function abrirLixeira(){ renderLixeira(); mostrar('scr-lixeira'); }
+async function renderLixeira(){
+  const box = document.getElementById('lista-lixeira');
+  box.innerHTML = '<div class="vazio">CARREGANDO...</div>';
+  try{
+    const scx = await db.collection('caixas').where('setorId','==',setor).get();
+    const idsSetor = {};
+    const caixasEx = [];
+    scx.docs.forEach(function(d){ idsSetor[d.id] = true; const x=d.data(); if(x.excluido === true){ caixasEx.push({id:d.id, codigo:x.codigo||d.id}); } });
+    const sit = await db.collection('itens').where('excluido','==',true).get();
+    const itensEx = sit.docs.map(function(d){ const x=d.data(); x.id=d.id; return x; }).filter(function(i){ return idsSetor[i.caixaId]; });
+    box.innerHTML = '';
+    if(caixasEx.length === 0 && itensEx.length === 0){ box.innerHTML = '<div class="vazio">LIXEIRA VAZIA.</div>'; return; }
+    caixasEx.forEach(function(c){
+      const l = document.createElement('div');
+      l.className = 'linha'; l.style.cursor='default';
+      l.innerHTML = '<span class="cod">📦 ' + esc(c.codigo) + '</span><button class="btn" style="padding:3px 10px;font-size:.7rem;" onclick="restaurarCaixa(\'' + c.id + '\')">Restaurar</button>';
+      box.appendChild(l);
     });
-  }
-
-  // donut(el, {labels:[], values:[], colors?}) — donut with center total.
-  function donut(el, cfg) {
-    var W = 320, H = 280, cx = W / 2, cy = H / 2, R = 92, r = 58;
-    var svg = frame(el, W, H);
-    var total = cfg.values.reduce(function (a, b) { return a + b; }, 0) || 1;
-    var palette = cfg.colors || [accent(), "#1baf7a", "#eda100", "#e34948", "#4a3aa7", "#e87ba4"];
-    var a0 = -Math.PI / 2;
-    cfg.values.forEach(function (v, i) {
-      var a1 = a0 + (v / total) * Math.PI * 2;
-      var large = a1 - a0 > Math.PI ? 1 : 0;
-      var p = ["M", cx + R * Math.cos(a0), cy + R * Math.sin(a0),
-        "A", R, R, 0, large, 1, cx + R * Math.cos(a1), cy + R * Math.sin(a1),
-        "L", cx + r * Math.cos(a1), cy + r * Math.sin(a1),
-        "A", r, r, 0, large, 0, cx + r * Math.cos(a0), cy + r * Math.sin(a0), "Z"].join(" ");
-      var path = svgEl("path", { d: p, fill: palette[i % palette.length] });
-      var t = svgEl("title", {});
-      t.textContent = cfg.labels[i] + ": " + fmt.num(v) + " (" + fmt.pct(v / total) + ")";
-      path.appendChild(t);
-      svg.appendChild(path);
-      a0 = a1;
-    });
-    var center = svgEl("text", { x: cx, y: cy + 5, "text-anchor": "middle", "font-size": 20, "font-weight": 650, fill: "currentColor" });
-    center.textContent = fmt.num(total);
-    svg.appendChild(center);
-  }
-
-  window.skipShell = { fmt: fmt };
-  window.skipChart = { bar: bar, line: line, donut: donut };
-})();
-
-</script>
-</body>
-</html>
+    itens

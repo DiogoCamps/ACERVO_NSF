@@ -5,7 +5,6 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ACERVO - Gestão Documental</title>
     
-    <!-- Scripts e Fontes -->
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -13,71 +12,46 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     
     <style>
-        /* Estilo Blueprint Global */
-        :root {
-            --bg-color: #F6F4EE;
-            --grid-color: #D8DEE8;
-            --ink-color: #1C1B18;
-            --blueprint-blue: #2B4C7E;
-        }
-
-        body {
-            margin: 0; padding: 0;
-            background-color: var(--bg-color);
-            background-image: radial-gradient(var(--grid-color) 1px, transparent 1px);
-            background-size: 20px 20px;
-            font-family: 'Barlow Condensed', sans-serif;
-            color: var(--ink-color);
-        }
-
-        /* Tela de Login */
-        #tela-login {
-            display: flex; justify-content: center; align-items: center;
-            height: 100vh; width: 100%; position: fixed; z-index: 2000;
-            background-color: var(--bg-color);
-        }
-        .container-login {
-            background: rgba(255, 255, 255, 0.95);
-            border: 2px solid var(--ink-color);
-            padding: 60px; text-align: center;
-            box-shadow: 10px 10px 0px var(--grid-color);
-        }
-
-        /* Sistema Principal */
-        #sistema-principal { display: none; padding: 20px; }
-        
-        .header { border-bottom: 2px solid var(--ink-color); padding-bottom: 10px; margin-bottom: 20px; }
-        .grid-estantes { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
-        .estante { border: 1px solid var(--blueprint-blue); padding: 15px; background: white; }
-        .caixa { border: 1px dashed var(--ink-color); margin: 5px 0; padding: 5px; font-family: 'Space Mono', monospace; font-size: 0.8rem; }
-        
-        h1 { font-size: 3rem; margin: 0; letter-spacing: 5px; text-transform: uppercase; }
-        .btn-logout { position: absolute; top: 20px; right: 20px; padding: 10px; cursor: pointer; border: 1px solid var(--ink-color); background: white; }
+        :root { --bg-color: #F6F4EE; --grid-color: #D8DEE8; --ink-color: #1C1B18; --blueprint-blue: #2B4C7E; }
+        body { margin: 0; background-color: var(--bg-color); background-image: radial-gradient(var(--grid-color) 1px, transparent 1px); background-size: 20px 20px; font-family: 'Barlow Condensed', sans-serif; color: var(--ink-color); }
+        #tela-login { display: flex; justify-content: center; align-items: center; height: 100vh; width: 100%; position: fixed; z-index: 2000; background-color: var(--bg-color); }
+        .container-login { background: white; border: 2px solid var(--ink-color); padding: 60px; text-align: center; box-shadow: 10px 10px 0px var(--grid-color); }
+        #sistema-principal { display: none; padding: 40px; }
+        .secao { margin-bottom: 40px; border-top: 2px solid var(--ink-color); padding-top: 20px; }
+        .grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; }
+        .card { border: 1px solid var(--blueprint-blue); padding: 15px; background: white; position: relative; }
+        .caixa-item { border-bottom: 1px dashed #ccc; padding: 5px 0; font-family: 'Space Mono', monospace; font-size: 0.8rem; }
+        .tag-pessoa { background: #E8F0FE; color: var(--blueprint-blue); padding: 2px 8px; border-radius: 4px; font-size: 0.7rem; margin-right: 5px; }
+        h1 { font-size: 3rem; margin: 0; letter-spacing: 5px; }
+        h2 { font-size: 1.5rem; text-transform: uppercase; margin-bottom: 20px; color: var(--blueprint-blue); }
     </style>
 </head>
 <body>
 
-    <!-- TELA DE LOGIN -->
     <div id="tela-login">
         <div class="container-login">
             <h1>ACERVO</h1>
-            <p style="font-family: 'Space Mono', monospace; color: var(--blueprint-blue);">SISTEMA DE GESTÃO DOCUMENTAL</p>
+            <p style="font-family: 'Space Mono', monospace; color: var(--blueprint-blue);">AUTENTICAÇÃO REQUERIDA</p>
             <div id="buttonDiv"></div>
-            <p id="msg-status" style="margin-top: 20px; font-size: 12px; opacity: 0.6;">AUTENTICAÇÃO REQUERIDA</p>
         </div>
     </div>
 
-    <!-- SISTEMA PRINCIPAL -->
     <div id="sistema-principal">
-        <button class="btn-logout" onclick="fazerLogout()">SAIR</button>
-        <div class="header">
+        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 40px;">
             <h1>ACERVO</h1>
-            <p id="user-info" style="font-family: 'Space Mono', monospace; margin: 0;"></p>
+            <button onclick="firebase.auth().signOut().then(() => location.reload())" style="padding: 10px; cursor: pointer;">SAIR</button>
         </div>
 
-        <div id="conteudo-acervo" class="grid-estantes">
-            <!-- As estantes e caixas serão carregadas aqui via JavaScript -->
-            <p>Carregando dados do inventário...</p>
+        <!-- SEÇÃO DE PESSOAS -->
+        <div class="secao">
+            <h2>Pessoas Cadastradas</h2>
+            <div id="lista-pessoas" class="grid">Carregando usuários...</div>
+        </div>
+
+        <!-- SEÇÃO DE ESTANTES E ARMÁRIOS -->
+        <div class="secao">
+            <h2>Estantes e Armários</h2>
+            <div id="conteudo-acervo" class="grid">Carregando inventário...</div>
         </div>
     </div>
 
@@ -95,66 +69,55 @@
         firebase.initializeApp(firebaseConfig);
         const db = firebase.firestore();
 
+        async function carregarTudo() {
+            // 1. Carregar Pessoas
+            const pContainer = document.getElementById('lista-pessoas');
+            const snapPessoas = await db.collection('usuarios').get();
+            pContainer.innerHTML = '';
+            snapPessoas.forEach(doc => {
+                const p = doc.data();
+                pContainer.innerHTML += `<div class="card"><strong>${p.nome || doc.id}</strong><br><small>${doc.id}</small><br><span class="tag-pessoa">${p.ativo ? 'ATIVO' : 'INATIVO'}</span></div>`;
+            });
+
+            // 2. Carregar Estantes/Armários e Caixas
+            const aContainer = document.getElementById('conteudo-acervo');
+            const snapEstantes = await db.collection('estantes').get();
+            aContainer.innerHTML = '';
+
+            for (const docEst of snapEstantes.docs) {
+                const est = docEst.data();
+                const estId = docEst.id;
+                const card = document.createElement('div');
+                card.className = 'card';
+                card.innerHTML = `<h3>${est.nome || estId}</h3><div id="cx-${estId}" style="margin-top:10px;"></div>`;
+                aContainer.appendChild(card);
+
+                // Busca caixas vinculadas a esta estante (pelo setorId ou nome da estante)
+                const snapCx = await db.collection('caixas').where('setorId', '==', est.setorId).get();
+                const cxDiv = document.getElementById(`cx-${estId}`);
+                snapCx.forEach(docCx => {
+                    const cx = docCx.data();
+                    // Tenta pegar o código da caixa de várias formas para evitar o "undefined"
+                    const identificador = cx.codigo || cx.nome || docCx.id;
+                    cxDiv.innerHTML += `<div class="caixa-item">📦 CAIXA: ${identificador}</div>`;
+                });
+            }
+        }
+
         function handleCredentialResponse(response) {
             const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
             firebase.auth().signInWithCredential(credential);
         }
 
-        function fazerLogout() {
-            firebase.auth().signOut().then(() => location.reload());
-        }
-
-        // Lógica de carregamento de dados do Firestore
-        async function carregarDados(userEmail) {
-            const container = document.getElementById('conteudo-acervo');
-            container.innerHTML = '';
-
-            try {
-                // Busca estantes
-                const snapshotEstantes = await db.collection('estantes').get();
-                if (snapshotEstantes.empty) {
-                    container.innerHTML = '<p>Nenhuma estante encontrada no banco de dados.</p>';
-                    return;
-                }
-
-                snapshotEstantes.forEach(async (docEstante) => {
-                    const estante = docEstante.data();
-                    const estanteDiv = document.createElement('div');
-                    estanteDiv.className = 'estante';
-                    estanteDiv.innerHTML = `<h3>ESTANTE: ${estante.nome || docEstante.id}</h3><div id="caixas-${docEstante.id}"></div>`;
-                    container.appendChild(estanteDiv);
-
-                    // Busca caixas desta estante
-                    const snapshotCaixas = await db.collection('caixas').where('setorId', '==', estante.setorId).get();
-                    const caixasContainer = document.getElementById(`caixas-${docEstante.id}`);
-                    
-                    snapshotCaixas.forEach(docCaixa => {
-                        const caixa = docCaixa.data();
-                        const caixaDiv = document.createElement('div');
-                        caixaDiv.className = 'caixa';
-                        caixaDiv.innerText = `CAIXA: ${caixa.codigo} | ${caixa.setorId}`;
-                        caixasContainer.appendChild(caixaDiv);
-                    });
-                });
-            } catch (error) {
-                console.error("Erro ao buscar dados:", error);
-                container.innerHTML = '<p>Erro ao carregar inventário. Verifique as permissões.</p>';
-            }
-        }
-
         window.onload = function () {
-            google.accounts.id.initialize({
-                client_id: GOOGLE_CLIENT_ID,
-                callback: handleCredentialResponse
-            });
+            google.accounts.id.initialize({ client_id: GOOGLE_CLIENT_ID, callback: handleCredentialResponse });
             google.accounts.id.renderButton(document.getElementById("buttonDiv"), { theme: "outline", size: "large" });
 
             firebase.auth().onAuthStateChanged((user) => {
                 if (user) {
                     document.getElementById('tela-login').style.display = 'none';
                     document.getElementById('sistema-principal').style.display = 'block';
-                    document.getElementById('user-info').innerText = `OPERADOR: ${user.email}`;
-                    carregarDados(user.email);
+                    carregarTudo();
                 }
             });
         };

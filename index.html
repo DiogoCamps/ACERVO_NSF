@@ -135,7 +135,7 @@
                 if (caixasDestaEstante.length > 0) {
                     caixasDestaEstante.forEach(cx => {
                         const cod = cx.codigo || cx.nome || cx.id;
-                        listDiv.innerHTML += `<div class="caixa-row"><span class="caixa-id">📦 ${cod}</span></div>`;
+                        listDiv.innerHTML += `<div class="caixa-row"><span class="caixa-id"> ${cod}</span></div>`;
                     });
                 } else {
                     listDiv.innerHTML = '<p style="font-size:0.7rem; opacity:0.4;">ESTANTE VAZIA</p>';

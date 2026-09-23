@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>ACERVO - Gestão Documental</title>
     
+    <!-- Scripts e Fontes -->
     <link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:wght@400;700&family=Space+Mono&display=swap" rel="stylesheet">
     <script src="https://accounts.google.com/gsi/client" async defer></script>
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
@@ -12,44 +13,46 @@
     <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
     
     <style>
-        /* Layout Blueprint Original */
+        /* Estilo Blueprint Global */
+        :root {
+            --bg-color: #F6F4EE;
+            --grid-color: #D8DEE8;
+            --ink-color: #1C1B18;
+            --blueprint-blue: #2B4C7E;
+        }
+
         body {
             margin: 0; padding: 0;
-            background-color: #F6F4EE;
-            background-image: radial-gradient(#D8DEE8 1px, transparent 1px);
+            background-color: var(--bg-color);
+            background-image: radial-gradient(var(--grid-color) 1px, transparent 1px);
             background-size: 20px 20px;
             font-family: 'Barlow Condensed', sans-serif;
-            color: #1C1B18;
+            color: var(--ink-color);
         }
 
         /* Tela de Login */
         #tela-login {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            height: 100vh;
-            position: fixed;
-            width: 100%;
-            z-index: 1000;
-            background-color: #F6F4EE;
+            display: flex; justify-content: center; align-items: center;
+            height: 100vh; width: 100%; position: fixed; z-index: 2000;
+            background-color: var(--bg-color);
         }
-
         .container-login {
-            background: rgba(255, 255, 255, 0.9);
-            border: 2px solid #1C1B18;
-            padding: 60px;
-            text-align: center;
-            box-shadow: 10px 10px 0px #D8DEE8;
+            background: rgba(255, 255, 255, 0.95);
+            border: 2px solid var(--ink-color);
+            padding: 60px; text-align: center;
+            box-shadow: 10px 10px 0px var(--grid-color);
         }
 
-        /* Área do Sistema (Escondida até o login) */
-        #sistema-principal {
-            display: none;
-            padding: 20px;
-        }
-
+        /* Sistema Principal */
+        #sistema-principal { display: none; padding: 20px; }
+        
+        .header { border-bottom: 2px solid var(--ink-color); padding-bottom: 10px; margin-bottom: 20px; }
+        .grid-estantes { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 20px; }
+        .estante { border: 1px solid var(--blueprint-blue); padding: 15px; background: white; }
+        .caixa { border: 1px dashed var(--ink-color); margin: 5px 0; padding: 5px; font-family: 'Space Mono', monospace; font-size: 0.8rem; }
+        
         h1 { font-size: 3rem; margin: 0; letter-spacing: 5px; text-transform: uppercase; }
-        p.subtitle { font-family: 'Space Mono', monospace; font-size: 0.8rem; color: #2B4C7E; margin-bottom: 30px; }
+        .btn-logout { position: absolute; top: 20px; right: 20px; padding: 10px; cursor: pointer; border: 1px solid var(--ink-color); background: white; }
     </style>
 </head>
 <body>
@@ -58,24 +61,28 @@
     <div id="tela-login">
         <div class="container-login">
             <h1>ACERVO</h1>
-            <p class="subtitle">SISTEMA DE GESTÃO DOCUMENTAL</p>
+            <p style="font-family: 'Space Mono', monospace; color: var(--blueprint-blue);">SISTEMA DE GESTÃO DOCUMENTAL</p>
             <div id="buttonDiv"></div>
-            <p id="msg-status" style="margin-top: 20px; font-size: 12px; color: #666;">Aguardando autenticação...</p>
+            <p id="msg-status" style="margin-top: 20px; font-size: 12px; opacity: 0.6;">AUTENTICAÇÃO REQUERIDA</p>
         </div>
     </div>
 
-    <!-- SISTEMA PRINCIPAL (Seu front original entra aqui) -->
+    <!-- SISTEMA PRINCIPAL -->
     <div id="sistema-principal">
-        <div style="border: 2px dashed #2B4C7E; padding: 20px; text-align: center;">
-            <h2 style="color: #2B4C7E;">ACESSO AUTORIZADO</h2>
-            <p>Bem-vindo ao sistema de estantes e caixas.</p>
-            <!-- O restante do seu front de gestão documental deve ser colado aqui dentro -->
+        <button class="btn-logout" onclick="fazerLogout()">SAIR</button>
+        <div class="header">
+            <h1>ACERVO</h1>
+            <p id="user-info" style="font-family: 'Space Mono', monospace; margin: 0;"></p>
+        </div>
+
+        <div id="conteudo-acervo" class="grid-estantes">
+            <!-- As estantes e caixas serão carregadas aqui via JavaScript -->
+            <p>Carregando dados do inventário...</p>
         </div>
     </div>
 
     <script>
         const GOOGLE_CLIENT_ID = '1032170606542-dukbmb70h332gpjtbuncl76bvobv6dvi.apps.googleusercontent.com';
-        
         const firebaseConfig = {
             apiKey: "AIzaSyBKDvELUvYH1TESB7M_JjojW4nxUpf6cgQ",
             authDomain: "acervo-15e48.firebaseapp.com",
@@ -86,42 +93,68 @@
         };
 
         firebase.initializeApp(firebaseConfig);
+        const db = firebase.firestore();
 
-        // Função que lida com o sucesso do login
         function handleCredentialResponse(response) {
-            document.getElementById('msg-status').innerText = "Validando credenciais...";
             const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
-            
-            firebase.auth().signInWithCredential(credential)
-                .then((result) => {
-                    console.log("Login OK:", result.user.email);
-                    // SUCESSO: Esconde login e mostra sistema
-                    document.getElementById('tela-login').style.display = 'none';
-                    document.getElementById('sistema-principal').style.display = 'block';
-                })
-                .catch((error) => {
-                    console.error("Erro Firebase:", error);
-                    document.getElementById('msg-status').innerText = "Erro: " + error.message;
+            firebase.auth().signInWithCredential(credential);
+        }
+
+        function fazerLogout() {
+            firebase.auth().signOut().then(() => location.reload());
+        }
+
+        // Lógica de carregamento de dados do Firestore
+        async function carregarDados(userEmail) {
+            const container = document.getElementById('conteudo-acervo');
+            container.innerHTML = '';
+
+            try {
+                // Busca estantes
+                const snapshotEstantes = await db.collection('estantes').get();
+                if (snapshotEstantes.empty) {
+                    container.innerHTML = '<p>Nenhuma estante encontrada no banco de dados.</p>';
+                    return;
+                }
+
+                snapshotEstantes.forEach(async (docEstante) => {
+                    const estante = docEstante.data();
+                    const estanteDiv = document.createElement('div');
+                    estanteDiv.className = 'estante';
+                    estanteDiv.innerHTML = `<h3>ESTANTE: ${estante.nome || docEstante.id}</h3><div id="caixas-${docEstante.id}"></div>`;
+                    container.appendChild(estanteDiv);
+
+                    // Busca caixas desta estante
+                    const snapshotCaixas = await db.collection('caixas').where('setorId', '==', estante.setorId).get();
+                    const caixasContainer = document.getElementById(`caixas-${docEstante.id}`);
+                    
+                    snapshotCaixas.forEach(docCaixa => {
+                        const caixa = docCaixa.data();
+                        const caixaDiv = document.createElement('div');
+                        caixaDiv.className = 'caixa';
+                        caixaDiv.innerText = `CAIXA: ${caixa.codigo} | ${caixa.setorId}`;
+                        caixasContainer.appendChild(caixaDiv);
+                    });
                 });
+            } catch (error) {
+                console.error("Erro ao buscar dados:", error);
+                container.innerHTML = '<p>Erro ao carregar inventário. Verifique as permissões.</p>';
+            }
         }
 
         window.onload = function () {
             google.accounts.id.initialize({
                 client_id: GOOGLE_CLIENT_ID,
-                callback: handleCredentialResponse,
-                ux_mode: 'popup' // Se o erro de COOP persistir, mudaremos para 'redirect'
+                callback: handleCredentialResponse
             });
-            
-            google.accounts.id.renderButton(
-                document.getElementById("buttonDiv"),
-                { theme: "outline", size: "large", width: 250 }
-            );
+            google.accounts.id.renderButton(document.getElementById("buttonDiv"), { theme: "outline", size: "large" });
 
-            // Verifica se já está logado
             firebase.auth().onAuthStateChanged((user) => {
                 if (user) {
                     document.getElementById('tela-login').style.display = 'none';
                     document.getElementById('sistema-principal').style.display = 'block';
+                    document.getElementById('user-info').innerText = `OPERADOR: ${user.email}`;
+                    carregarDados(user.email);
                 }
             });
         };

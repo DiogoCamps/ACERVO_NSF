@@ -15,28 +15,27 @@
         :root { --bg: #F6F4EE; --ink: #1C1B18; --blue: #2B4C7E; --grid: #D8DEE8; }
         body { margin: 0; background: var(--bg); background-image: radial-gradient(var(--grid) 1px, transparent 1px); background-size: 20px 20px; font-family: 'Barlow Condensed', sans-serif; color: var(--ink); }
         
-        /* Login */
         #tela-login { display: flex; justify-content: center; align-items: center; height: 100vh; width: 100%; position: fixed; z-index: 2000; background: var(--bg); }
         .box-login { border: 2px solid var(--ink); padding: 50px; background: white; box-shadow: 10px 10px 0 var(--grid); text-align: center; }
 
-        /* Dashboard */
         #sistema { display: none; padding: 40px; }
         .header { display: flex; justify-content: space-between; align-items: flex-end; border-bottom: 2px solid var(--ink); padding-bottom: 10px; margin-bottom: 30px; }
         h1 { font-size: 3.5rem; margin: 0; letter-spacing: 4px; line-height: 1; }
         
         .secao-titulo { font-family: 'Space Mono', monospace; font-size: 1rem; color: var(--blue); border-left: 5px solid var(--blue); padding-left: 10px; margin: 40px 0 20px 0; }
         
-        /* Grid de Usuários (Cards menores e limpos) */
-        .grid-users { display: grid; grid-template-columns: repeat(auto-fill, minmax(200px, 1fr)); gap: 15px; }
-        .user-card { border: 1px solid var(--ink); padding: 10px; background: white; font-size: 0.9rem; }
+        .grid-users { display: grid; grid-template-columns: repeat(auto-fill, minmax(180px, 1fr)); gap: 15px; }
+        .user-card { border: 1px solid var(--ink); padding: 10px; background: white; font-size: 0.85rem; }
 
-        /* Grid de Inventário */
-        .grid-acervo { display: grid; grid-template-columns: repeat(auto-fill, minmax(300px, 1fr)); gap: 25px; }
-        .estante-card { border: 2px solid var(--blue); background: white; position: relative; padding: 15px; }
-        .estante-header { background: var(--blue); color: white; margin: -15px -15px 15px -15px; padding: 8px 15px; font-weight: bold; font-size: 1.2rem; }
+        /* Grid de Inventário - Organizado por Estante */
+        .grid-acervo { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 20px; align-items: start; }
+        .estante-card { border: 2px solid var(--blue); background: white; padding: 0; min-height: 100px; }
+        .estante-header { background: var(--blue); color: white; padding: 8px 15px; font-weight: bold; font-size: 1.1rem; text-transform: uppercase; }
+        .lista-caixas { padding: 10px; }
         
-        .caixa-row { display: flex; justify-content: space-between; border-bottom: 1px dashed var(--grid); padding: 5px 0; font-family: 'Space Mono', monospace; font-size: 0.8rem; }
-        .caixa-id { font-weight: bold; color: var(--blue); }
+        .caixa-row { border-bottom: 1px dashed var(--grid); padding: 6px 0; font-family: 'Space Mono', monospace; font-size: 0.75rem; display: flex; align-items: center; }
+        .caixa-row:last-child { border-bottom: none; }
+        .caixa-id { font-weight: bold; color: var(--blue); margin-right: 8px; }
     </style>
 </head>
 <body>
@@ -55,13 +54,13 @@
                 <h1>ACERVO</h1>
                 <span id="user-tag" style="font-family: 'Space Mono'; font-size: 0.8rem;"></span>
             </div>
-            <button onclick="firebase.auth().signOut().then(()=>location.reload())" style="background: none; border: 1px solid #ccc; cursor: pointer; padding: 5px 15px;">LOGOUT</button>
+            <button onclick="firebase.auth().signOut().then(()=>location.reload())" style="background: none; border: 1px solid #ccc; cursor: pointer; padding: 5px 15px;">SAIR</button>
         </div>
 
-        <div class="secao-titulo">EQUIPE AUTORIZADA</div>
+        <div class="secao-titulo">EQUIPE ATIVA</div>
         <div id="lista-usuarios" class="grid-users"></div>
 
-        <div class="secao-titulo">INVENTÁRIO DE ESTANTES E ARMÁRIOS</div>
+        <div class="secao-titulo">INVENTÁRIO POR LOCALIZAÇÃO</div>
         <div id="lista-inventario" class="grid-acervo"></div>
     </div>
 
@@ -80,49 +79,68 @@
         const db = firebase.firestore();
 
         async function carregarDados() {
-            // 1. Carregar Usuários (Apenas os ATIVOS)
+            // 1. Carregar Usuários (Apenas ATIVOS)
             const userCont = document.getElementById('lista-usuarios');
             const snapUsers = await db.collection('usuarios').where('ativo', '==', true).get();
             userCont.innerHTML = '';
             snapUsers.forEach(doc => {
                 const u = doc.data();
-                userCont.innerHTML += `<div class="user-card"><strong>${u.nome}</strong><br><span style="opacity:0.6; font-size:0.7rem;">${doc.id}</span></div>`;
+                userCont.innerHTML += `<div class="user-card"><strong>${u.nome || 'Usuário'}</strong><br><span style="opacity:0.6; font-size:0.7rem;">${doc.id}</span></div>`;
             });
 
-            // 2. Carregar Estantes e Caixas (Filtrando excluídos)
+            // 2. Carregar Estantes e Caixas com Lógica de Mapeamento
             const invCont = document.getElementById('lista-inventario');
             const snapEst = await db.collection('estantes').get();
+            const snapCx = await db.collection('caixas').get(); // Busca todas as caixas uma vez para processar
+            
+            const caixasAtivas = [];
+            snapCx.forEach(doc => {
+                const data = doc.data();
+                if (data.excluido !== true) {
+                    caixasAtivas.push({ id: doc.id, ...data });
+                }
+            });
+
             invCont.innerHTML = '';
 
-            for (const docEst of snapEst.docs) {
+            snapEst.forEach(docEst => {
                 const est = docEst.data();
-                const estId = docEst.id;
-                
+                const estNome = (est.nome || docEst.id).toUpperCase();
+                const estLetra = estNome.includes('ESTANTE') ? estNome.split(' ').pop() : null; // Pega 'A', 'B', etc.
+
                 const card = document.createElement('div');
                 card.className = 'estante-card';
-                card.innerHTML = `<div class="estante-header">${est.nome || estId}</div><div id="list-cx-${estId}"></div>`;
+                card.innerHTML = `<div class="estante-header">${estNome}</div><div class="lista-caixas" id="list-${docEst.id}"></div>`;
                 invCont.appendChild(card);
 
-                // Busca caixas vinculadas que NÃO estão excluídas
-                const snapCx = await db.collection('caixas')
-                    .where('setorId', '==', est.setorId)
-                    .get();
-
-                const listCx = document.getElementById(`list-cx-${estId}`);
-                let temCaixa = false;
-
-                snapCx.forEach(docCx => {
-                    const cx = docCx.data();
-                    // FILTRO CRÍTICO: Só mostra se não estiver excluída
-                    if (cx.excluido !== true) {
-                        temCaixa = true;
-                        const id = cx.codigo || cx.nome || docCx.id;
-                        listCx.innerHTML += `<div class="caixa-row"><span class="caixa-id">📦 ${id}</span><span>${cx.setorId}</span></div>`;
+                const listDiv = document.getElementById(`list-${docEst.id}`);
+                
+                // LÓGICA DA PLANILHA: Filtrar caixas que pertencem a esta estante
+                const caixasDestaEstante = caixasAtivas.filter(cx => {
+                    const cod = (cx.codigo || cx.nome || cx.id).toUpperCase();
+                    
+                    // Se for Armário Jurídico, pega o que não tem letra de estante ou é específico
+                    if (estNome.includes('ARMARIO')) {
+                        return cod === 'PJS' || (!cod.includes(' A') && !cod.includes(' B') && !cod.includes(' C') && !cod.includes(' D'));
                     }
+                    
+                    // Se for Estante (A, B, C, D), verifica se a letra está no código da caixa
+                    if (estLetra) {
+                        return cod.includes(` ${estLetra}`) || cod.includes(`${estLetra}-`);
+                    }
+                    
+                    return false;
                 });
 
-                if (!temCaixa) listCx.innerHTML = '<p style="font-size:0.7rem; opacity:0.5;">VAZIO OU SEM CAIXAS ATIVAS</p>';
-            }
+                if (caixasDestaEstante.length > 0) {
+                    caixasDestaEstante.forEach(cx => {
+                        const cod = cx.codigo || cx.nome || cx.id;
+                        listDiv.innerHTML += `<div class="caixa-row"><span class="caixa-id">📦 ${cod}</span></div>`;
+                    });
+                } else {
+                    listDiv.innerHTML = '<p style="font-size:0.7rem; opacity:0.4;">ESTANTE VAZIA</p>';
+                }
+            });
         }
 
         function handleCredentialResponse(response) {

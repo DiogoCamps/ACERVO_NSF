@@ -63,9 +63,6 @@ h1,h2,.display{font-family:'Anton',sans-serif;letter-spacing:.04em;text-transfor
 .campo label{display:block;font-family:'IBM Plex Mono';font-size:.65rem;text-transform:uppercase;color:#6B7280;margin-bottom:5px;}
 .campo input,.campo select,.campo textarea{width:100%;border:1.5px solid var(--ink);padding:9px 10px;font-family:'Archivo';font-size:.9rem;background:#fff;}
 .modal .rodape{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;}
-.alternador{display:flex;border:1.5px solid var(--ink);margin-bottom:14px;}
-.alternador button{flex:1;border:none;background:#fff;padding:8px;cursor:pointer;font-family:'Archivo';font-weight:600;font-size:.8rem;}
-.alternador button.ativo{background:var(--cob);color:#fff;}
 /* AJUDA */
 .acordeao{border:2px solid var(--ink);background:#fff;margin-bottom:10px;}
 .acordeao .cab-ac{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:700;}
@@ -75,7 +72,6 @@ h1,h2,.display{font-family:'Anton',sans-serif;letter-spacing:.04em;text-transfor
 </style>
 </head>
 <body>
-
 <!-- LOGIN -->
 <div id="scr-login" class="tela tela-centro" style="display:flex;">
   <div class="cx-login">
@@ -86,7 +82,6 @@ h1,h2,.display{font-family:'Anton',sans-serif;letter-spacing:.04em;text-transfor
     <div id="erro-google" class="erro-login"></div>
   </div>
 </div>
-
 <!-- SEM ACESSO -->
 <div id="scr-semacesso" class="tela tela-centro">
   <div class="cx-sem">
@@ -97,7 +92,6 @@ h1,h2,.display{font-family:'Anton',sans-serif;letter-spacing:.04em;text-transfor
     <button class="btn" onclick="sair()">Sair</button>
   </div>
 </div>
-
 <!-- SETORES -->
 <div id="scr-setores" class="tela">
   <div class="topo">
@@ -106,7 +100,6 @@ h1,h2,.display{font-family:'Anton',sans-serif;letter-spacing:.04em;text-transfor
   </div>
   <div class="corpo"><div id="grade-setores" class="grade"></div></div>
 </div>
-
 <!-- ESTANTES -->
 <div id="scr-estantes" class="tela">
   <div class="topo">
@@ -123,7 +116,6 @@ h1,h2,.display{font-family:'Anton',sans-serif;letter-spacing:.04em;text-transfor
   </div>
   <div class="corpo"><div class="rotulo-secao">Inventário do setor</div><div id="grade-estantes" class="grade"></div></div>
 </div>
-
 <!-- DENTRO DA ESTANTE -->
 <div id="scr-estante" class="tela">
   <div class="topo">
@@ -131,14 +123,13 @@ h1,h2,.display{font-family:'Anton',sans-serif;letter-spacing:.04em;text-transfor
     <div class="acoes">
       <button class="btn" onclick="voltarEstantes()">← Estantes</button>
       <button class="btn" id="btn-editar-estante" onclick="modalEditarEstante()">Editar estante</button>
-      <button class="btn btn-prim" id="btn-nova-caixa" onclick="modalNovaCaixa()">+ Nova caixa</button>
+      <button class="btn btn-prim" onclick="modalNovoItem()">+ Novo item</button>
       <button class="btn" onclick="atualizar()">Atualizar</button>
       <button class="btn" onclick="abrirAjuda()">?</button>
     </div>
   </div>
   <div class="corpo"><div class="rotulo-secao">Caixas desta estante</div><div id="lista-caixas" class="lista"></div></div>
 </div>
-
 <!-- DENTRO DA CAIXA -->
 <div id="scr-caixa" class="tela">
   <div class="topo">
@@ -152,9 +143,8 @@ h1,h2,.display{font-family:'Anton',sans-serif;letter-spacing:.04em;text-transfor
       <button class="btn" onclick="abrirAjuda()">?</button>
     </div>
   </div>
-  <div class="corpo"><div class="rotulo-secao">Pessoas e documentos</div><div id="lista-itens" class="lista"></div></div>
+  <div class="corpo"><div class="rotulo-secao">Documentos desta caixa</div><div id="lista-itens" class="lista"></div></div>
 </div>
-
 <!-- COLABORADORES -->
 <div id="scr-colab" class="tela">
   <div class="topo">
@@ -167,7 +157,6 @@ h1,h2,.display{font-family:'Anton',sans-serif;letter-spacing:.04em;text-transfor
   </div>
   <div class="corpo"><div class="rotulo-secao">Equipe autorizada neste setor</div><div id="lista-colab" class="lista"></div></div>
 </div>
-
 <!-- HISTÓRICO -->
 <div id="scr-hist" class="tela">
   <div class="topo">
@@ -176,16 +165,14 @@ h1,h2,.display{font-family:'Anton',sans-serif;letter-spacing:.04em;text-transfor
   </div>
   <div class="corpo"><div id="lista-hist" class="lista"></div></div>
 </div>
-
 <!-- LIXEIRA -->
 <div id="scr-lixeira" class="tela">
   <div class="topo">
-    <div><h1>Lixeira</h1><div class="linha-sub">Itens excluídos — dá pra restaurar</div></div>
+    <div><h1>Lixeira</h1><div class="linha-sub">Documentos excluídos — dá pra restaurar</div></div>
     <div class="acoes"><button class="btn" onclick="voltarEstantes()">← Voltar</button><button class="btn" onclick="atualizar()">Atualizar</button></div>
   </div>
   <div class="corpo"><div id="lista-lixeira" class="lista"></div></div>
 </div>
-
 <!-- AJUDA -->
 <div id="scr-ajuda" class="tela">
   <div class="topo">
@@ -194,28 +181,33 @@ h1,h2,.display{font-family:'Anton',sans-serif;letter-spacing:.04em;text-transfor
   </div>
   <div class="corpo" id="corpo-ajuda"></div>
 </div>
-
 <!-- MODAL -->
 <div id="fundo-modal" class="fundo-modal"><div class="modal" id="caixa-modal"></div></div>
-
 <script>
-const GOOGLE_CLIENT_ID = '1032170606542-dukbmb70h332gpjtbuncl76bvobv6dvi.apps.googleusercontent.com';
+/* O BANCO MANDA — modelo importado:
+   documentos/{ItemId}: setor, estante, caixa, itemId, tipo, nome, tipoDocumento, data,
+                        arquivoUrl, observacao, ultimaAlteracao, alteradoPor,
+                        excluidoEm, excluidoPor, nomeBusca
+   estantes/{id}: setor, nome, tipo
+   usuarios/{email}: email, setores[], adminDe[], ativo
+   logs/{auto}: origem, timestamp, email, acao, detalhe                        */
+const GOOGLE_CLIENT_ID = '261689105724-1cqtlup42cdoltou2d7i5dt3ehlehgf8.apps.googleusercontent.com';
 const firebaseConfig = {
-  apiKey: "AIzaSyBKDvELUvYH1TESB7M_JjojW4nxUpf6cgQ",
-  authDomain: "acervo-15e48.firebaseapp.com",
-  projectId: "acervo-15e48",
-  storageBucket: "acervo-15e48.firebasestorage.app",
-  messagingSenderId: "1032170606542",
-  appId: "1:1032170606542:web:d8cca054a21a3b52dce59f"
+  apiKey: "AIzaSyAONXkMDXTBrw6lLxkThNLzm3YbbNZbf8I",
+  authDomain: "acervo-dffd3.firebaseapp.com",
+  projectId: "acervo-dffd3",
+  storageBucket: "acervo-dffd3.firebasestorage.app",
+  messagingSenderId: "261689105724",
+  appId: "1:261689105724:web:a3a4e4c8863c28bef2d239"
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
 let eu = null;            // {email, setores:[], adminDe:[]}
 let setor = null;
-let estanteAtual = null;  // {id, nome, tipoMobilia, setorId}
-let caixaAtual = null;    // {id, codigo, ...}
-let cacheCaixas = [];
+let estanteAtual = null;  // {id, nome, tipo}
+let caixaAtual = null;    // {codigo}
+let cacheDocs = [];       // todos os documentos do setor (ativos + lixeira)
 let telaDeAjuda = 'scr-estantes';
 
 const CORES = {ARMARIO:'#E11D2E', A:'#1D4ED8', B:'#059669', C:'#EA580C', D:'#7C3AED'};
@@ -225,7 +217,20 @@ function corEstante(nome){
   const m = n.match(/([A-Z])\s*$/);
   return (m && CORES[m[1]]) ? CORES[m[1]] : CORES.A;
 }
-
+function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
+function norm(s){ return (s==null?'':String(s)).toUpperCase().trim(); }
+function normalizar(s){ return (s==null?'':String(s)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim(); }
+function ordemNatural(a, b){ return String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:'base'}); }
+function emMs(v){
+  if(!v) return 0;
+  if(v.toMillis) return v.toMillis();
+  if(v instanceof Date) return v.getTime();
+  if(typeof v === 'number') return v;
+  const t = Date.parse(v);
+  return isNaN(t) ? 0 : t;
+}
+function dataTxt(v){ const ms = emMs(v); return ms ? new Date(ms).toLocaleString('pt-BR') : ''; }
+function idDocSeguro(s){ return String(s==null?'':s).replace(/[\/\#?\[\]]/g,'_').trim(); }
 function mostrar(id){
   document.querySelectorAll('.tela').forEach(function(t){ t.style.display='none'; });
   const el = document.getElementById(id);
@@ -236,9 +241,11 @@ function voltarSetores(){ mostrar('scr-setores'); }
 function voltarEstantes(){ renderEstantes(); mostrar('scr-estantes'); }
 function voltarCaixas(){ renderEstante(); mostrar('scr-estante'); }
 function voltarDeAjuda(){ mostrar(telaDeAjuda); }
-
 function ehAdmin(){ return eu && (eu.adminDe||[]).indexOf(setor) >= 0; }
-
+function reabrirTelaAtual(){
+  if(document.getElementById('scr-caixa').style.display === 'block'){ renderCaixa(); }
+  else { renderEstante(); }
+}
 /* ---------- LOGIN ---------- */
 let tentativasGoogle = 0;
 function initGoogle(){
@@ -246,7 +253,7 @@ function initGoogle(){
     tentativasGoogle++;
     if(tentativasGoogle < 25){ setTimeout(initGoogle, 300); }
     else { document.getElementById('erro-google').style.display='block';
-           document.getElementById('erro-google').textContent='O script do Google não carregou. Recarregue a página (Ctrl+Shift+R) e confira se diogocamps.github.io está autorizado no Firebase (Authentication > Domínios autorizados).'; }
+           document.getElementById('erro-google').textContent='O script do Google não carregou. Recarregue a página (Ctrl+Shift+R) e confira se o domínio do site está autorizado no Firebase (Authentication > Domínios autorizados).'; }
     return;
   }
   try{
@@ -267,25 +274,23 @@ function aoLogar(response){
   firebase.auth().signInWithCredential(credential);
 }
 if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', initGoogle); } else { initGoogle(); }
-
 firebase.auth().onAuthStateChanged(function(user){
   if(user){ entrar(user.email); }
   else { eu = null; setor = null; mostrar('scr-login'); }
 });
-
 async function entrar(email){
   try{
-    const doc = await db.collection('usuarios').doc(email).get();
+    const doc = await db.collection('usuarios').doc((email||'').toLowerCase()).get();
     const d = doc.exists ? doc.data() : null;
     const setores = (d && Array.isArray(d.setores)) ? d.setores : [];
-    const adminDe = (d && (Array.isArray(d.adminDe) ? d.adminDe : (Array.isArray(d.admin) ? d.admin : []))) || [];
+    const adminDe = (d && Array.isArray(d.adminDe)) ? d.adminDe : [];
     if(!doc.exists || d.ativo !== true || setores.length === 0){
       document.getElementById('email-semacesso').textContent = email;
       mostrar('scr-semacesso');
       return;
     }
-    eu = {email: email, setores: setores, adminDe: adminDe};
-    document.getElementById('sub-setores').textContent = 'OPERADOR: ' + email.toUpperCase();
+    eu = {email: (email||'').toLowerCase(), setores: setores, adminDe: adminDe};
+    document.getElementById('sub-setores').textContent = 'OPERADOR: ' + eu.email.toUpperCase();
     renderSetores();
     mostrar('scr-setores');
   }catch(e){
@@ -293,7 +298,6 @@ async function entrar(email){
     mostrar('scr-semacesso');
   }
 }
-
 function renderSetores(){
   const g = document.getElementById('grade-setores');
   g.innerHTML = '';
@@ -306,7 +310,6 @@ function renderSetores(){
     g.appendChild(c);
   });
 }
-
 function abrirSetor(s){
   setor = s;
   const adm = ehAdmin();
@@ -322,221 +325,187 @@ function atualizar(){
   else if(document.getElementById('scr-lixeira').style.display === 'block'){ renderLixeira(); }
   else if(document.getElementById('scr-colab').style.display === 'block'){ renderColaboradores(); }
 }
-
-/* ---------- REGRA DA PLANILHA: caixa pertence à estante pela letra ---------- */
-function norm(s){ return (s||'').toUpperCase(); }
-function letrasDoCodigo(cod){
-  const r = [];
-  ['A','B','C','D'].forEach(function(L){
-    if(cod.indexOf(' ' + L) >= 0 || cod.indexOf(L + '-') >= 0){ r.push(L); }
+/* ---------- DADOS DO SETOR (derivados do banco) ---------- */
+async function carregarDocs(){
+  const snap = await db.collection('documentos').where('setor','==',setor).get();
+  cacheDocs = snap.docs.map(function(d){ const x = d.data(); x.id = d.id; return x; });
+}
+function docsAtivos(){ return cacheDocs.filter(function(d){ return !d.excluidoEm; }); }
+function estantesVisiveis(estsColecao){
+  const mapa = new Map();
+  (estsColecao||[]).forEach(function(e){ if(e && e.nome) mapa.set(norm(e.nome), e); });
+  cacheDocs.forEach(function(d){
+    if(d.estante && !mapa.has(norm(d.estante))){ mapa.set(norm(d.estante), {id:null, nome:d.estante, tipo:'Estante'}); }
   });
-  return r;
+  return Array.from(mapa.values());
 }
-function letraEstante(nome){
-  const n = norm(nome);
-  if(n.indexOf('ARMAR') >= 0) return null;
-  const m = n.match(/([A-Z])\s*$/);
-  return m ? m[1] : null;
+function caixasDaEstante(nomeEstante){
+  const mapa = new Map();
+  docsAtivos().forEach(function(d){
+    if(norm(d.estante) === norm(nomeEstante) && d.caixa && !mapa.has(norm(d.caixa))){ mapa.set(norm(d.caixa), d.caixa); }
+  });
+  return Array.from(mapa.values()).sort(ordemNatural);
 }
-function caixaPertence(caixa, estNome){
-  if(caixa.estanteNome){ return norm(caixa.estanteNome) === norm(estNome); }
-  const cod = norm(caixa.codigo || caixa.id);
-  const L = letraEstante(estNome);
-  if(!L){ return cod === 'PJS' || letrasDoCodigo(cod).length === 0; }
-  return letrasDoCodigo(cod).indexOf(L) >= 0;
+function docsDaCaixa(nomeEstante, codigo){
+  return docsAtivos().filter(function(d){
+    return norm(d.estante) === norm(nomeEstante) && norm(d.caixa) === norm(codigo);
+  }).sort(function(a,b){ return ordemNatural(a.nome||'', b.nome||''); });
 }
-function ordemNatural(a, b){ return String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:'base'}); }
-
-async function carregarCaixasDoSetor(){
-  const sc = await db.collection('caixas').where('setorId','==',setor).get();
-  cacheCaixas = sc.docs.map(function(d){ const x = d.data(); x.id = d.id; return x; });
-}
-
 /* ---------- ESTANTES ---------- */
 async function renderEstantes(){
   document.getElementById('sub-estantes').textContent = 'SETOR: ' + norm(setor);
   const g = document.getElementById('grade-estantes');
   g.innerHTML = '<div class="vazio">CARREGANDO REGISTROS...</div>';
   try{
-    await carregarCaixasDoSetor();
-    const snap = await db.collection('estantes').where('setorId','==',setor).get();
+    await carregarDocs();
+    const snap = await db.collection('estantes').where('setor','==',setor).get();
     const ests = snap.docs.map(function(d){ const x = d.data(); x.id = d.id; return x; });
-    ests.sort(function(a,b){ return ordemNatural(a.nome||a.id, b.nome||b.id); });
+    const visiveis = estantesVisiveis(ests).sort(function(a,b){ return ordemNatural(a.nome, b.nome); });
     g.innerHTML = '';
-    if(ests.length === 0){ g.innerHTML = '<div class="vazio">NENHUMA ESTANTE NESTE SETOR.</div>'; return; }
-    ests.forEach(function(est){
-      const caixas = cacheCaixas.filter(function(c){ return caixaPertence(c, est.nome); })
-                                .sort(function(a,b){ return ordemNatural(a.codigo||a.id, b.codigo||b.id); });
+    if(visiveis.length === 0){ g.innerHTML = '<div class="vazio">NENHUMA ESTANTE NESTE SETOR.</div>'; return; }
+    const adm = ehAdmin();
+    visiveis.forEach(function(est){
+      const caixas = caixasDaEstante(est.nome);
+      const ndocs = docsAtivos().filter(function(d){ return norm(d.estante) === norm(est.nome); }).length;
       const card = document.createElement('div');
       card.className = 'card';
-      const adm = ehAdmin();
-      card.innerHTML = '<div class="cab" style="background:' + corEstante(est.nome) + '">' + esc(est.nome||est.id) + '</div>' +
-        '<div class="txt">' + esc(est.tipoMobilia||'Estante') + ' · ' + caixas.length + ' caixa(s)' +
-        (adm ? ' <button class="btn" style="padding:2px 8px;font-size:.65rem;float:right;" onclick="event.stopPropagation();abrirEdicaoEstante(\'' + est.id + '\')">✎</button>' : '') +
+      card.innerHTML = '<div class="cab" style="background:' + corEstante(est.nome) + '">' + esc(est.nome) + '</div>' +
+        '<div class="txt">' + esc(est.tipo||'Estante') + ' · ' + caixas.length + ' caixa(s) · ' + ndocs + ' documento(s)' +
+        (adm && est.id ? ' <button class="btn" style="padding:2px 8px;font-size:.65rem;float:right;" onclick="event.stopPropagation();abrirEdicaoEstante(\'' + esc(est.id) + '\')">✎</button>' : '') +
         '<div class="meta">CAIXAS ATIVAS</div></div>';
       card.onclick = function(){ abrirEstante(est); };
       g.appendChild(card);
     });
   }catch(e){ g.innerHTML = '<div class="vazio" style="color:var(--ver)">ERRO: ' + esc(e.message||e) + '</div>'; }
 }
-
 function abrirEstante(est){ estanteAtual = est; renderEstante(); mostrar('scr-estante'); }
-
 function renderEstante(){
   const adm = ehAdmin();
-  document.getElementById('btn-nova-caixa').style.display = adm ? '' : 'none';
-  document.getElementById('btn-editar-estante').style.display = adm ? '' : 'none';
+  document.getElementById('btn-editar-estante').style.display = (adm && estanteAtual.id) ? '' : 'none';
   document.getElementById('titulo-estante').textContent = estanteAtual.nome || estanteAtual.id;
-  document.getElementById('sub-estante').textContent = 'SETOR: ' + norm(setor) + ' · ' + norm(estanteAtual.tipoMobilia||'ESTANTE');
+  document.getElementById('sub-estante').textContent = 'SETOR: ' + norm(setor) + ' · ' + norm(estanteAtual.tipo||'ESTANTE');
   const box = document.getElementById('lista-caixas');
-  box.innerHTML = '<div class="vazio">CARREGANDO...</div>';
-  const caixas = cacheCaixas.filter(function(c){ return caixaPertence(c, estanteAtual.nome); })
-                            .sort(function(a,b){ return ordemNatural(a.codigo||a.id, b.codigo||b.id); });
-  if(caixas.length === 0){ box.innerHTML = '<div class="vazio">ESTANTE VAZIA.</div>'; return; }
+  const caixas = caixasDaEstante(estanteAtual.nome);
+  if(caixas.length === 0){ box.innerHTML = '<div class="vazio">ESTANTE VAZIA — use "+ Novo item" e digite o código de uma caixa nova.</div>'; return; }
   box.innerHTML = '';
-  caixas.forEach(function(c){
+  caixas.forEach(function(cod){
+    const n = docsDaCaixa(estanteAtual.nome, cod).length;
     const l = document.createElement('div');
     l.className = 'linha';
-    l.innerHTML = '<span class="cod">' + esc(c.codigo||c.id) + '</span><span class="seta">›</span>';
-    l.onclick = function(){ abrirCaixa(c); };
+    l.innerHTML = '<span><span class="cod">' + esc(cod) + '</span><span style="font-size:.72rem;color:#6B7280;margin-left:8px;">' + n + ' documento(s)</span></span><span class="seta">›</span>';
+    l.onclick = function(){ abrirCaixa(cod); };
     box.appendChild(l);
   });
 }
-
 /* ---------- CAIXA ---------- */
-function abrirCaixa(c){ caixaAtual = c; renderCaixa(); mostrar('scr-caixa'); }
-
-async function renderCaixa(){
+function abrirCaixa(cod){ caixaAtual = {codigo: cod}; renderCaixa(); mostrar('scr-caixa'); }
+function renderCaixa(){
   const adm = ehAdmin();
   document.getElementById('btn-mover-caixa').style.display = adm ? '' : 'none';
   document.getElementById('btn-excluir-caixa').style.display = adm ? '' : 'none';
-  document.getElementById('titulo-caixa').textContent = 'Caixa ' + (caixaAtual.codigo||caixaAtual.id);
+  document.getElementById('titulo-caixa').textContent = 'Caixa ' + (caixaAtual.codigo||'');
   document.getElementById('sub-caixa').textContent = norm(estanteAtual.nome) + ' · SETOR: ' + norm(setor);
   const box = document.getElementById('lista-itens');
-  box.innerHTML = '<div class="vazio">CARREGANDO...</div>';
-  try{
-    const snap = await db.collection('itens').where('caixaId','==',caixaAtual.id).get();
-    const itens = snap.docs.map(function(d){ const x = d.data(); x.id = d.id; return x; })
-                           .filter(function(i){ return i.excluido !== true; });
-    itens.sort(function(a,b){
-      const ta = a.tipoItem === 'documento' ? 1 : 0, tb = b.tipoItem === 'documento' ? 1 : 0;
-      return ta - tb || ordemNatural(a.nome||a.titulo||'', b.nome||b.titulo||'');
-    });
-    box.innerHTML = '';
-    if(itens.length === 0){ box.innerHTML = '<div class="vazio">CAIXA VAZIA.</div>'; return; }
-    itens.forEach(function(i){
-      const l = document.createElement('div');
-      l.className = 'linha';
-      const tipo = i.tipoItem === 'documento' ? '📄' : '👤';
-      const principal = i.tipoItem === 'documento' ? (i.titulo||i.id) : (i.nome||i.id);
-      const detalhe = i.tipoItem === 'documento' ? (i.tipoDocumento||'') : (i.cargo||'');
-      l.innerHTML = '<span><span class="cod">' + tipo + ' ' + esc(principal) + '</span>' +
-                    (detalhe ? ' <span style="font-size:.72rem;color:#6B7280">' + esc(detalhe) + '</span>' : '') +
-                    '</span><span class="seta">›</span>';
-      l.onclick = function(){ modalEditarItem(i); };
-      box.appendChild(l);
-    });
-  }catch(e){ box.innerHTML = '<div class="vazio" style="color:var(--ver)">ERRO: ' + esc(e.message||e) + '</div>'; }
+  const itens = docsDaCaixa(estanteAtual.nome, caixaAtual.codigo);
+  if(itens.length === 0){ box.innerHTML = '<div class="vazio">CAIXA VAZIA.</div>'; return; }
+  box.innerHTML = '';
+  itens.forEach(function(i){
+    const l = document.createElement('div');
+    l.className = 'linha';
+    const emoji = norm(i.tipo) === 'PESSOA' ? '👤' : '📄';
+    const detalhe = [i.tipoDocumento, i.data].filter(Boolean).join(' · ');
+    l.innerHTML = '<span><span class="cod">' + emoji + ' ' + esc(i.nome||i.id) + '</span>' +
+                  (detalhe ? ' <span style="font-size:.72rem;color:#6B7280">' + esc(detalhe) + '</span>' : '') +
+                  '</span><span class="seta">›</span>';
+    l.onclick = function(){ modalEditarItem(i); };
+    box.appendChild(l);
+  });
 }
-
-async function registrar(acao){
-  try{ await db.collection('historico').add({setorId:setor, descricao:acao, quando:Date.now(), por:eu.email}); }catch(e){}
+async function registrar(acao, detalhe){
+  try{ await db.collection('logs').add({origem:setor, timestamp:new Date(), email:eu.email, acao:acao, detalhe:detalhe||''}); }catch(e){}
 }
-
-/* ---------- ITENS (formulário + conflito) ---------- */
+/* ---------- DOCUMENTO: formulário + conflito ---------- */
 let itemEmEdicao = null;
 function modalNovoItem(){ abrirFormItem(null); }
 function modalEditarItem(i){ abrirFormItem(i); }
-
 function abrirFormItem(item){
   itemEmEdicao = item;
-  const doc = item && item.tipoItem === 'documento';
   const m = document.getElementById('caixa-modal');
+  const dlCaixas = caixasDaEstante(estanteAtual.nome).map(function(c){ return '<option value="' + esc(c) + '">'; }).join('');
   m.innerHTML =
-    '<h2>' + (item ? 'Editar item' : 'Novo item') + '</h2>' +
-    '<div class="alternador">' +
-      '<button id="alt-pessoa" class="' + (doc?'':'ativo') + '" onclick="alternarTipo(false)">Pessoa</button>' +
-      '<button id="alt-doc" class="' + (doc?'ativo':'') + '" onclick="alternarTipo(true)">Documento</button>' +
-    '</div>' +
-    '<div id="campos-pessoa" style="display:' + (doc?'none':'block') + '">' +
-      '<div class="campo"><label>Nome completo</label><input id="f-nome" value="' + esc(item&&item.nome||'') + '"></div>' +
-      '<div class="campo"><label>Cargo</label><input id="f-cargo" value="' + esc(item&&item.cargo||'') + '"></div>' +
-    '</div>' +
-    '<div id="campos-doc" style="display:' + (doc?'block':'none') + '">' +
-      '<div class="campo"><label>Título do documento</label><input id="f-titulo" value="' + esc(item&&item.titulo||'') + '"></div>' +
-      '<div class="campo"><label>Tipo</label><select id="f-tipo">' +
-        ['Contrato','Processo','Nota fiscal','Outro'].map(function(t){ return '<option ' + (item&&item.tipoDocumento===t?'selected':'') + '>' + t + '</option>'; }).join('') +
-      '</select></div>' +
-      '<div class="campo"><label>Data</label><input id="f-data" type="date" value="' + esc(item&&item.data||'') + '"></div>' +
-      '<div class="campo"><label>Onde encontrar (opcional)</label><input id="f-onde" value="' + esc(item&&item.ondeEncontrar||'') + '"></div>' +
-    '</div>' +
-    '<div class="campo"><label>Observação</label><textarea id="f-obs" rows="2">' + esc(item&&item.observacao||'') + '</textarea></div>' +
+    '<h2>' + (item ? 'Editar documento' : 'Novo documento') + '</h2>' +
+    '<div class="campo"><label>Caixa</label><input id="f-caixa" list="dl-caixas" value="' + esc(item ? item.caixa||'' : '') + '"' + (item ? '' : ' placeholder="Ex.: NSF A1-001 — código novo cria a caixa"') + '><datalist id="dl-caixas">' + dlCaixas + '</datalist></div>' +
+    '<div class="campo"><label>Nome / título</label><input id="f-nome" value="' + esc(item && item.nome||'') + '"></div>' +
+    '<div class="campo"><label>Tipo de documento</label><input id="f-tipo" list="dl-tipos" value="' + esc(item && item.tipoDocumento||'') + '"><datalist id="dl-tipos"><option value="Contrato"><option value="Processo"><option value="Nota fiscal"><option value="Outro"></datalist></div>' +
+    '<div class="campo"><label>Data</label><input id="f-data" value="' + esc(item && item.data||'') + '"></div>' +
+    '<div class="campo"><label>Arquivo / onde encontrar (URL)</label><input id="f-url" value="' + esc(item && item.arquivoUrl||'') + '"></div>' +
+    '<div class="campo"><label>Observação</label><textarea id="f-obs" rows="2">' + esc(item && item.observacao||'') + '</textarea></div>' +
+    (item ? '<div style="font-size:.72rem;color:#6B7280;margin-bottom:12px;">Última alteração: ' + esc(dataTxt(item.ultimaAlteracao)) + (item.alteradoPor ? ' · ' + esc(item.alteradoPor) : '') + '</div>' : '') +
     '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button>' +
-    (item ? '<button class="btn" onclick="excluirItem()">Excluir item</button>' : '') +
+    (item ? '<button class="btn btn-perig" onclick="excluirItem()">Excluir</button>' : '') +
     '<button class="btn btn-prim" onclick="salvarItem()">Salvar</button></div>';
   abrirModal();
 }
-function alternarTipo(doc){
-  document.getElementById('alt-pessoa').className = doc ? '' : 'ativo';
-  document.getElementById('alt-doc').className = doc ? 'ativo' : '';
-  document.getElementById('campos-pessoa').style.display = doc ? 'none' : 'block';
-  document.getElementById('campos-doc').style.display = doc ? 'block' : 'none';
-}
 function valor(id){ const el = document.getElementById(id); return el ? el.value.trim() : ''; }
-
+function gerarItemId(){ return 'DOC' + Date.now().toString(36).toUpperCase() + Math.floor(Math.random()*46656).toString(36).toUpperCase(); }
 async function salvarItem(){
-  const doc = document.getElementById('alt-doc').className.indexOf('ativo') >= 0;
-  const dados = {caixaId: caixaAtual.id, tipoItem: doc ? 'documento' : 'pessoa', observacao: valor('f-obs')};
-  if(doc){
-    dados.titulo = valor('f-titulo'); dados.tipoDocumento = valor('f-tipo');
-    dados.data = valor('f-data'); dados.ondeEncontrar = valor('f-onde');
-    if(!dados.titulo){ alertaModal('O título do documento é obrigatório.'); return; }
-  }else{
-    dados.nome = valor('f-nome'); dados.cargo = valor('f-cargo');
-    if(!dados.nome){ alertaModal('O nome é obrigatório.'); return; }
-  }
+  const cod = valor('f-caixa');
+  const nome = valor('f-nome');
+  if(!cod){ alertaModal('Informe a caixa.'); return; }
+  if(!nome){ alertaModal('O nome é obrigatório.'); return; }
+  const dados = {
+    caixa: cod, estante: estanteAtual.nome, setor: setor,
+    nome: nome, tipoDocumento: valor('f-tipo'), data: valor('f-data'),
+    arquivoUrl: valor('f-url'), observacao: valor('f-obs'),
+    nomeBusca: normalizar(nome), ultimaAlteracao: new Date(), alteradoPor: eu.email
+  };
   try{
     if(itemEmEdicao){
-      const ref = db.collection('itens').doc(itemEmEdicao.id);
+      const ref = db.collection('documentos').doc(itemEmEdicao.id);
       const fresco = await ref.get();
-      const fu = fresco.exists ? fresco.data().ultimaAlteracao : 0;
-      if(fu && itemEmEdicao.ultimaAlteracao && fu !== itemEmEdicao.ultimaAlteracao){
-        conflitoModal(fresco.data(), function(){ salvarAgora(ref, dados); }, function(){ itemEmEdicao = null; abrirFormItem({id:itemEmEdicao.id, caixaId:caixaAtual.id, tipoItem: doc?'documento':'pessoa'}); preencherForm(fresco.data()); });
+      const fu = fresco.exists ? emMs(fresco.data().ultimaAlteracao) : 0;
+      const minha = emMs(itemEmEdicao.ultimaAlteracao);
+      if(fu && minha && fu !== minha){
+        conflitoModal(fresco.data(), function(){ salvarAgora(ref, dados); }, function(){
+          const idAtual = itemEmEdicao.id;
+          itemEmEdicao = null;
+          abrirFormItem(Object.assign({}, fresco.data(), {id: idAtual}));
+        });
         return;
       }
       salvarAgora(ref, dados);
     }else{
-      dados.ultimaAlteracao = Date.now();
-      await db.collection('itens').add(dados);
-      await registrar('Adicionou o item "' + (dados.titulo||dados.nome) + '" na caixa ' + (caixaAtual.codigo||caixaAtual.id));
-      fecharModal(); renderCaixa();
+      const itemId = gerarItemId();
+      dados.itemId = itemId;
+      dados.tipo = 'documento';
+      const novoId = idDocSeguro(itemId);
+      await db.collection('documentos').doc(novoId).set(dados);
+      cacheDocs.push(Object.assign({id: novoId}, dados));
+      await registrar('Adicionou o documento "' + nome + '" na caixa ' + cod);
+      fecharModal(); reabrirTelaAtual();
     }
   }catch(e){ alertaModal('Erro ao salvar: ' + (e.message||e)); }
 }
 async function salvarAgora(ref, dados){
-  dados.ultimaAlteracao = Date.now();
   await ref.update(dados);
-  await registrar('Editou o item "' + (dados.titulo||dados.nome) + '" na caixa ' + (caixaAtual.codigo||caixaAtual.id));
-  fecharModal(); renderCaixa();
-}
-function preencherForm(d){
-  if(d.tipoItem === 'documento'){ alternarTipo(true);
-    document.getElementById('f-titulo').value = d.titulo||''; document.getElementById('f-tipo').value = d.tipoDocumento||'Contrato';
-    document.getElementById('f-data').value = d.data||''; document.getElementById('f-onde').value = d.ondeEncontrar||'';
-  }else{ alternarTipo(false);
-    document.getElementById('f-nome').value = d.nome||''; document.getElementById('f-cargo').value = d.cargo||'';
-  }
-  document.getElementById('f-obs').value = d.observacao||'';
+  const idx = cacheDocs.findIndex(function(d){ return d.id === ref.id; });
+  if(idx >= 0){ cacheDocs[idx] = Object.assign({}, cacheDocs[idx], dados, {id: ref.id}); }
+  await registrar('Editou o documento "' + dados.nome + '" na caixa ' + dados.caixa);
+  fecharModal(); reabrirTelaAtual();
 }
 async function excluirItem(){
   if(!itemEmEdicao) return;
-  confirmarModal('Excluir este item? Ele vai para a Lixeira e pode ser restaurado.', async function(){
-    await db.collection('itens').doc(itemEmEdicao.id).update({excluido:true, ultimaAlteracao:Date.now()});
-    await registrar('Excluiu o item da caixa ' + (caixaAtual.codigo||caixaAtual.id));
-    fecharModal(); renderCaixa();
+  const alvo = itemEmEdicao;
+  confirmarModal('Excluir este documento? Ele vai para a Lixeira e pode ser restaurado.', async function(){
+    try{
+      await db.collection('documentos').doc(alvo.id).update({excluidoEm:new Date(), excluidoPor:eu.email});
+      const idx = cacheDocs.findIndex(function(d){ return d.id === alvo.id; });
+      if(idx >= 0){ cacheDocs[idx].excluidoEm = new Date(); cacheDocs[idx].excluidoPor = eu.email; }
+      await registrar('Excluiu o documento "' + (alvo.nome||'') + '" da caixa ' + (alvo.caixa||''));
+      fecharModal(); reabrirTelaAtual();
+    }catch(e){ alertaModal('Erro ao excluir: ' + (e.message||e)); }
   });
 }
-
 /* ---------- MODAIS BÁSICOS ---------- */
 function abrirModal(){ document.getElementById('fundo-modal').style.display = 'flex'; }
 function fecharModal(){ document.getElementById('fundo-modal').style.display = 'none'; }
@@ -556,7 +525,7 @@ function confirmarModal(msg, aoConfirmar){
 }
 function conflitoModal(dadosRecentes, manterMinha, verRecente){
   const m = document.getElementById('caixa-modal');
-  const resumo = dadosRecentes.titulo || dadosRecentes.nome || 'item';
+  const resumo = dadosRecentes.nome || 'documento';
   m.innerHTML = '<h2 style="color:var(--ver)">Conflito de edição</h2>' +
     '<p style="font-size:.9rem;margin-bottom:18px;">Outra pessoa alterou "' + esc(resumo) + '" enquanto você editava.</p>' +
     '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button>' +
@@ -566,91 +535,102 @@ function conflitoModal(dadosRecentes, manterMinha, verRecente){
   document.getElementById('btn-manter-minha').onclick = function(){ fecharModal(); manterMinha(); };
   abrirModal();
 }
-
-/* ---------- ESTANTE: criar/editar ---------- */
+/* ---------- ESTANTE: criar/editar (renomear atualiza os documentos) ---------- */
+async function gravarLote(updates){
+  for(let i = 0; i < updates.length; i += 400){
+    const batch = db.batch();
+    updates.slice(i, i + 400).forEach(function(u){ batch.update(db.collection('documentos').doc(u.id), u.dados); });
+    await batch.commit();
+  }
+}
 function modalNovaEstante(){
   const m = document.getElementById('caixa-modal');
   m.innerHTML = '<h2>Nova estante</h2>' +
     '<div class="campo"><label>Nome da estante</label><input id="m-nome" placeholder="Ex.: Estante E"></div>' +
-    '<div class="campo"><label>Tipo de mobília</label><select id="m-tipo"><option>Estante</option><option>Armário</option></select></div>' +
-    '<div class="campo"><label>Código da primeira caixa (opcional)</label><input id="m-cod" placeholder="Ex.: NSF E1-001"></div>' +
+    '<div class="campo"><label>Tipo</label><select id="m-tipo"><option>Estante</option><option>Armário</option></select></div>' +
     '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button><button class="btn btn-prim" id="m-salvar">Salvar</button></div>';
   document.getElementById('m-salvar').onclick = async function(){
     const nome = valor('m-nome'); if(!nome){ alertaModal('O nome da estante é obrigatório.'); return; }
-    const ref = await db.collection('estantes').add({nome:nome, tipoMobilia:valor('m-tipo'), setorId:setor});
-    const cod = valor('m-cod');
-    if(cod){ await db.collection('caixas').add({codigo:cod, setorId:setor, excluido:false, estanteNome:nome}); }
-    await registrar('Criou a estante "' + nome + '"' + (cod ? ' com a caixa ' + cod : ''));
-    fecharModal(); renderEstantes();
+    const id = normalizar(nome).replace(/\s+/g, '-');
+    try{
+      const existe = await db.collection('estantes').doc(id).get();
+      if(existe.exists){ alertaModal('Já existe uma estante com esse nome.'); return; }
+      await db.collection('estantes').doc(id).set({setor:setor, nome:nome, tipo:valor('m-tipo')});
+      await registrar('Criou a estante "' + nome + '"');
+      fecharModal(); renderEstantes();
+    }catch(e){ alertaModal('Erro: ' + (e.message||e)); }
   };
   abrirModal();
 }
 function abrirEdicaoEstante(id){
-  const snap = null;
   db.collection('estantes').doc(id).get().then(function(doc){
+    if(!doc.exists){ alertaModal('Estante não encontrada.'); return; }
     estanteAtual = Object.assign({id:id}, doc.data());
     modalEditarEstante();
-  });
+  }).catch(function(e){ alertaModal('Erro: ' + (e.message||e)); });
 }
 function modalEditarEstante(){
   const m = document.getElementById('caixa-modal');
   m.innerHTML = '<h2>Editar estante</h2>' +
     '<div class="campo"><label>Nome da estante</label><input id="m-nome" value="' + esc(estanteAtual.nome||'') + '"></div>' +
-    '<div class="campo"><label>Tipo de mobília</label><select id="m-tipo">' +
-      '<option ' + (estanteAtual.tipoMobilia==='Estante'?'selected':'') + '>Estante</option>' +
-      '<option ' + (estanteAtual.tipoMobilia==='Armário'?'selected':'') + '>Armário</option>' +
+    '<div class="campo"><label>Tipo</label><select id="m-tipo">' +
+      '<option ' + (estanteAtual.tipo==='Estante'?'selected':'') + '>Estante</option>' +
+      '<option ' + (estanteAtual.tipo==='Armário'?'selected':'') + '>Armário</option>' +
     '</select></div>' +
     '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button><button class="btn btn-prim" id="m-salvar">Salvar</button></div>';
   document.getElementById('m-salvar').onclick = async function(){
     const nome = valor('m-nome'); if(!nome){ alertaModal('O nome é obrigatório.'); return; }
-    await db.collection('estantes').doc(estanteAtual.id).update({nome:nome, tipoMobilia:valor('m-tipo')});
-    await registrar('Editou a estante "' + nome + '"');
-    estanteAtual.nome = nome; estanteAtual.tipoMobilia = valor('m-tipo');
-    fecharModal(); renderEstantes();
+    const tipo = valor('m-tipo');
+    const nomeAntigo = estanteAtual.nome;
+    try{
+      await db.collection('estantes').doc(estanteAtual.id).update({nome:nome, tipo:tipo});
+      if(norm(nome) !== norm(nomeAntigo)){
+        const afetados = cacheDocs.filter(function(d){ return norm(d.estante) === norm(nomeAntigo); });
+        await gravarLote(afetados.map(function(d){ return {id:d.id, dados:{estante:nome}}; }));
+        afetados.forEach(function(d){ d.estante = nome; });
+        await registrar('Renomeou a estante "' + nomeAntigo + '" para "' + nome + '" (' + afetados.length + ' documento(s) atualizado(s))');
+      } else {
+        await registrar('Editou a estante "' + nome + '"');
+      }
+      estanteAtual.nome = nome; estanteAtual.tipo = tipo;
+      fecharModal(); renderEstantes();
+    }catch(e){ alertaModal('Erro: ' + (e.message||e)); }
   };
   abrirModal();
 }
-function modalNovaCaixa(){
-  const m = document.getElementById('caixa-modal');
-  m.innerHTML = '<h2>Nova caixa</h2>' +
-    '<div class="campo"><label>Código da caixa</label><input id="m-cod" placeholder="Ex.: NSF D3-006"></div>' +
-    '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button><button class="btn btn-prim" id="m-salvar">Salvar</button></div>';
-  document.getElementById('m-salvar').onclick = async function(){
-    const cod = valor('m-cod'); if(!cod){ alertaModal('O código é obrigatório.'); return; }
-    await db.collection('caixas').add({codigo:cod, setorId:setor, excluido:false, estanteNome:estanteAtual.nome});
-    await registrar('Criou a caixa ' + cod + ' na ' + (estanteAtual.nome||'estante'));
-    fecharModal(); renderEstante();
-  };
-  abrirModal();
-}
+/* ---------- CAIXA: mover / excluir (opera em lote nos documentos) ---------- */
 function modalMoverCaixa(){
   const m = document.getElementById('caixa-modal');
-  db.collection('estantes').where('setorId','==',setor).get().then(function(snap){
-    const opcoes = snap.docs.map(function(d){ const x=d.data(); return '<option value="' + esc(d.id) + '">' + esc(x.nome||d.id) + '</option>'; }).join('');
+  db.collection('estantes').where('setor','==',setor).get().then(function(snap){
+    const opcoes = snap.docs.map(function(d){ const x = d.data(); return '<option value="' + esc(x.nome||d.id) + '">' + esc(x.nome||d.id) + '</option>'; }).join('');
     m.innerHTML = '<h2>Mover caixa</h2>' +
-      '<p style="font-size:.85rem;margin-bottom:14px;">Mover a caixa <span class="mono">' + esc(caixaAtual.codigo||caixaAtual.id) + '</span> para:</p>' +
+      '<p style="font-size:.85rem;margin-bottom:14px;">Mover a caixa <span class="mono">' + esc(caixaAtual.codigo||'') + '</span> (com seus documentos) para:</p>' +
       '<div class="campo"><select id="m-dest">' + opcoes + '</select></div>' +
       '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button><button class="btn btn-prim" id="m-mover">Mover</button></div>';
     document.getElementById('m-mover').onclick = async function(){
       const dest = document.getElementById('m-dest').value;
-      const ddoc = await db.collection('estantes').doc(dest).get();
-      const dnome = ddoc.data().nome;
-      await db.collection('caixas').doc(caixaAtual.id).update({estanteNome:dnome, setorId:setor});
-      await registrar('Moveu a caixa ' + (caixaAtual.codigo||caixaAtual.id) + ' para ' + dnome);
-      caixaAtual.estanteNome = dnome;
-      fecharModal(); renderCaixa();
+      const docs = docsDaCaixa(estanteAtual.nome, caixaAtual.codigo);
+      try{
+        await gravarLote(docs.map(function(d){ return {id:d.id, dados:{estante:dest}}; }));
+        docs.forEach(function(d){ d.estante = dest; });
+        await registrar('Moveu a caixa ' + (caixaAtual.codigo||'') + ' de ' + (estanteAtual.nome||'') + ' para ' + dest + ' (' + docs.length + ' documento(s))');
+        fecharModal(); voltarEstantes();
+      }catch(e){ alertaModal('Erro: ' + (e.message||e)); }
     };
     abrirModal();
   });
 }
 function modalExcluirCaixa(){
-  confirmarModal('Excluir a caixa ' + (caixaAtual.codigo||caixaAtual.id) + '? Ela vai para a Lixeira e pode ser restaurada.', async function(){
-    await db.collection('caixas').doc(caixaAtual.id).update({excluido:true});
-    await registrar('Excluiu a caixa ' + (caixaAtual.codigo||caixaAtual.id));
-    fecharModal(); voltarEstantes();
+  const docs = docsDaCaixa(estanteAtual.nome, caixaAtual.codigo);
+  confirmarModal('Excluir a caixa ' + (caixaAtual.codigo||'') + '? Os ' + docs.length + ' documento(s) dela vão para a Lixeira e podem ser restaurados.', async function(){
+    try{
+      await gravarLote(docs.map(function(d){ return {id:d.id, dados:{excluidoEm:new Date(), excluidoPor:eu.email}}; }));
+      docs.forEach(function(d){ d.excluidoEm = new Date(); d.excluidoPor = eu.email; });
+      await registrar('Excluiu a caixa ' + (caixaAtual.codigo||'') + ' (' + docs.length + ' documento(s))');
+      fecharModal(); voltarEstantes();
+    }catch(e){ alertaModal('Erro: ' + (e.message||e)); }
   });
 }
-
 /* ---------- COLABORADORES ---------- */
 function abrirColaboradores(){ renderColaboradores(); mostrar('scr-colab'); }
 async function renderColaboradores(){
@@ -663,23 +643,27 @@ async function renderColaboradores(){
     if(snap.empty){ box.innerHTML = '<div class="vazio">NENHUM COLABORADOR NESTE SETOR.</div>'; return; }
     snap.docs.forEach(function(d){
       const u = d.data();
-      const adm = (u.adminDe||u.admin||[]).indexOf(setor) >= 0;
+      const adm = (u.adminDe||[]).indexOf(setor) >= 0;
       const l = document.createElement('div');
       l.className = 'linha';
       l.style.cursor = 'default';
       l.innerHTML = '<span class="cod">' + esc(d.id) + '</span>' +
         '<span><span class="tag' + (adm?' tag-adm':'') + '">' + (adm?'ADMIN':'COLABORADOR') + '</span>' +
-        (ehAdmin() ? ' <button class="btn btn-perig" style="padding:2px 8px;font-size:.65rem;margin-left:8px;" onclick="removerColab(\'' + esc(d.id) + '\')">Remover deste setor</button>' : '') +
+        (ehAdmin() ? ' <button class="btn btn-perig" style="padding:2px 8px;font-size:.65rem;margin-left:8px;">Remover deste setor</button>' : '') +
         '</span>';
+      const btn = l.querySelector('button');
+      if(btn){ btn.onclick = function(){ removerColab(d.id); }; }
       box.appendChild(l);
     });
   }catch(e){ box.innerHTML = '<div class="vazio" style="color:var(--ver)">ERRO: ' + esc(e.message||e) + '</div>'; }
 }
 async function removerColab(email){
   confirmarModal('Remover ' + email + ' deste setor?', async function(){
-    await db.collection('usuarios').doc(email).update({setores: firebase.firestore.FieldValue.arrayRemove(setor)});
-    await registrar('Removeu ' + email + ' do setor');
-    fecharModal(); renderColaboradores();
+    try{
+      await db.collection('usuarios').doc(email).update({setores: firebase.firestore.FieldValue.arrayRemove(setor)});
+      await registrar('Removeu ' + email + ' do setor');
+      fecharModal(); renderColaboradores();
+    }catch(e){ alertaModal('Erro: ' + (e.message||e)); }
   });
 }
 function modalAddColab(){
@@ -694,54 +678,103 @@ function modalAddColab(){
     if(!email || email.indexOf('@') < 0){ alertaModal('Informe um e-mail válido.'); return; }
     const setores = valor('m-setores').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
     const admin = valor('m-admin').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
-    await db.collection('usuarios').doc(email).set(
-      {ativo:true, setores: firebase.firestore.FieldValue.arrayUnion.apply(null, setores), adminDe: admin.length ? firebase.firestore.FieldValue.arrayUnion.apply(null, admin) : []},
-      {merge:true});
-    await registrar('Adicionou ' + email + ' aos setores ' + setores.join(', '));
-    fecharModal(); renderColaboradores();
+    if(setores.length === 0){ alertaModal('Informe pelo menos um setor.'); return; }
+    try{
+      await db.collection('usuarios').doc(email).set(
+        {email:email, ativo:true, setores: firebase.firestore.FieldValue.arrayUnion.apply(null, setores),
+         adminDe: admin.length ? firebase.firestore.FieldValue.arrayUnion.apply(null, admin) : []},
+        {merge:true});
+      await registrar('Adicionou ' + email + ' aos setores ' + setores.join(', '));
+      fecharModal(); renderColaboradores();
+    }catch(e){ alertaModal('Erro: ' + (e.message||e)); }
   };
   abrirModal();
 }
-
-/* ---------- HISTÓRICO ---------- */
+/* ---------- HISTÓRICO (coleção logs) ---------- */
 function abrirHistorico(){ renderHistorico(); mostrar('scr-hist'); }
 async function renderHistorico(){
   const box = document.getElementById('lista-hist');
   box.innerHTML = '<div class="vazio">CARREGANDO...</div>';
   try{
-    const snap = await db.collection('historico').where('setorId','==',setor).limit(300).get();
+    const snap = await db.collection('logs').where('origem','==',setor).get();
     const itens = snap.docs.map(function(d){ return d.data(); })
-      .sort(function(a,b){ return (b.quando||0) - (a.quando||0); }).slice(0,100);
+      .sort(function(a,b){ return emMs(b.timestamp) - emMs(a.timestamp); }).slice(0,100);
     box.innerHTML = '';
     if(itens.length === 0){ box.innerHTML = '<div class="vazio">NADA REGISTRADO AINDA.</div>'; return; }
     itens.forEach(function(h){
-      const d = new Date(h.quando||0);
       const l = document.createElement('div');
       l.className = 'hist-item';
-      l.innerHTML = '<div>' + esc(h.descricao||'') + '</div><div class="quando">' + d.toLocaleString('pt-BR') + (h.por ? ' · ' + esc(h.por) : '') + '</div>';
+      l.innerHTML = '<div>' + esc([h.acao, h.detalhe].filter(Boolean).join(' — ')) + '</div>' +
+                    '<div class="quando">' + esc(dataTxt(h.timestamp)) + (h.email ? ' · ' + esc(h.email) : '') + '</div>';
       box.appendChild(l);
     });
   }catch(e){ box.innerHTML = '<div class="vazio" style="color:var(--ver)">ERRO: ' + esc(e.message||e) + '</div>'; }
 }
-
-/* ---------- LIXEIRA ---------- */
+/* ---------- LIXEIRA (documentos com excluidoEm) ---------- */
 function abrirLixeira(){ renderLixeira(); mostrar('scr-lixeira'); }
 async function renderLixeira(){
   const box = document.getElementById('lista-lixeira');
   box.innerHTML = '<div class="vazio">CARREGANDO...</div>';
   try{
-    const scx = await db.collection('caixas').where('setorId','==',setor).get();
-    const idsSetor = {};
-    const caixasEx = [];
-    scx.docs.forEach(function(d){ idsSetor[d.id] = true; const x=d.data(); if(x.excluido === true){ caixasEx.push({id:d.id, codigo:x.codigo||d.id}); } });
-    const sit = await db.collection('itens').where('excluido','==',true).get();
-    const itensEx = sit.docs.map(function(d){ const x=d.data(); x.id=d.id; return x; }).filter(function(i){ return idsSetor[i.caixaId]; });
+    await carregarDocs();
+    const excl = cacheDocs.filter(function(d){ return d.excluidoEm; })
+      .sort(function(a,b){ return emMs(b.excluidoEm) - emMs(a.excluidoEm); });
     box.innerHTML = '';
-    if(caixasEx.length === 0 && itensEx.length === 0){ box.innerHTML = '<div class="vazio">LIXEIRA VAZIA.</div>'; return; }
-    caixasEx.forEach(function(c){
+    if(excl.length === 0){ box.innerHTML = '<div class="vazio">LIXEIRA VAZIA.</div>'; return; }
+    excl.forEach(function(d){
       const l = document.createElement('div');
-      l.className = 'linha'; l.style.cursor='default';
-      l.innerHTML = '<span class="cod">📦 ' + esc(c.codigo) + '</span><button class="btn" style="padding:3px 10px;font-size:.7rem;" onclick="restaurarCaixa(\'' + c.id + '\')">Restaurar</button>';
+      l.className = 'linha';
+      l.style.cursor = 'default';
+      const info = [d.caixa, d.estante].filter(Boolean).join(' · ');
+      l.innerHTML = '<span><span class="cod">📄 ' + esc(d.nome||d.id) + '</span>' +
+        (info ? ' <span style="font-size:.72rem;color:#6B7280">' + esc(info) + '</span>' : '') +
+        '<div style="font-size:.65rem;color:#9CA3AF;font-family:\'IBM Plex Mono\',monospace;">excluído em ' + esc(dataTxt(d.excluidoEm)) + (d.excluidoPor ? ' · ' + esc(d.excluidoPor) : '') + '</div></span>';
+      const b = document.createElement('button');
+      b.className = 'btn';
+      b.style.cssText = 'padding:3px 10px;font-size:.7rem;';
+      b.textContent = 'Restaurar';
+      b.onclick = function(){ restaurarItem(d.id); };
+      l.appendChild(b);
       box.appendChild(l);
     });
-    itens
+  }catch(e){ box.innerHTML = '<div class="vazio" style="color:var(--ver)">ERRO: ' + esc(e.message||e) + '</div>'; }
+}
+async function restaurarItem(id){
+  try{
+    await db.collection('documentos').doc(id).update({excluidoEm: firebase.firestore.FieldValue.delete(), excluidoPor: firebase.firestore.FieldValue.delete()});
+    const idx = cacheDocs.findIndex(function(d){ return d.id === id; });
+    if(idx >= 0){ delete cacheDocs[idx].excluidoEm; delete cacheDocs[idx].excluidoPor; }
+    await registrar('Restaurou um documento da lixeira');
+    renderLixeira();
+  }catch(e){ alertaModal('Erro ao restaurar: ' + (e.message||e)); }
+}
+/* ---------- AJUDA ---------- */
+function alternarAcordeao(el){
+  const b = el.nextElementSibling;
+  b.style.display = (b.style.display === 'block') ? 'none' : 'block';
+}
+function abrirAjuda(){
+  if(document.getElementById('scr-caixa').style.display === 'block'){ telaDeAjuda = 'scr-caixa'; }
+  else if(document.getElementById('scr-estante').style.display === 'block'){ telaDeAjuda = 'scr-estante'; }
+  else { telaDeAjuda = 'scr-estantes'; }
+  const c = document.getElementById('corpo-ajuda');
+  const bloco = function(titulo, texto){
+    return '<div class="acordeao"><div class="cab-ac" onclick="alternarAcordeao(this)"><span>' + titulo + '</span><span>▾</span></div><div class="corpo-ac">' + texto + '</div></div>';
+  };
+  c.innerHTML =
+    bloco('Como o acervo é organizado',
+      '<p>A hierarquia vem direto do banco de dados: <b>Setor → Estante → Caixa → Documentos</b>. Cada documento guarda o próprio setor, a estante e a caixa a que pertence.</p>' +
+      '<p>As caixas são formadas pelos documentos: uma caixa passa a existir a partir do primeiro documento cadastrado nela. Para criar uma caixa nova, use <b>+ Novo item</b> dentro da estante e digite um código de caixa que ainda não existe.</p>') +
+    bloco('Campos do documento',
+      '<p>Cada documento tem: nome, tipo de documento, data, arquivo/onde encontrar (URL) e observação. O sistema também guarda uma versão do nome sem acentos e em minúsculas (nomeBusca) para buscas futuras.</p>') +
+    bloco('Lixeira',
+      '<p>Excluir um documento (ou uma caixa inteira) não apaga nada na hora: o documento ganha a data e o autor da exclusão e passa a aparecer na Lixeira, de onde pode ser restaurado.</p>') +
+    bloco('Histórico',
+      '<p>O histórico mostra os registros da coleção de logs do setor: ação, detalhe, data/hora e o e-mail de quem fez.</p>') +
+    bloco('Colaboradores',
+      '<p>Admins do setor podem liberar novos e-mails (como colaboradores ou admins) e remover acessos. O acesso só vale para usuários ativos e com pelo menos um setor liberado.</p>');
+  mostrar('scr-ajuda');
+}
+</script>
+</body>
+</html>

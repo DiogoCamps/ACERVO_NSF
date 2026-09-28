@@ -776,68 +776,60 @@ function abrirAjuda(){
   mostrar('scr-ajuda');
 }
 </script>
-  <!-- ===== BARRA DE BUSCA DE DOCUMENTOS ===== -->
+<!-- ===== BARRA DE BUSCA DE DOCUMENTOS ===== -->
 <div id="busca-doc-container" style="margin:16px 0;">
   <input id="busca-doc-input" type="text" placeholder="Pesquisar nome do documento ou pessoa..."
          style="width:100%;max-width:480px;padding:10px 14px;border:1px solid #ccc;border-radius:8px;font-size:15px;">
   <div id="busca-doc-resultados" style="margin-top:10px;"></div>
 </div>
 
-<script type="module">
-import { collection, getDocs, query, where } from "https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore.js";
+<script>
+(function(){
+  const input = document.getElementById("busca-doc-input");
+  const box = document.getElementById("busca-doc-resultados");
 
-// usa o mesmo app/db do site, se existirem
-let dbBusca = null;
-try { dbBusca = (typeof db !== "undefined") ? db : (typeof getFirestore === "function" ? getFirestore() : null); } catch (e) {}
-
-const input = document.getElementById("busca-doc-input");
-const box = document.getElementById("busca-doc-resultados");
-
-function normalizar(s) {
-  return (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-}
-
-let timer = null;
-input.addEventListener("input", () => {
-  clearTimeout(timer);
-  timer = setTimeout(buscar, 400);
-});
-
-async function buscar() {
-  const termo = normalizar(input.value);
-  box.innerHTML = "";
-  if (termo.length < 3 || !dbBusca) return;
-
-  box.innerHTML = "<em>Buscando...</em>";
-  try {
-    // pega os itens do setor atual (ou todos, se não houver setor selecionado)
-    const setorAtual = (typeof setorSelecionado !== "undefined" && setorSelecionado) ? setorSelecionado : null;
-    const ref = collection(dbBusca, "documentos");
-    const q = setorAtual ? query(ref, where("setor", "==", setorAtual)) : ref;
-    const snap = await getDocs(q);
-
-    const achados = [];
-    snap.forEach(d => {
-      const f = d.data();
-      const alvo = normalizar(f.nomeBusca || f.nome || "");
-      if (alvo.includes(termo)) achados.push(f);
-    });
-
-    if (achados.length === 0) {
-      box.innerHTML = "<p style='color:#888;'>Nenhum resultado para \"" + input.value + "\".</p>";
-      return;
-    }
-
-    box.innerHTML = achados.slice(0, 20).map(f => `
-      <div style="padding:10px 14px;border:1px solid #e0e0e0;border-radius:8px;margin-bottom:6px;background:#fafafa;">
-        <strong>${f.nome || ""}</strong><br>
-        <span style="color:#555;">📍 ${f.estante || "?"} · Caixa ${f.caixa || "?"}</span>
-      </div>`).join("")
-      + (achados.length > 20 ? `<p style="color:#888;">+ ${achados.length - 20} resultados (refine a busca)</p>` : "");
-  } catch (err) {
-    box.innerHTML = "<p style='color:#c00;'>Erro na busca: " + err.message + "</p>";
+  function normalizar(s) {
+    return (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
   }
-}
+
+  let timer = null;
+  input.addEventListener("input", function(){
+    clearTimeout(timer);
+    timer = setTimeout(buscar, 400);
+  });
+
+  async function buscar() {
+    const termo = normalizar(input.value);
+    box.innerHTML = "";
+    if (termo.length < 3 || !db) return;
+
+    box.innerHTML = "<em>Buscando...</em>";
+    try {
+      const snap = await db.collection("documentos").get();
+      const achados = [];
+      snap.forEach(function(d){
+        const f = d.data();
+        const alvo = normalizar(f.nomeBusca || f.nome || "");
+        if (alvo.indexOf(termo) >= 0) achados.push(f);
+      });
+
+      if (achados.length === 0) {
+        box.innerHTML = "<p style='color:#888;'>Nenhum resultado para \"" + esc(input.value) + "\".</p>";
+        return;
+      }
+
+      box.innerHTML = achados.slice(0, 20).map(function(f){
+        return "<div style='padding:10px 14px;border:1px solid #e0e0e0;border-radius:8px;margin-bottom:6px;background:#fafafa;'>" +
+          "<strong>" + esc(f.nome || "") + "</strong><br>" +
+          "<span style='color:#555;'>📍 " + esc(f.estante || "?") + " · Caixa " + esc(f.caixa || "?") + "</span>" +
+          "</div>";
+      }).join("") +
+      (achados.length > 20 ? "<p style='color:#888;'>+ " + (achados.length - 20) + " resultados (refine a busca)</p>" : "");
+    } catch (err) {
+      box.innerHTML = "<p style='color:#c00;'>Erro na busca: " + esc(err.message) + "</p>";
+    }
+  }
+})();
 </script>
 <!-- ===== FIM DA BARRA DE BUSCA ===== -->
 </body>

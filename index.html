@@ -1,197 +1,248 @@
 <!DOCTYPE html>
-<html lang="pt-br">
+<html lang="pt-BR">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Acervo · Gestão documental</title>
-<link href="https://fonts.googleapis.com/css2?family=Anton&family=IBM+Plex+Mono:wght@400;600&family=Archivo:wght@400;600;700&display=swap" rel="stylesheet">
-<script src="https://accounts.google.com/gsi/client" async defer></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
+<title>ACERVO JURÍDICO</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Saira+Condensed:wght@500;600;700&family=IBM+Plex+Mono:wght@400;500&family=Archivo:wght@400;500;600&display=swap" rel="stylesheet">
 <style>
-:root{--bg:#F5F7FA;--ink:#111827;--cob:#1D4ED8;--ver:#E11D2E;--esm:#059669;--lar:#EA580C;--rox:#7C3AED;--grid:#DDE3EC;}
-*{box-sizing:border-box;margin:0;padding:0;}
-body{background:var(--bg);color:var(--ink);font-family:'Archivo',sans-serif;min-height:100vh;}
-h1,h2,.display{font-family:'Anton',sans-serif;letter-spacing:.04em;text-transform:uppercase;}
-.mono{font-family:'IBM Plex Mono',monospace;}
-.tela{display:none;}
-.tela-centro{display:none;align-items:center;justify-content:center;min-height:100vh;padding:20px;}
-.btn{border:2px solid var(--ink);background:#fff;color:var(--ink);font-family:'Archivo';font-weight:600;padding:8px 14px;cursor:pointer;font-size:.85rem;}
-.btn:hover{background:var(--ink);color:#fff;}
-.btn-prim{background:var(--cob);border-color:var(--cob);color:#fff;}
-.btn-prim:hover{background:#1e40af;}
-.btn-perig{background:#fff;border-color:var(--ver);color:var(--ver);}
-.btn-perig:hover{background:var(--ver);color:#fff;}
-.erro-login{display:none;margin-top:14px;color:var(--ver);font-size:.8rem;max-width:340px;text-align:left;}
-/* LOGIN */
-.cx-login{background:#fff;border:2px solid var(--ink);padding:48px 40px;max-width:420px;width:100%;box-shadow:8px 8px 0 var(--grid);}
-.cx-login h1{font-size:3rem;}
-.cx-login .sub{font-family:'IBM Plex Mono';font-size:.75rem;color:var(--cob);margin:6px 0 26px;}
-/* SEM ACESSO */
-.cx-sem{background:#fff;border:2px solid var(--ver);padding:40px;max-width:460px;width:100%;text-align:center;}
-/* HEADER */
-.topo{background:#fff;border-bottom:4px solid var(--cob);padding:14px 28px;display:flex;align-items:center;justify-content:space-between;gap:12px;position:sticky;top:0;z-index:50;}
-.topo h1{font-size:1.6rem;}
-.topo .linha-sub{font-family:'IBM Plex Mono';font-size:.65rem;color:#6B7280;}
-.acoes{display:flex;gap:8px;flex-wrap:wrap;}
-.corpo{padding:26px 28px 60px;}
-.rotulo-secao{font-family:'IBM Plex Mono';font-size:.75rem;color:var(--cob);border-left:5px solid var(--cob);padding-left:10px;margin:0 0 16px;text-transform:uppercase;}
-/* GRADES E CARTÕES */
-.grade{display:grid;grid-template-columns:repeat(auto-fill,minmax(250px,1fr));gap:18px;}
-.card{background:#fff;border:2px solid var(--ink);cursor:pointer;padding:0;transition:transform .12s;}
-.card:hover{transform:translateY(-2px);box-shadow:6px 6px 0 var(--grid);}
-.card .cab{padding:10px 14px;color:#fff;font-family:'Anton';font-size:1.05rem;letter-spacing:.06em;}
-.card .txt{padding:12px 14px;font-size:.85rem;}
-.card .meta{font-family:'IBM Plex Mono';font-size:.65rem;color:#6B7280;margin-top:6px;}
-/* LISTAS */
-.lista{background:#fff;border:2px solid var(--ink);}
-.linha{display:flex;justify-content:space-between;align-items:center;gap:10px;padding:11px 16px;border-bottom:1px solid var(--grid);cursor:pointer;font-size:.9rem;}
-.linha:nth-child(even){background:#FAFBFD;}
-.linha:last-child{border-bottom:none;}
-.linha:hover{background:#EFF6FF;box-shadow:inset 4px 0 0 var(--cob);}
-.linha .cod{font-family:'IBM Plex Mono';font-weight:600;color:var(--cob);}
-.linha .seta{opacity:.35;}
-.tag{font-family:'IBM Plex Mono';font-size:.6rem;padding:2px 8px;border:1px solid var(--ink);}
-.tag-adm{border-color:var(--ver);color:var(--ver);}
-.vazio{padding:24px;text-align:center;font-family:'IBM Plex Mono';font-size:.75rem;color:#9CA3AF;}
-/* MODAL */
-.fundo-modal{display:none;position:fixed;inset:0;background:rgba(17,24,39,.45);z-index:200;align-items:center;justify-content:center;padding:20px;}
-.modal{background:#fff;border:2px solid var(--ink);max-width:440px;width:100%;padding:26px;max-height:85vh;overflow:auto;}
-.modal h2{font-size:1.3rem;margin-bottom:16px;}
-.campo{margin-bottom:14px;}
-.campo label{display:block;font-family:'IBM Plex Mono';font-size:.65rem;text-transform:uppercase;color:#6B7280;margin-bottom:5px;}
-.campo input,.campo select,.campo textarea{width:100%;border:1.5px solid var(--ink);padding:9px 10px;font-family:'Archivo';font-size:.9rem;background:#fff;}
-.modal .rodape{display:flex;gap:10px;justify-content:flex-end;margin-top:18px;}
-/* AJUDA */
-.acordeao{border:2px solid var(--ink);background:#fff;margin-bottom:10px;}
-.acordeao .cab-ac{padding:12px 16px;cursor:pointer;display:flex;justify-content:space-between;align-items:center;font-weight:700;}
-.acordeao .corpo-ac{display:none;padding:0 16px 14px;font-size:.88rem;line-height:1.55;}
-.hist-item{padding:10px 16px;border-bottom:1px solid var(--grid);font-size:.85rem;}
-.hist-item .quando{font-family:'IBM Plex Mono';font-size:.65rem;color:#9CA3AF;}
+:root{
+  --bg:#12141A;
+  --panel:#1A1E28;
+  --panel-2:#20252F;
+  --line:#2A3140;
+  --line-soft:#232936;
+  --txt:#E8EAF0;
+  --txt-dim:#9AA3B2;
+  --txt-faint:#6B7484;
+  --amber:#E8A33D;
+  --amber-dim:rgba(232,163,61,.14);
+  --red:#E11D2E; --blue:#1D4ED8; --green:#059669; --orange:#EA580C; --purple:#7C3AED;
+  --mono:'IBM Plex Mono',monospace;
+  --disp:'Saira Condensed',sans-serif;
+  --body:'Archivo',sans-serif;
+}
+*{margin:0;padding:0;box-sizing:border-box}
+body{
+  background:var(--bg);
+  color:var(--txt);
+  font-family:var(--body);
+  min-height:100vh;
+  background-image:
+    linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),
+    linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);
+  background-size:48px 48px;
+}
+.wrap{max-width:1200px;margin:0 auto;padding:0 24px}
+
+/* ===== TOP BAR ===== */
+.topbar{
+  border-bottom:1px solid var(--line);
+  background:rgba(18,20,26,.92);
+  position:sticky;top:0;z-index:50;
+  backdrop-filter:blur(6px);
+}
+.topbar-inner{display:flex;align-items:center;gap:20px;height:56px}
+.logo{
+  font-family:var(--disp);font-weight:700;font-size:20px;
+  letter-spacing:.14em;text-transform:uppercase;
+  padding:4px 14px;border:1px solid var(--line);
+  background:var(--panel);position:relative;
+}
+.logo::before{content:'';position:absolute;left:6px;top:50%;transform:translateY(-50%);
+  width:5px;height:5px;border-radius:50%;background:var(--amber)}
+.logo{padding-left:20px}
+.crumb{font-family:var(--mono);font-size:12px;color:var(--txt-dim);letter-spacing:.04em}
+.crumb b{color:var(--amber);font-weight:500}
+.topbar-right{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--txt-faint)}
+
+/* ===== HERO SEARCH ===== */
+.hero{padding:48px 0 8px;text-align:center}
+.hero h1{
+  font-family:var(--disp);font-weight:600;font-size:15px;
+  letter-spacing:.3em;text-transform:uppercase;color:var(--txt-dim);margin-bottom:20px;
+}
+.search-shell{max-width:680px;margin:0 auto;position:relative}
+.search-shell::before,.search-shell::after{
+  content:'';position:absolute;top:50%;width:60px;height:1px;background:var(--line);
+}
+.search-shell::before{left:-80px}
+.search-shell::after{right:-80px}
+#busca{
+  width:100%;padding:16px 20px;font-family:var(--mono);font-size:15px;
+  background:var(--panel);border:1px solid var(--line);color:var(--txt);
+  outline:none;transition:border-color .2s,box-shadow .2s;
+}
+#busca::placeholder{color:var(--txt-faint)}
+#busca:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-dim)}
+.resultados{max-width:680px;margin:16px auto 0;text-align:left}
+.ficha{
+  background:var(--panel);border:1px solid var(--line);
+  border-left:3px solid var(--amber);
+  padding:14px 18px;margin-bottom:8px;
+  display:flex;align-items:center;gap:16px;
+  animation:slideIn .25s ease both;
+}
+@keyframes slideIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+.ficha-nome{font-family:var(--disp);font-weight:600;font-size:17px;letter-spacing:.02em;text-transform:uppercase}
+.ficha-loc{font-family:var(--mono);font-size:12px;color:var(--txt-dim);margin-top:3px}
+.ficha-btn{
+  margin-left:auto;flex-shrink:0;
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  background:var(--amber);color:#12141A;border:none;
+  padding:8px 16px;cursor:pointer;font-weight:500;transition:filter .15s;
+}
+.ficha-btn:hover{filter:brightness(1.1)}
+.ficha-btn:active{filter:brightness(.9)}
+.msg-busca{font-family:var(--mono);font-size:12px;color:var(--txt-faint);padding:12px 4px}
+.msg-busca.erro{color:#E05252}
+
+/* ===== STAT STRIP ===== */
+.stats{
+  display:flex;justify-content:center;gap:0;
+  margin:40px auto 0;max-width:860px;
+  border-top:1px solid var(--line);border-bottom:1px solid var(--line);
+}
+.stat{
+  flex:1;padding:20px 12px;text-align:center;
+  border-left:1px solid var(--line);
+}
+.stat:first-child{border-left:none}
+.stat-num{font-family:var(--mono);font-size:26px;font-weight:500;color:var(--txt)}
+.stat-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--txt-faint);text-transform:uppercase;margin-top:6px}
+
+/* ===== ESTANTES ===== */
+.secao-titulo{
+  font-family:var(--disp);font-weight:600;font-size:14px;
+  letter-spacing:.28em;text-transform:uppercase;color:var(--txt-dim);
+  margin:56px 0 20px;display:flex;align-items:center;gap:16px;
+}
+.secao-titulo::after{content:'';flex:1;height:1px;background:var(--line)}
+.grid-estantes{display:grid;grid-template-columns:repeat(auto-fill,minmax(210px,1fr));gap:14px}
+.gaveta{
+  background:var(--panel);border:1px solid var(--line);
+  padding:18px 16px 14px;cursor:pointer;position:relative;
+  transition:border-color .2s,transform .15s;
+  animation:slideIn .4s ease both;
+}
+.gaveta:hover{border-color:rgba(232,163,61,.45);transform:translateY(-2px)}
+.gaveta::after{
+  content:'';position:absolute;left:20%;right:20%;bottom:8px;height:3px;
+  background:var(--line-soft);border-radius:2px;
+}
+.gaveta-tag{
+  display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  padding:3px 8px;color:#fff;text-transform:uppercase;margin-bottom:10px;
+}
+.gaveta-nome{font-family:var(--disp);font-weight:600;font-size:18px;letter-spacing:.03em;text-transform:uppercase}
+.gaveta-count{font-family:var(--mono);font-size:11px;color:var(--txt-dim);margin-top:8px}
+
+/* ===== PAINEL CAIXAS ===== */
+.painel{
+  background:var(--panel);border:1px solid var(--line);
+  margin-top:14px;padding:20px;display:none;
+}
+.painel.aberto{display:block;animation:slideIn .25s ease}
+.painel h3{
+  font-family:var(--disp);font-weight:600;font-size:15px;letter-spacing:.1em;
+  text-transform:uppercase;margin-bottom:14px;color:var(--txt-dim);
+}
+.caixa-item{
+  display:flex;align-items:center;gap:14px;
+  padding:10px 14px;border:1px solid var(--line-soft);
+  margin-bottom:6px;cursor:pointer;background:var(--panel-2);
+  transition:border-color .15s;
+}
+.caixa-item:hover{border-color:rgba(232,163,61,.4)}
+.caixa-cod{font-family:var(--mono);font-size:13px;font-weight:500}
+.caixa-n{font-family:var(--mono);font-size:11px;color:var(--txt-faint);margin-left:auto}
+.doc-item{
+  padding:10px 14px;border-bottom:1px solid var(--line-soft);
+  display:flex;gap:14px;align-items:baseline;
+}
+.doc-item:last-child{border-bottom:none}
+.doc-nome{font-size:14px;font-weight:500}
+.doc-meta{font-family:var(--mono);font-size:11px;color:var(--txt-faint);margin-left:auto;flex-shrink:0}
+.voltar{
+  font-family:var(--mono);font-size:11px;letter-spacing:.1em;
+  color:var(--amber);background:none;border:1px solid var(--line);
+  padding:6px 14px;cursor:pointer;margin-bottom:14px;text-transform:uppercase;
+}
+.voltar:hover{border-color:var(--amber)}
+
+/* flash de destaque */
+@keyframes flash{
+  0%,100%{box-shadow:none}
+  30%{box-shadow:0 0 0 3px var(--amber)}
+}
+.flash{animation:flash 1.2s ease 2}
+
+/* skeleton */
+.skel{
+  height:90px;background:linear-gradient(90deg,var(--panel) 25%,var(--panel-2) 50%,var(--panel) 75%);
+  background-size:200% 100%;animation:shimmer 1.4s infinite;border:1px solid var(--line);
+}
+@keyframes shimmer{from{background-position:200% 0}to{background-position:-200% 0}}
+
+footer{
+  margin-top:64px;padding:20px 0 32px;border-top:1px solid var(--line);
+  font-family:var(--mono);font-size:11px;color:var(--txt-faint);text-align:center;
+  letter-spacing:.08em;
+}
+
+@media(max-width:720px){
+  .search-shell::before,.search-shell::after{display:none}
+  .stats{flex-wrap:wrap}
+  .stat{min-width:45%;border-top:1px solid var(--line)}
+  .stat:nth-child(-n+2){border-top:none}
+  .stat:nth-child(3){border-left:none}
+  .hero{padding-top:32px}
+}
 </style>
 </head>
 <body>
-<!-- LOGIN -->
-<div id="scr-login" class="tela tela-centro" style="display:flex;">
-  <div class="cx-login">
-    <h1>Acervo</h1>
-    <div class="sub">GESTÃO DOCUMENTAL</div>
-    <p style="font-size:.85rem;color:#4B5563;margin-bottom:24px;">Acesso restrito a contas autorizadas.</p>
-    <div id="botao-google" style="display:flex;justify-content:center;"></div>
-    <div id="erro-google" class="erro-login"></div>
+
+<header class="topbar">
+  <div class="wrap topbar-inner">
+    <div class="logo">ACERVO</div>
+    <div class="crumb">SETOR: <b>JURÍDICO</b> // <span id="crumb-total">—</span> REGISTROS</div>
+    <div class="topbar-right" id="user-chip"></div>
   </div>
-</div>
-<!-- SEM ACESSO -->
-<div id="scr-semacesso" class="tela tela-centro">
-  <div class="cx-sem">
-    <h1 style="font-size:1.6rem;color:var(--ver);">Sem acesso</h1>
-    <p style="margin:16px 0 8px;font-size:.9rem;">Seu e-mail ainda não foi liberado para nenhum setor.</p>
-    <p class="mono" id="email-semacesso" style="font-size:.75rem;color:#6B7280;margin-bottom:22px;"></p>
-    <p style="font-size:.8rem;color:#6B7280;margin-bottom:20px;">Fale com o administrador do sistema.</p>
-    <button class="btn" onclick="sair()">Sair</button>
-  </div>
-</div>
-<!-- SETORES -->
-<div id="scr-setores" class="tela">
-  <div class="topo">
-    <div><h1>Escolha o setor</h1><div class="linha-sub" id="sub-setores"></div></div>
-    <div class="acoes"><button class="btn" onclick="sair()">⏻ Sair</button></div>
-  </div>
-  <div class="corpo"><div id="grade-setores" class="grade"></div></div>
-</div>
-<!-- ESTANTES -->
-<div id="scr-estantes" class="tela">
-  <div class="topo">
-    <div><h1>Estantes</h1><div class="linha-sub" id="sub-estantes"></div></div>
-    <div class="acoes">
-      <button class="btn" onclick="voltarSetores()">← Setores</button>
-      <button class="btn" onclick="atualizar()">Atualizar</button>
-      <button class="btn" onclick="abrirLixeira()">Lixeira</button>
-      <button class="btn" onclick="abrirHistorico()">Histórico</button>
-      <button class="btn" id="btn-colab" onclick="abrirColaboradores()">Colaboradores</button>
-      <button class="btn btn-prim" id="btn-nova-estante" onclick="modalNovaEstante()">+ Nova estante</button>
-      <button class="btn" onclick="abrirAjuda()">?</button>
+</header>
+
+<main class="wrap">
+
+  <section class="hero">
+    <h1>Consulta de Registro</h1>
+    <div class="search-shell">
+      <input id="busca" type="text" placeholder="CONSULTAR REGISTRO — digite o nome..." autocomplete="off" aria-label="Buscar documento por nome">
     </div>
-  </div>
-  <div class="corpo"><div class="rotulo-secao">Inventário do setor</div><div id="grade-estantes" class="grade"></div></div>
-</div>
-<!-- DENTRO DA ESTANTE -->
-<div id="scr-estante" class="tela">
-  <div class="topo">
-    <div><h1 id="titulo-estante">Estante</h1><div class="linha-sub" id="sub-estante"></div></div>
-    <div class="acoes">
-      <button class="btn" onclick="voltarEstantes()">← Estantes</button>
-      <button class="btn" id="btn-editar-estante" onclick="modalEditarEstante()">Editar estante</button>
-      <button class="btn btn-prim" onclick="modalNovoItem()">+ Novo item</button>
-      <button class="btn" onclick="atualizar()">Atualizar</button>
-      <button class="btn" onclick="abrirAjuda()">?</button>
+    <div class="resultados" id="resultados"></div>
+  </section>
+
+  <section class="stats" id="stats">
+    <div class="stat"><div class="stat-num skel-num" style="height:26px;width:80px;margin:0 auto;background:var(--panel-2)"></div><div class="stat-lbl">Documentos</div></div>
+    <div class="stat"><div class="stat-num skel-num" style="height:26px;width:80px;margin:0 auto;background:var(--panel-2)"></div><div class="stat-lbl">Caixas</div></div>
+    <div class="stat"><div class="stat-num skel-num" style="height:26px;width:80px;margin:0 auto;background:var(--panel-2)"></div><div class="stat-lbl">Na lixeira</div></div>
+    <div class="stat"><div class="stat-num skel-num" style="height:26px;width:80px;margin:0 auto;background:var(--panel-2)"></div><div class="stat-lbl">Estantes</div></div>
+  </section>
+
+  <section>
+    <div class="secao-titulo">Estantes</div>
+    <div class="grid-estantes" id="grid-estantes">
+      <div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>
     </div>
-  </div>
-  <div class="corpo"><div class="rotulo-secao">Caixas desta estante</div><div id="lista-caixas" class="lista"></div></div>
-</div>
-<!-- DENTRO DA CAIXA -->
-<div id="scr-caixa" class="tela">
-  <div class="topo">
-    <div><h1 id="titulo-caixa">Caixa</h1><div class="linha-sub" id="sub-caixa"></div></div>
-    <div class="acoes">
-      <button class="btn" onclick="voltarCaixas()">← Voltar</button>
-      <button class="btn btn-prim" onclick="modalNovoItem()">+ Novo item</button>
-      <button class="btn" id="btn-mover-caixa" onclick="modalMoverCaixa()">Mover caixa</button>
-      <button class="btn btn-perig" id="btn-excluir-caixa" onclick="modalExcluirCaixa()">Excluir caixa</button>
-      <button class="btn" onclick="atualizar()">Atualizar</button>
-      <button class="btn" onclick="abrirAjuda()">?</button>
-    </div>
-  </div>
-  <div class="corpo"><div class="rotulo-secao">Documentos desta caixa</div><div id="lista-itens" class="lista"></div></div>
-</div>
-<!-- COLABORADORES -->
-<div id="scr-colab" class="tela">
-  <div class="topo">
-    <div><h1>Colaboradores</h1><div class="linha-sub" id="sub-colab"></div></div>
-    <div class="acoes">
-      <button class="btn" onclick="voltarEstantes()">← Voltar</button>
-      <button class="btn btn-prim" onclick="modalAddColab()">+ Adicionar</button>
-      <button class="btn" onclick="abrirAjuda()">?</button>
-    </div>
-  </div>
-  <div class="corpo"><div class="rotulo-secao">Equipe autorizada neste setor</div><div id="lista-colab" class="lista"></div></div>
-</div>
-<!-- HISTÓRICO -->
-<div id="scr-hist" class="tela">
-  <div class="topo">
-    <div><h1>Histórico</h1><div class="linha-sub">Últimas 100 alterações neste setor</div></div>
-    <div class="acoes"><button class="btn" onclick="voltarEstantes()">← Voltar</button></div>
-  </div>
-  <div class="corpo"><div id="lista-hist" class="lista"></div></div>
-</div>
-<!-- LIXEIRA -->
-<div id="scr-lixeira" class="tela">
-  <div class="topo">
-    <div><h1>Lixeira</h1><div class="linha-sub">Documentos excluídos — dá pra restaurar</div></div>
-    <div class="acoes"><button class="btn" onclick="voltarEstantes()">← Voltar</button><button class="btn" onclick="atualizar()">Atualizar</button></div>
-  </div>
-  <div class="corpo"><div id="lista-lixeira" class="lista"></div></div>
-</div>
-<!-- AJUDA -->
-<div id="scr-ajuda" class="tela">
-  <div class="topo">
-    <div><h1>Ajuda</h1><div class="linha-sub">Como usar o Acervo</div></div>
-    <div class="acoes"><button class="btn" onclick="voltarDeAjuda()">← Voltar</button></div>
-  </div>
-  <div class="corpo" id="corpo-ajuda"></div>
-</div>
-<!-- MODAL -->
-<div id="fundo-modal" class="fundo-modal"><div class="modal" id="caixa-modal"></div></div>
+    <div class="painel" id="painel"></div>
+  </section>
+
+</main>
+
+<footer>ACERVO JURÍDICO — SISTEMA DE GESTÃO DE ACERVO FÍSICO DIGITALIZADO</footer>
+
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
-/* O BANCO MANDA — modelo importado:
-   documentos/{ItemId}: setor, estante, caixa, itemId, tipo, nome, tipoDocumento, data,
-                        arquivoUrl, observacao, ultimaAlteracao, alteradoPor,
-                        excluidoEm, excluidoPor, nomeBusca
-   estantes/{id}: setor, nome, tipo
-   usuarios/{email}: email, setores[], adminDe[], ativo
-   logs/{auto}: origem, timestamp, email, acao, detalhe                        */
-const GOOGLE_CLIENT_ID = '261689105724-1cqtlup42cdoltou2d7i5dt3ehlehgf8.apps.googleusercontent.com';
 const firebaseConfig = {
   apiKey: "AIzaSyAONXkMDXTBrw6lLxkThNLzm3YbbNZbf8I",
   authDomain: "acervo-dffd3.firebaseapp.com",
@@ -203,634 +254,173 @@ const firebaseConfig = {
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
 
-let eu = null;            // {email, setores:[], adminDe:[]}
-let setor = null;
-let estanteAtual = null;  // {id, nome, tipo}
-let caixaAtual = null;    // {codigo}
-let cacheDocs = [];       // todos os documentos do setor (ativos + lixeira)
-let telaDeAjuda = 'scr-estantes';
-
-const CORES = {ARMARIO:'#E11D2E', A:'#1D4ED8', B:'#059669', C:'#EA580C', D:'#7C3AED'};
-function corEstante(nome){
+const CORES = {
+  'ARMARIO':'#E11D2E','ARMÁRIO':'#E11D2E',
+  'A':'#1D4ED8','B':'#059669','C':'#EA580C','D':'#7C3AED'
+};
+function corDe(nome){
   const n = (nome||'').toUpperCase();
-  if(n.indexOf('ARMAR') >= 0) return CORES.ARMARIO;
-  const m = n.match(/([A-Z])\s*$/);
-  return (m && CORES[m[1]]) ? CORES[m[1]] : CORES.A;
+  if(n.indexOf('ARMAR') >= 0) return CORES['ARMARIO'];
+  const m = n.match(/([A-D])\s*$/);
+  return (m && CORES[m[1]]) ? CORES[m[1]] : '#E8A33D';
 }
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
-function norm(s){ return (s==null?'':String(s)).toUpperCase().trim(); }
-function normalizar(s){ return (s==null?'':String(s)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/\s+/g,' ').trim(); }
-function ordemNatural(a, b){ return String(a).localeCompare(String(b), undefined, {numeric:true, sensitivity:'base'}); }
-function emMs(v){
-  if(!v) return 0;
-  if(v.toMillis) return v.toMillis();
-  if(v instanceof Date) return v.getTime();
-  if(typeof v === 'number') return v;
-  const t = Date.parse(v);
-  return isNaN(t) ? 0 : t;
+function normalizar(s){ return (s==null?'':String(s)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
+
+let docs = [];        // cache de todos os documentos
+let estantes = [];    // cache de estantes
+let estanteAberta = null;
+let caixaAberta = null;
+
+async function carregar(){
+  try{
+    const [snapDocs, snapEst] = await Promise.all([
+      db.collection('documentos').get(),
+      db.collection('estantes').get()
+    ]);
+    docs = [];
+    snapDocs.forEach(d => docs.push(d.data()));
+    estantes = [];
+    snapEst.forEach(d => estantes.push(Object.assign({id:d.id}, d.data())));
+
+    renderStats();
+    renderEstantes();
+  }catch(err){
+    document.getElementById('grid-estantes').innerHTML =
+      '<div class="msg-busca erro">Erro ao carregar dados: ' + esc(err.message) + '</div>';
+  }
 }
-function dataTxt(v){ const ms = emMs(v); return ms ? new Date(ms).toLocaleString('pt-BR') : ''; }
-function idDocSeguro(s){ return String(s==null?'':s).replace(/[\/\#?\[\]]/g,'_').trim(); }
-function mostrar(id){
-  document.querySelectorAll('.tela').forEach(function(t){ t.style.display='none'; });
-  const el = document.getElementById(id);
-  el.style.display = el.classList.contains('tela-centro') ? 'flex' : 'block';
+
+function ativos(){ return docs.filter(d => !d.excluidoEm); }
+function naLixeira(){ return docs.filter(d => d.excluidoEm); }
+
+function renderStats(){
+  const a = ativos();
+  const caixas = new Set(a.map(d => (d.estante||'') + '|' + (d.caixa||'')).filter(x => x !== '|'));
+  const nums = document.querySelectorAll('#stats .stat-num');
+  nums[0].textContent = a.length.toLocaleString('pt-BR');
+  nums[1].textContent = caixas.size;
+  nums[2].textContent = naLixeira().length;
+  nums[3].textContent = estantes.length;
+  nums[0].style.cssText = nums[1].style.cssText = nums[2].style.cssText = nums[3].style.cssText = '';
+  document.getElementById('crumb-total').textContent = a.length.toLocaleString('pt-BR');
 }
-function sair(){ firebase.auth().signOut().then(function(){ location.reload(); }); }
-function voltarSetores(){ mostrar('scr-setores'); }
-function voltarEstantes(){ renderEstantes(); mostrar('scr-estantes'); }
-function voltarCaixas(){ renderEstante(); mostrar('scr-estante'); }
-function voltarDeAjuda(){ mostrar(telaDeAjuda); }
-function ehAdmin(){ return eu && (eu.adminDe||[]).indexOf(setor) >= 0; }
-function reabrirTelaAtual(){
-  if(document.getElementById('scr-caixa').style.display === 'block'){ renderCaixa(); }
-  else { renderEstante(); }
+
+function renderEstantes(){
+  const grid = document.getElementById('grid-estantes');
+  const a = ativos();
+  grid.innerHTML = estantes.map((e,i) => {
+    const nome = e.nome || e.id;
+    const meus = a.filter(d => (d.estante||'').toUpperCase() === nome.toUpperCase());
+    const cx = new Set(meus.map(d => d.caixa).filter(Boolean));
+    return '<div class="gaveta" data-estante="' + esc(nome) + '" style="animation-delay:' + (i*60) + 'ms" tabindex="0" role="button" aria-label="Abrir estante ' + esc(nome) + '">' +
+      '<span class="gaveta-tag" style="background:' + corDe(nome) + '">' + esc(nome) + '</span>' +
+      '<div class="gaveta-nome">' + esc(nome) + '</div>' +
+      '<div class="gaveta-count">' + cx.size + ' CAIXAS · ' + meus.length + ' DOCS</div>' +
+      '</div>';
+  }).join('');
+  grid.querySelectorAll('.gaveta').forEach(g => {
+    const abrir = () => abrirEstante(g.dataset.estante, g);
+    g.addEventListener('click', abrir);
+    g.addEventListener('keydown', ev => { if(ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); abrir(); } });
+  });
 }
-/* ---------- LOGIN ---------- */
-let tentativasGoogle = 0;
-function initGoogle(){
-  if(typeof google === 'undefined' || !google.accounts || !google.accounts.id){
-    tentativasGoogle++;
-    if(tentativasGoogle < 25){ setTimeout(initGoogle, 300); }
-    else { document.getElementById('erro-google').style.display='block';
-           document.getElementById('erro-google').textContent='O script do Google não carregou. Recarregue a página (Ctrl+Shift+R) e confira se o domínio do site está autorizado no Firebase (Authentication > Domínios autorizados).'; }
+
+function abrirEstante(nome, elRef){
+  estanteAberta = nome; caixaAberta = null;
+  renderPainel();
+  const painel = document.getElementById('painel');
+  painel.classList.add('aberto');
+  painel.scrollIntoView({behavior:'smooth', block:'nearest'});
+}
+
+function renderPainel(){
+  const painel = document.getElementById('painel');
+  const a = ativos().filter(d => (d.estante||'').toUpperCase() === (estanteAberta||'').toUpperCase());
+  if(!caixaAberta){
+    const mapa = {};
+    a.forEach(d => { if(d.caixa){ (mapa[d.caixa] = mapa[d.caixa] || []).push(d); } });
+    const cods = Object.keys(mapa).sort((x,y) => String(x).localeCompare(String(y), undefined, {numeric:true}));
+    painel.innerHTML =
+      '<button class="voltar" onclick="fecharPainel()">Fechar</button>' +
+      '<h3>' + esc(estanteAberta) + ' — Caixas</h3>' +
+      cods.map(c =>
+        '<div class="caixa-item" data-caixa="' + esc(c) + '" tabindex="0" role="button">' +
+        '<span class="caixa-cod">' + esc(c) + '</span>' +
+        '<span class="caixa-n">' + mapa[c].length + ' DOCS</span></div>'
+      ).join('') +
+      (cods.length === 0 ? '<div class="msg-busca">Nenhuma caixa nesta estante.</div>' : '');
+    painel.querySelectorAll('.caixa-item').forEach(ci => {
+      const abrir = () => { caixaAberta = ci.dataset.caixa; renderPainel(); };
+      ci.addEventListener('click', abrir);
+      ci.addEventListener('keydown', ev => { if(ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); abrir(); } });
+    });
+  } else {
+    const lista = a.filter(d => d.caixa === caixaAberta)
+      .sort((x,y) => String(x.nome||'').localeCompare(String(y.nome||'')));
+    painel.innerHTML =
+      '<button class="voltar" onclick="caixaAberta=null;renderPainel()">Voltar às caixas</button>' +
+      '<h3>' + esc(estanteAberta) + ' · ' + esc(caixaAberta) + '</h3>' +
+      lista.map(d =>
+        '<div class="doc-item">' +
+        '<span class="doc-nome">' + esc(d.nome || '(sem nome)') + '</span>' +
+        '<span class="doc-meta">' + esc(d.tipo || '') + (d.data ? ' · ' + esc(d.data) : '') + '</span>' +
+        '</div>'
+      ).join('') +
+      (lista.length === 0 ? '<div class="msg-busca">Nenhum documento nesta caixa.</div>' : '');
+  }
+}
+
+function fecharPainel(){
+  estanteAberta = null; caixaAberta = null;
+  document.getElementById('painel').classList.remove('aberto');
+}
+
+/* ===== BUSCA ===== */
+const input = document.getElementById('busca');
+const box = document.getElementById('resultados');
+let timer = null;
+input.addEventListener('input', () => {
+  clearTimeout(timer);
+  timer = setTimeout(buscar, 250);
+});
+
+function buscar(){
+  const termo = normalizar(input.value);
+  box.innerHTML = '';
+  if(termo.length < 3) return;
+  const a = ativos();
+  const achados = a.filter(d => {
+    const alvo = normalizar(d.nomeBusca || d.nome || '');
+    return alvo.indexOf(termo) >= 0;
+  });
+  if(achados.length === 0){
+    box.innerHTML = '<div class="msg-busca">Nenhum registro encontrado para "' + esc(input.value) + '".</div>';
     return;
   }
-  try{
-    google.accounts.id.initialize({
-      client_id: GOOGLE_CLIENT_ID,
-      callback: aoLogar,
-      auto_select: false,
-      cancel_on_tap_outside: true
-    });
-    google.accounts.id.renderButton(document.getElementById('botao-google'), {theme:'outline', size:'large', width:280});
-  }catch(e){
-    document.getElementById('erro-google').style.display='block';
-    document.getElementById('erro-google').textContent='Erro ao iniciar o login: ' + (e && e.message ? e.message : e);
-  }
-}
-function aoLogar(response){
-  const credential = firebase.auth.GoogleAuthProvider.credential(response.credential);
-  firebase.auth().signInWithCredential(credential);
-}
-if(document.readyState === 'loading'){ document.addEventListener('DOMContentLoaded', initGoogle); } else { initGoogle(); }
-firebase.auth().onAuthStateChanged(function(user){
-  if(user){ entrar(user.email); }
-  else { eu = null; setor = null; mostrar('scr-login'); }
-});
-async function entrar(email){
-  try{
-    const doc = await db.collection('usuarios').doc((email||'').toLowerCase()).get();
-    const d = doc.exists ? doc.data() : null;
-    const setores = (d && Array.isArray(d.setores)) ? d.setores : [];
-    const adminDe = (d && Array.isArray(d.adminDe)) ? d.adminDe : [];
-    if(!doc.exists || d.ativo !== true || setores.length === 0){
-      document.getElementById('email-semacesso').textContent = email;
-      mostrar('scr-semacesso');
-      return;
-    }
-    eu = {email: (email||'').toLowerCase(), setores: setores, adminDe: adminDe};
-    document.getElementById('sub-setores').textContent = 'OPERADOR: ' + eu.email.toUpperCase();
-    renderSetores();
-    mostrar('scr-setores');
-  }catch(e){
-    document.getElementById('email-semacesso').textContent = email + ' (erro: ' + (e && e.message ? e.message : e) + ')';
-    mostrar('scr-semacesso');
-  }
-}
-function renderSetores(){
-  const g = document.getElementById('grade-setores');
-  g.innerHTML = '';
-  eu.setores.forEach(function(s){
-    const c = document.createElement('div');
-    c.className = 'card';
-    c.innerHTML = '<div class="cab" style="background:' + CORES.A + '">' + esc(s) + '</div>' +
-                  '<div class="txt">Abrir estantes deste setor<div class="meta">SETOR</div></div>';
-    c.onclick = function(){ abrirSetor(s); };
-    g.appendChild(c);
+  box.innerHTML = achados.slice(0,20).map((f,i) =>
+    '<div class="ficha" style="animation-delay:' + (i*40) + 'ms">' +
+    '<div><div class="ficha-nome">' + esc(f.nome || '') + '</div>' +
+    '<div class="ficha-loc">' + esc((f.estante||'?').toUpperCase()) + ' · CAIXA ' + esc(f.caixa||'?') + '</div></div>' +
+    '<button class="ficha-btn" data-estante="' + esc(f.estante||'') + '">LOCALIZAR</button>' +
+    '</div>'
+  ).join('') +
+  (achados.length > 20 ? '<div class="msg-busca">+ ' + (achados.length-20) + ' resultados — refine a busca.</div>' : '');
+  box.querySelectorAll('.ficha-btn').forEach(b => {
+    b.addEventListener('click', () => localizar(b.dataset.estante));
   });
 }
-function abrirSetor(s){
-  setor = s;
-  const adm = ehAdmin();
-  document.getElementById('btn-colab').style.display = adm ? '' : 'none';
-  document.getElementById('btn-nova-estante').style.display = adm ? '' : 'none';
-  renderEstantes();
-  mostrar('scr-estantes');
+
+function localizar(nomeEstante){
+  fecharPainel();
+  const g = document.querySelector('.gaveta[data-estante="' + CSS.escape(nomeEstante) + '"]');
+  if(!g) return;
+  g.scrollIntoView({behavior:'smooth', block:'center'});
+  g.classList.add('flash');
+  setTimeout(() => g.classList.remove('flash'), 2600);
 }
-function atualizar(){
-  if(document.getElementById('scr-estante').style.display === 'block'){ renderEstante(); }
-  else if(document.getElementById('scr-caixa').style.display === 'block'){ renderCaixa(); }
-  else if(document.getElementById('scr-estantes').style.display === 'block'){ renderEstantes(); }
-  else if(document.getElementById('scr-lixeira').style.display === 'block'){ renderLixeira(); }
-  else if(document.getElementById('scr-colab').style.display === 'block'){ renderColaboradores(); }
-}
-/* ---------- DADOS DO SETOR (derivados do banco) ---------- */
-async function carregarDocs(){
-  const snap = await db.collection('documentos').where('setor','==',setor).get();
-  cacheDocs = snap.docs.map(function(d){ const x = d.data(); x.id = d.id; return x; });
-}
-function docsAtivos(){ return cacheDocs.filter(function(d){ return !d.excluidoEm; }); }
-function estantesVisiveis(estsColecao){
-  const mapa = new Map();
-  (estsColecao||[]).forEach(function(e){ if(e && e.nome) mapa.set(norm(e.nome), e); });
-  cacheDocs.forEach(function(d){
-    if(d.estante && !mapa.has(norm(d.estante))){ mapa.set(norm(d.estante), {id:null, nome:d.estante, tipo:'Estante'}); }
-  });
-  return Array.from(mapa.values());
-}
-function caixasDaEstante(nomeEstante){
-  const mapa = new Map();
-  docsAtivos().forEach(function(d){
-    if(norm(d.estante) === norm(nomeEstante) && d.caixa && !mapa.has(norm(d.caixa))){ mapa.set(norm(d.caixa), d.caixa); }
-  });
-  return Array.from(mapa.values()).sort(ordemNatural);
-}
-function docsDaCaixa(nomeEstante, codigo){
-  return docsAtivos().filter(function(d){
-    return norm(d.estante) === norm(nomeEstante) && norm(d.caixa) === norm(codigo);
-  }).sort(function(a,b){ return ordemNatural(a.nome||'', b.nome||''); });
-}
-/* ---------- ESTANTES ---------- */
-async function renderEstantes(){
-  document.getElementById('sub-estantes').textContent = 'SETOR: ' + norm(setor);
-  const g = document.getElementById('grade-estantes');
-  g.innerHTML = '<div class="vazio">CARREGANDO REGISTROS...</div>';
-  try{
-    await carregarDocs();
-    const snap = await db.collection('estantes').where('setor','==',setor).get();
-    const ests = snap.docs.map(function(d){ const x = d.data(); x.id = d.id; return x; });
-    const visiveis = estantesVisiveis(ests).sort(function(a,b){ return ordemNatural(a.nome, b.nome); });
-    g.innerHTML = '';
-    if(visiveis.length === 0){ g.innerHTML = '<div class="vazio">NENHUMA ESTANTE NESTE SETOR.</div>'; return; }
-    const adm = ehAdmin();
-    visiveis.forEach(function(est){
-      const caixas = caixasDaEstante(est.nome);
-      const ndocs = docsAtivos().filter(function(d){ return norm(d.estante) === norm(est.nome); }).length;
-      const card = document.createElement('div');
-      card.className = 'card';
-      card.innerHTML = '<div class="cab" style="background:' + corEstante(est.nome) + '">' + esc(est.nome) + '</div>' +
-        '<div class="txt">' + esc(est.tipo||'Estante') + ' · ' + caixas.length + ' caixa(s) · ' + ndocs + ' documento(s)' +
-        (adm && est.id ? ' <button class="btn" style="padding:2px 8px;font-size:.65rem;float:right;" onclick="event.stopPropagation();abrirEdicaoEstante(\'' + esc(est.id) + '\')">✎</button>' : '') +
-        '<div class="meta">CAIXAS ATIVAS</div></div>';
-      card.onclick = function(){ abrirEstante(est); };
-      g.appendChild(card);
-    });
-  }catch(e){ g.innerHTML = '<div class="vazio" style="color:var(--ver)">ERRO: ' + esc(e.message||e) + '</div>'; }
-}
-function abrirEstante(est){ estanteAtual = est; renderEstante(); mostrar('scr-estante'); }
-function renderEstante(){
-  const adm = ehAdmin();
-  document.getElementById('btn-editar-estante').style.display = (adm && estanteAtual.id) ? '' : 'none';
-  document.getElementById('titulo-estante').textContent = estanteAtual.nome || estanteAtual.id;
-  document.getElementById('sub-estante').textContent = 'SETOR: ' + norm(setor) + ' · ' + norm(estanteAtual.tipo||'ESTANTE');
-  const box = document.getElementById('lista-caixas');
-  const caixas = caixasDaEstante(estanteAtual.nome);
-  if(caixas.length === 0){ box.innerHTML = '<div class="vazio">ESTANTE VAZIA — use "+ Novo item" e digite o código de uma caixa nova.</div>'; return; }
-  box.innerHTML = '';
-  caixas.forEach(function(cod){
-    const n = docsDaCaixa(estanteAtual.nome, cod).length;
-    const l = document.createElement('div');
-    l.className = 'linha';
-    l.innerHTML = '<span><span class="cod">' + esc(cod) + '</span><span style="font-size:.72rem;color:#6B7280;margin-left:8px;">' + n + ' documento(s)</span></span><span class="seta">›</span>';
-    l.onclick = function(){ abrirCaixa(cod); };
-    box.appendChild(l);
-  });
-}
-/* ---------- CAIXA ---------- */
-function abrirCaixa(cod){ caixaAtual = {codigo: cod}; renderCaixa(); mostrar('scr-caixa'); }
-function renderCaixa(){
-  const adm = ehAdmin();
-  document.getElementById('btn-mover-caixa').style.display = adm ? '' : 'none';
-  document.getElementById('btn-excluir-caixa').style.display = adm ? '' : 'none';
-  document.getElementById('titulo-caixa').textContent = 'Caixa ' + (caixaAtual.codigo||'');
-  document.getElementById('sub-caixa').textContent = norm(estanteAtual.nome) + ' · SETOR: ' + norm(setor);
-  const box = document.getElementById('lista-itens');
-  const itens = docsDaCaixa(estanteAtual.nome, caixaAtual.codigo);
-  if(itens.length === 0){ box.innerHTML = '<div class="vazio">CAIXA VAZIA.</div>'; return; }
-  box.innerHTML = '';
-  itens.forEach(function(i){
-    const l = document.createElement('div');
-    l.className = 'linha';
-    const emoji = norm(i.tipo) === 'PESSOA' ? '👤' : '📄';
-    const detalhe = [i.tipoDocumento, i.data].filter(Boolean).join(' · ');
-    l.innerHTML = '<span><span class="cod">' + emoji + ' ' + esc(i.nome||i.id) + '</span>' +
-                  (detalhe ? ' <span style="font-size:.72rem;color:#6B7280">' + esc(detalhe) + '</span>' : '') +
-                  '</span><span class="seta">›</span>';
-    l.onclick = function(){ modalEditarItem(i); };
-    box.appendChild(l);
-  });
-}
-async function registrar(acao, detalhe){
-  try{ await db.collection('logs').add({origem:setor, timestamp:new Date(), email:eu.email, acao:acao, detalhe:detalhe||''}); }catch(e){}
-}
-/* ---------- DOCUMENTO: formulário + conflito ---------- */
-let itemEmEdicao = null;
-function modalNovoItem(){ abrirFormItem(null); }
-function modalEditarItem(i){ abrirFormItem(i); }
-function abrirFormItem(item){
-  itemEmEdicao = item;
-  const m = document.getElementById('caixa-modal');
-  const dlCaixas = caixasDaEstante(estanteAtual.nome).map(function(c){ return '<option value="' + esc(c) + '">'; }).join('');
-  m.innerHTML =
-    '<h2>' + (item ? 'Editar documento' : 'Novo documento') + '</h2>' +
-    '<div class="campo"><label>Caixa</label><input id="f-caixa" list="dl-caixas" value="' + esc(item ? item.caixa||'' : '') + '"' + (item ? '' : ' placeholder="Ex.: NSF A1-001 — código novo cria a caixa"') + '><datalist id="dl-caixas">' + dlCaixas + '</datalist></div>' +
-    '<div class="campo"><label>Nome / título</label><input id="f-nome" value="' + esc(item && item.nome||'') + '"></div>' +
-    '<div class="campo"><label>Tipo de documento</label><input id="f-tipo" list="dl-tipos" value="' + esc(item && item.tipoDocumento||'') + '"><datalist id="dl-tipos"><option value="Contrato"><option value="Processo"><option value="Nota fiscal"><option value="Outro"></datalist></div>' +
-    '<div class="campo"><label>Data</label><input id="f-data" value="' + esc(item && item.data||'') + '"></div>' +
-    '<div class="campo"><label>Arquivo / onde encontrar (URL)</label><input id="f-url" value="' + esc(item && item.arquivoUrl||'') + '"></div>' +
-    '<div class="campo"><label>Observação</label><textarea id="f-obs" rows="2">' + esc(item && item.observacao||'') + '</textarea></div>' +
-    (item ? '<div style="font-size:.72rem;color:#6B7280;margin-bottom:12px;">Última alteração: ' + esc(dataTxt(item.ultimaAlteracao)) + (item.alteradoPor ? ' · ' + esc(item.alteradoPor) : '') + '</div>' : '') +
-    '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button>' +
-    (item ? '<button class="btn btn-perig" onclick="excluirItem()">Excluir</button>' : '') +
-    '<button class="btn btn-prim" onclick="salvarItem()">Salvar</button></div>';
-  abrirModal();
-}
-function valor(id){ const el = document.getElementById(id); return el ? el.value.trim() : ''; }
-function gerarItemId(){ return 'DOC' + Date.now().toString(36).toUpperCase() + Math.floor(Math.random()*46656).toString(36).toUpperCase(); }
-async function salvarItem(){
-  const cod = valor('f-caixa');
-  const nome = valor('f-nome');
-  if(!cod){ alertaModal('Informe a caixa.'); return; }
-  if(!nome){ alertaModal('O nome é obrigatório.'); return; }
-  const dados = {
-    caixa: cod, estante: estanteAtual.nome, setor: setor,
-    nome: nome, tipoDocumento: valor('f-tipo'), data: valor('f-data'),
-    arquivoUrl: valor('f-url'), observacao: valor('f-obs'),
-    nomeBusca: normalizar(nome), ultimaAlteracao: new Date(), alteradoPor: eu.email
-  };
-  try{
-    if(itemEmEdicao){
-      const ref = db.collection('documentos').doc(itemEmEdicao.id);
-      const fresco = await ref.get();
-      const fu = fresco.exists ? emMs(fresco.data().ultimaAlteracao) : 0;
-      const minha = emMs(itemEmEdicao.ultimaAlteracao);
-      if(fu && minha && fu !== minha){
-        conflitoModal(fresco.data(), function(){ salvarAgora(ref, dados); }, function(){
-          const idAtual = itemEmEdicao.id;
-          itemEmEdicao = null;
-          abrirFormItem(Object.assign({}, fresco.data(), {id: idAtual}));
-        });
-        return;
-      }
-      salvarAgora(ref, dados);
-    }else{
-      const itemId = gerarItemId();
-      dados.itemId = itemId;
-      dados.tipo = 'documento';
-      const novoId = idDocSeguro(itemId);
-      await db.collection('documentos').doc(novoId).set(dados);
-      cacheDocs.push(Object.assign({id: novoId}, dados));
-      await registrar('Adicionou o documento "' + nome + '" na caixa ' + cod);
-      fecharModal(); reabrirTelaAtual();
-    }
-  }catch(e){ alertaModal('Erro ao salvar: ' + (e.message||e)); }
-}
-async function salvarAgora(ref, dados){
-  await ref.update(dados);
-  const idx = cacheDocs.findIndex(function(d){ return d.id === ref.id; });
-  if(idx >= 0){ cacheDocs[idx] = Object.assign({}, cacheDocs[idx], dados, {id: ref.id}); }
-  await registrar('Editou o documento "' + dados.nome + '" na caixa ' + dados.caixa);
-  fecharModal(); reabrirTelaAtual();
-}
-async function excluirItem(){
-  if(!itemEmEdicao) return;
-  const alvo = itemEmEdicao;
-  confirmarModal('Excluir este documento? Ele vai para a Lixeira e pode ser restaurado.', async function(){
-    try{
-      await db.collection('documentos').doc(alvo.id).update({excluidoEm:new Date(), excluidoPor:eu.email});
-      const idx = cacheDocs.findIndex(function(d){ return d.id === alvo.id; });
-      if(idx >= 0){ cacheDocs[idx].excluidoEm = new Date(); cacheDocs[idx].excluidoPor = eu.email; }
-      await registrar('Excluiu o documento "' + (alvo.nome||'') + '" da caixa ' + (alvo.caixa||''));
-      fecharModal(); reabrirTelaAtual();
-    }catch(e){ alertaModal('Erro ao excluir: ' + (e.message||e)); }
-  });
-}
-/* ---------- MODAIS BÁSICOS ---------- */
-function abrirModal(){ document.getElementById('fundo-modal').style.display = 'flex'; }
-function fecharModal(){ document.getElementById('fundo-modal').style.display = 'none'; }
-function alertaModal(msg){
-  const m = document.getElementById('caixa-modal');
-  m.innerHTML = '<h2>Atenção</h2><p style="font-size:.9rem;margin-bottom:18px;">' + esc(msg) + '</p>' +
-                '<div class="rodape"><button class="btn btn-prim" onclick="fecharModal()">Ok</button></div>';
-  abrirModal();
-}
-function confirmarModal(msg, aoConfirmar){
-  const m = document.getElementById('caixa-modal');
-  m.innerHTML = '<h2>Confirmar</h2><p style="font-size:.9rem;margin-bottom:18px;">' + esc(msg) + '</p>' +
-                '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button>' +
-                '<button class="btn btn-perig" id="btn-confirmar-sim">Confirmar</button></div>';
-  document.getElementById('btn-confirmar-sim').onclick = aoConfirmar;
-  abrirModal();
-}
-function conflitoModal(dadosRecentes, manterMinha, verRecente){
-  const m = document.getElementById('caixa-modal');
-  const resumo = dadosRecentes.nome || 'documento';
-  m.innerHTML = '<h2 style="color:var(--ver)">Conflito de edição</h2>' +
-    '<p style="font-size:.9rem;margin-bottom:18px;">Outra pessoa alterou "' + esc(resumo) + '" enquanto você editava.</p>' +
-    '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button>' +
-    '<button class="btn" id="btn-ver-recente">Ver a versão mais recente</button>' +
-    '<button class="btn btn-prim" id="btn-manter-minha">Manter minha versão</button></div>';
-  document.getElementById('btn-ver-recente').onclick = function(){ fecharModal(); verRecente(); };
-  document.getElementById('btn-manter-minha').onclick = function(){ fecharModal(); manterMinha(); };
-  abrirModal();
-}
-/* ---------- ESTANTE: criar/editar (renomear atualiza os documentos) ---------- */
-async function gravarLote(updates){
-  for(let i = 0; i < updates.length; i += 400){
-    const batch = db.batch();
-    updates.slice(i, i + 400).forEach(function(u){ batch.update(db.collection('documentos').doc(u.id), u.dados); });
-    await batch.commit();
-  }
-}
-function modalNovaEstante(){
-  const m = document.getElementById('caixa-modal');
-  m.innerHTML = '<h2>Nova estante</h2>' +
-    '<div class="campo"><label>Nome da estante</label><input id="m-nome" placeholder="Ex.: Estante E"></div>' +
-    '<div class="campo"><label>Tipo</label><select id="m-tipo"><option>Estante</option><option>Armário</option></select></div>' +
-    '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button><button class="btn btn-prim" id="m-salvar">Salvar</button></div>';
-  document.getElementById('m-salvar').onclick = async function(){
-    const nome = valor('m-nome'); if(!nome){ alertaModal('O nome da estante é obrigatório.'); return; }
-    const id = normalizar(nome).replace(/\s+/g, '-');
-    try{
-      const existe = await db.collection('estantes').doc(id).get();
-      if(existe.exists){ alertaModal('Já existe uma estante com esse nome.'); return; }
-      await db.collection('estantes').doc(id).set({setor:setor, nome:nome, tipo:valor('m-tipo')});
-      await registrar('Criou a estante "' + nome + '"');
-      fecharModal(); renderEstantes();
-    }catch(e){ alertaModal('Erro: ' + (e.message||e)); }
-  };
-  abrirModal();
-}
-function abrirEdicaoEstante(id){
-  db.collection('estantes').doc(id).get().then(function(doc){
-    if(!doc.exists){ alertaModal('Estante não encontrada.'); return; }
-    estanteAtual = Object.assign({id:id}, doc.data());
-    modalEditarEstante();
-  }).catch(function(e){ alertaModal('Erro: ' + (e.message||e)); });
-}
-function modalEditarEstante(){
-  const m = document.getElementById('caixa-modal');
-  m.innerHTML = '<h2>Editar estante</h2>' +
-    '<div class="campo"><label>Nome da estante</label><input id="m-nome" value="' + esc(estanteAtual.nome||'') + '"></div>' +
-    '<div class="campo"><label>Tipo</label><select id="m-tipo">' +
-      '<option ' + (estanteAtual.tipo==='Estante'?'selected':'') + '>Estante</option>' +
-      '<option ' + (estanteAtual.tipo==='Armário'?'selected':'') + '>Armário</option>' +
-    '</select></div>' +
-    '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button><button class="btn btn-prim" id="m-salvar">Salvar</button></div>';
-  document.getElementById('m-salvar').onclick = async function(){
-    const nome = valor('m-nome'); if(!nome){ alertaModal('O nome é obrigatório.'); return; }
-    const tipo = valor('m-tipo');
-    const nomeAntigo = estanteAtual.nome;
-    try{
-      await db.collection('estantes').doc(estanteAtual.id).update({nome:nome, tipo:tipo});
-      if(norm(nome) !== norm(nomeAntigo)){
-        const afetados = cacheDocs.filter(function(d){ return norm(d.estante) === norm(nomeAntigo); });
-        await gravarLote(afetados.map(function(d){ return {id:d.id, dados:{estante:nome}}; }));
-        afetados.forEach(function(d){ d.estante = nome; });
-        await registrar('Renomeou a estante "' + nomeAntigo + '" para "' + nome + '" (' + afetados.length + ' documento(s) atualizado(s))');
-      } else {
-        await registrar('Editou a estante "' + nome + '"');
-      }
-      estanteAtual.nome = nome; estanteAtual.tipo = tipo;
-      fecharModal(); renderEstantes();
-    }catch(e){ alertaModal('Erro: ' + (e.message||e)); }
-  };
-  abrirModal();
-}
-/* ---------- CAIXA: mover / excluir (opera em lote nos documentos) ---------- */
-function modalMoverCaixa(){
-  const m = document.getElementById('caixa-modal');
-  db.collection('estantes').where('setor','==',setor).get().then(function(snap){
-    const opcoes = snap.docs.map(function(d){ const x = d.data(); return '<option value="' + esc(x.nome||d.id) + '">' + esc(x.nome||d.id) + '</option>'; }).join('');
-    m.innerHTML = '<h2>Mover caixa</h2>' +
-      '<p style="font-size:.85rem;margin-bottom:14px;">Mover a caixa <span class="mono">' + esc(caixaAtual.codigo||'') + '</span> (com seus documentos) para:</p>' +
-      '<div class="campo"><select id="m-dest">' + opcoes + '</select></div>' +
-      '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button><button class="btn btn-prim" id="m-mover">Mover</button></div>';
-    document.getElementById('m-mover').onclick = async function(){
-      const dest = document.getElementById('m-dest').value;
-      const docs = docsDaCaixa(estanteAtual.nome, caixaAtual.codigo);
-      try{
-        await gravarLote(docs.map(function(d){ return {id:d.id, dados:{estante:dest}}; }));
-        docs.forEach(function(d){ d.estante = dest; });
-        await registrar('Moveu a caixa ' + (caixaAtual.codigo||'') + ' de ' + (estanteAtual.nome||'') + ' para ' + dest + ' (' + docs.length + ' documento(s))');
-        fecharModal(); voltarEstantes();
-      }catch(e){ alertaModal('Erro: ' + (e.message||e)); }
-    };
-    abrirModal();
-  });
-}
-function modalExcluirCaixa(){
-  const docs = docsDaCaixa(estanteAtual.nome, caixaAtual.codigo);
-  confirmarModal('Excluir a caixa ' + (caixaAtual.codigo||'') + '? Os ' + docs.length + ' documento(s) dela vão para a Lixeira e podem ser restaurados.', async function(){
-    try{
-      await gravarLote(docs.map(function(d){ return {id:d.id, dados:{excluidoEm:new Date(), excluidoPor:eu.email}}; }));
-      docs.forEach(function(d){ d.excluidoEm = new Date(); d.excluidoPor = eu.email; });
-      await registrar('Excluiu a caixa ' + (caixaAtual.codigo||'') + ' (' + docs.length + ' documento(s))');
-      fecharModal(); voltarEstantes();
-    }catch(e){ alertaModal('Erro: ' + (e.message||e)); }
-  });
-}
-/* ---------- COLABORADORES ---------- */
-function abrirColaboradores(){ renderColaboradores(); mostrar('scr-colab'); }
-async function renderColaboradores(){
-  document.getElementById('sub-colab').textContent = 'SETOR: ' + norm(setor);
-  const box = document.getElementById('lista-colab');
-  box.innerHTML = '<div class="vazio">CARREGANDO...</div>';
-  try{
-    const snap = await db.collection('usuarios').where('setores','array-contains',setor).get();
-    box.innerHTML = '';
-    if(snap.empty){ box.innerHTML = '<div class="vazio">NENHUM COLABORADOR NESTE SETOR.</div>'; return; }
-    snap.docs.forEach(function(d){
-      const u = d.data();
-      const adm = (u.adminDe||[]).indexOf(setor) >= 0;
-      const l = document.createElement('div');
-      l.className = 'linha';
-      l.style.cursor = 'default';
-      l.innerHTML = '<span class="cod">' + esc(d.id) + '</span>' +
-        '<span><span class="tag' + (adm?' tag-adm':'') + '">' + (adm?'ADMIN':'COLABORADOR') + '</span>' +
-        (ehAdmin() ? ' <button class="btn btn-perig" style="padding:2px 8px;font-size:.65rem;margin-left:8px;">Remover deste setor</button>' : '') +
-        '</span>';
-      const btn = l.querySelector('button');
-      if(btn){ btn.onclick = function(){ removerColab(d.id); }; }
-      box.appendChild(l);
-    });
-  }catch(e){ box.innerHTML = '<div class="vazio" style="color:var(--ver)">ERRO: ' + esc(e.message||e) + '</div>'; }
-}
-async function removerColab(email){
-  confirmarModal('Remover ' + email + ' deste setor?', async function(){
-    try{
-      await db.collection('usuarios').doc(email).update({setores: firebase.firestore.FieldValue.arrayRemove(setor)});
-      await registrar('Removeu ' + email + ' do setor');
-      fecharModal(); renderColaboradores();
-    }catch(e){ alertaModal('Erro: ' + (e.message||e)); }
-  });
-}
-function modalAddColab(){
-  const m = document.getElementById('caixa-modal');
-  m.innerHTML = '<h2>Adicionar colaborador</h2>' +
-    '<div class="campo"><label>E-mail da pessoa</label><input id="m-email" placeholder="pessoa@empresa.com"></div>' +
-    '<div class="campo"><label>Setores liberados (separados por vírgula)</label><input id="m-setores" value="' + esc(setor) + '"></div>' +
-    '<div class="campo"><label>Setores onde é admin (opcional, separados por vírgula)</label><input id="m-admin" value=""></div>' +
-    '<div class="rodape"><button class="btn" onclick="fecharModal()">Cancelar</button><button class="btn btn-prim" id="m-salvar">Salvar</button></div>';
-  document.getElementById('m-salvar').onclick = async function(){
-    const email = valor('m-email').toLowerCase();
-    if(!email || email.indexOf('@') < 0){ alertaModal('Informe um e-mail válido.'); return; }
-    const setores = valor('m-setores').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
-    const admin = valor('m-admin').split(',').map(function(s){ return s.trim(); }).filter(Boolean);
-    if(setores.length === 0){ alertaModal('Informe pelo menos um setor.'); return; }
-    try{
-      await db.collection('usuarios').doc(email).set(
-        {email:email, ativo:true, setores: firebase.firestore.FieldValue.arrayUnion.apply(null, setores),
-         adminDe: admin.length ? firebase.firestore.FieldValue.arrayUnion.apply(null, admin) : []},
-        {merge:true});
-      await registrar('Adicionou ' + email + ' aos setores ' + setores.join(', '));
-      fecharModal(); renderColaboradores();
-    }catch(e){ alertaModal('Erro: ' + (e.message||e)); }
-  };
-  abrirModal();
-}
-/* ---------- HISTÓRICO (coleção logs) ---------- */
-function abrirHistorico(){ renderHistorico(); mostrar('scr-hist'); }
-async function renderHistorico(){
-  const box = document.getElementById('lista-hist');
-  box.innerHTML = '<div class="vazio">CARREGANDO...</div>';
-  try{
-    const snap = await db.collection('logs').where('origem','==',setor).get();
-    const itens = snap.docs.map(function(d){ return d.data(); })
-      .sort(function(a,b){ return emMs(b.timestamp) - emMs(a.timestamp); }).slice(0,100);
-    box.innerHTML = '';
-    if(itens.length === 0){ box.innerHTML = '<div class="vazio">NADA REGISTRADO AINDA.</div>'; return; }
-    itens.forEach(function(h){
-      const l = document.createElement('div');
-      l.className = 'hist-item';
-      l.innerHTML = '<div>' + esc([h.acao, h.detalhe].filter(Boolean).join(' — ')) + '</div>' +
-                    '<div class="quando">' + esc(dataTxt(h.timestamp)) + (h.email ? ' · ' + esc(h.email) : '') + '</div>';
-      box.appendChild(l);
-    });
-  }catch(e){ box.innerHTML = '<div class="vazio" style="color:var(--ver)">ERRO: ' + esc(e.message||e) + '</div>'; }
-}
-/* ---------- LIXEIRA (documentos com excluidoEm) ---------- */
-function abrirLixeira(){ renderLixeira(); mostrar('scr-lixeira'); }
-async function renderLixeira(){
-  const box = document.getElementById('lista-lixeira');
-  box.innerHTML = '<div class="vazio">CARREGANDO...</div>';
-  try{
-    await carregarDocs();
-    const excl = cacheDocs.filter(function(d){ return d.excluidoEm; })
-      .sort(function(a,b){ return emMs(b.excluidoEm) - emMs(a.excluidoEm); });
-    box.innerHTML = '';
-    if(excl.length === 0){ box.innerHTML = '<div class="vazio">LIXEIRA VAZIA.</div>'; return; }
-    excl.forEach(function(d){
-      const l = document.createElement('div');
-      l.className = 'linha';
-      l.style.cursor = 'default';
-      const info = [d.caixa, d.estante].filter(Boolean).join(' · ');
-      l.innerHTML = '<span><span class="cod">📄 ' + esc(d.nome||d.id) + '</span>' +
-        (info ? ' <span style="font-size:.72rem;color:#6B7280">' + esc(info) + '</span>' : '') +
-        '<div style="font-size:.65rem;color:#9CA3AF;font-family:\'IBM Plex Mono\',monospace;">excluído em ' + esc(dataTxt(d.excluidoEm)) + (d.excluidoPor ? ' · ' + esc(d.excluidoPor) : '') + '</div></span>';
-      const b = document.createElement('button');
-      b.className = 'btn';
-      b.style.cssText = 'padding:3px 10px;font-size:.7rem;';
-      b.textContent = 'Restaurar';
-      b.onclick = function(){ restaurarItem(d.id); };
-      l.appendChild(b);
-      box.appendChild(l);
-    });
-  }catch(e){ box.innerHTML = '<div class="vazio" style="color:var(--ver)">ERRO: ' + esc(e.message||e) + '</div>'; }
-}
-async function restaurarItem(id){
-  try{
-    await db.collection('documentos').doc(id).update({excluidoEm: firebase.firestore.FieldValue.delete(), excluidoPor: firebase.firestore.FieldValue.delete()});
-    const idx = cacheDocs.findIndex(function(d){ return d.id === id; });
-    if(idx >= 0){ delete cacheDocs[idx].excluidoEm; delete cacheDocs[idx].excluidoPor; }
-    await registrar('Restaurou um documento da lixeira');
-    renderLixeira();
-  }catch(e){ alertaModal('Erro ao restaurar: ' + (e.message||e)); }
-}
-/* ---------- AJUDA ---------- */
-function alternarAcordeao(el){
-  const b = el.nextElementSibling;
-  b.style.display = (b.style.display === 'block') ? 'none' : 'block';
-}
-function abrirAjuda(){
-  if(document.getElementById('scr-caixa').style.display === 'block'){ telaDeAjuda = 'scr-caixa'; }
-  else if(document.getElementById('scr-estante').style.display === 'block'){ telaDeAjuda = 'scr-estante'; }
-  else { telaDeAjuda = 'scr-estantes'; }
-  const c = document.getElementById('corpo-ajuda');
-  const bloco = function(titulo, texto){
-    return '<div class="acordeao"><div class="cab-ac" onclick="alternarAcordeao(this)"><span>' + titulo + '</span><span>▾</span></div><div class="corpo-ac">' + texto + '</div></div>';
-  };
-  c.innerHTML =
-    bloco('Como o acervo é organizado',
-      '<p>A hierarquia vem direto do banco de dados: <b>Setor → Estante → Caixa → Documentos</b>. Cada documento guarda o próprio setor, a estante e a caixa a que pertence.</p>' +
-      '<p>As caixas são formadas pelos documentos: uma caixa passa a existir a partir do primeiro documento cadastrado nela. Para criar uma caixa nova, use <b>+ Novo item</b> dentro da estante e digite um código de caixa que ainda não existe.</p>') +
-    bloco('Campos do documento',
-      '<p>Cada documento tem: nome, tipo de documento, data, arquivo/onde encontrar (URL) e observação. O sistema também guarda uma versão do nome sem acentos e em minúsculas (nomeBusca) para buscas futuras.</p>') +
-    bloco('Lixeira',
-      '<p>Excluir um documento (ou uma caixa inteira) não apaga nada na hora: o documento ganha a data e o autor da exclusão e passa a aparecer na Lixeira, de onde pode ser restaurado.</p>') +
-    bloco('Histórico',
-      '<p>O histórico mostra os registros da coleção de logs do setor: ação, detalhe, data/hora e o e-mail de quem fez.</p>') +
-    bloco('Colaboradores',
-      '<p>Admins do setor podem liberar novos e-mails (como colaboradores ou admins) e remover acessos. O acesso só vale para usuários ativos e com pelo menos um setor liberado.</p>');
-  mostrar('scr-ajuda');
-}
+
+carregar();
 </script>
-<!-- ===== BARRA DE BUSCA DE DOCUMENTOS ===== -->
-<div id="busca-doc-container" style="margin:16px 0;">
-  <input id="busca-doc-input" type="text" placeholder="Pesquisar nome do documento ou pessoa..."
-         style="width:100%;max-width:480px;padding:10px 14px;border:1px solid #ccc;border-radius:8px;font-size:15px;">
-  <div id="busca-doc-resultados" style="margin-top:10px;"></div>
-</div>
-
-<script>
-(function(){
-  const input = document.getElementById("busca-doc-input");
-  const box = document.getElementById("busca-doc-resultados");
-
-  function normalizar(s) {
-    return (s || "").toLowerCase().normalize("NFD").replace(/[\u0300-\u036f]/g, "").trim();
-  }
-
-  let timer = null;
-  input.addEventListener("input", function(){
-    clearTimeout(timer);
-    timer = setTimeout(buscar, 400);
-  });
-
-  async function buscar() {
-    const termo = normalizar(input.value);
-    box.innerHTML = "";
-    if (termo.length < 3 || !db) return;
-
-    box.innerHTML = "<em>Buscando...</em>";
-    try {
-      const snap = await db.collection("documentos").get();
-      const achados = [];
-      snap.forEach(function(d){
-        const f = d.data();
-        const alvo = normalizar(f.nomeBusca || f.nome || "");
-        if (alvo.indexOf(termo) >= 0) achados.push(f);
-      });
-
-      if (achados.length === 0) {
-        box.innerHTML = "<p style='color:#888;'>Nenhum resultado para \"" + esc(input.value) + "\".</p>";
-        return;
-      }
-
-      box.innerHTML = achados.slice(0, 20).map(function(f){
-        return "<div style='padding:10px 14px;border:1px solid #e0e0e0;border-radius:8px;margin-bottom:6px;background:#fafafa;'>" +
-          "<strong>" + esc(f.nome || "") + "</strong><br>" +
-          "<span style='color:#555;'>📍 " + esc(f.estante || "?") + " · Caixa " + esc(f.caixa || "?") + "</span>" +
-          "</div>";
-      }).join("") +
-      (achados.length > 20 ? "<p style='color:#888;'>+ " + (achados.length - 20) + " resultados (refine a busca)</p>" : "");
-    } catch (err) {
-      box.innerHTML = "<p style='color:#c00;'>Erro na busca: " + esc(err.message) + "</p>";
-    }
-  }
-})();
-</script>
-<!-- ===== FIM DA BARRA DE BUSCA ===== -->
 </body>
 </html>

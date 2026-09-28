@@ -36,7 +36,53 @@ body{
 }
 .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
 
-/* ===== TOP BAR ===== */
+/* ===== TELA DE LOGIN ===== */
+#scr-login{
+  display:flex;align-items:center;justify-content:center;
+  min-height:100vh;padding:24px;
+}
+.login-box{
+  background:var(--panel);border:1px solid var(--line);
+  padding:40px 36px;width:100%;max-width:380px;
+  position:relative;
+}
+.login-box::before{
+  content:'';position:absolute;top:0;left:0;right:0;height:3px;background:var(--amber);
+}
+.login-logo{
+  font-family:var(--disp);font-weight:700;font-size:26px;
+  letter-spacing:.14em;text-transform:uppercase;text-align:center;
+  margin-bottom:6px;
+}
+.login-sub{
+  font-family:var(--mono);font-size:11px;color:var(--txt-faint);
+  text-align:center;letter-spacing:.14em;margin-bottom:28px;text-transform:uppercase;
+}
+.login-box label{
+  display:block;font-family:var(--mono);font-size:10px;
+  letter-spacing:.16em;color:var(--txt-dim);text-transform:uppercase;margin-bottom:6px;
+}
+.login-box input{
+  width:100%;padding:12px 14px;font-family:var(--mono);font-size:14px;
+  background:var(--panel-2);border:1px solid var(--line);color:var(--txt);
+  outline:none;margin-bottom:16px;transition:border-color .2s,box-shadow .2s;
+}
+.login-box input:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-dim)}
+.login-btn{
+  width:100%;padding:13px;font-family:var(--mono);font-size:12px;
+  letter-spacing:.14em;text-transform:uppercase;font-weight:500;
+  background:var(--amber);color:#12141A;border:none;cursor:pointer;
+  transition:filter .15s;
+}
+.login-btn:hover{filter:brightness(1.1)}
+.login-btn:active{filter:brightness(.9)}
+.login-erro{
+  font-family:var(--mono);font-size:11px;color:#E05252;
+  margin-top:12px;text-align:center;min-height:14px;
+}
+
+/* ===== APP ===== */
+#app{display:none}
 .topbar{
   border-bottom:1px solid var(--line);
   background:rgba(18,20,26,.92);
@@ -47,15 +93,21 @@ body{
 .logo{
   font-family:var(--disp);font-weight:700;font-size:20px;
   letter-spacing:.14em;text-transform:uppercase;
-  padding:4px 14px;border:1px solid var(--line);
+  padding:4px 14px 4px 20px;border:1px solid var(--line);
   background:var(--panel);position:relative;
 }
 .logo::before{content:'';position:absolute;left:6px;top:50%;transform:translateY(-50%);
   width:5px;height:5px;border-radius:50%;background:var(--amber)}
-.logo{padding-left:20px}
 .crumb{font-family:var(--mono);font-size:12px;color:var(--txt-dim);letter-spacing:.04em}
 .crumb b{color:var(--amber);font-weight:500}
-.topbar-right{margin-left:auto;font-family:var(--mono);font-size:12px;color:var(--txt-faint)}
+.topbar-right{margin-left:auto;display:flex;align-items:center;gap:14px}
+.topbar-right .user{font-family:var(--mono);font-size:11px;color:var(--txt-faint)}
+.btn-sair{
+  font-family:var(--mono);font-size:10px;letter-spacing:.12em;
+  color:var(--txt-dim);background:none;border:1px solid var(--line);
+  padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:border-color .15s,color .15s;
+}
+.btn-sair:hover{border-color:#E05252;color:#E05252}
 
 /* ===== HERO SEARCH ===== */
 .hero{padding:48px 0 8px;text-align:center}
@@ -171,14 +223,12 @@ body{
 }
 .voltar:hover{border-color:var(--amber)}
 
-/* flash de destaque */
 @keyframes flash{
   0%,100%{box-shadow:none}
   30%{box-shadow:0 0 0 3px var(--amber)}
 }
 .flash{animation:flash 1.2s ease 2}
 
-/* skeleton */
 .skel{
   height:90px;background:linear-gradient(90deg,var(--panel) 25%,var(--panel-2) 50%,var(--panel) 75%);
   background-size:200% 100%;animation:shimmer 1.4s infinite;border:1px solid var(--line);
@@ -198,49 +248,69 @@ footer{
   .stat:nth-child(-n+2){border-top:none}
   .stat:nth-child(3){border-left:none}
   .hero{padding-top:32px}
+  .crumb{display:none}
 }
 </style>
 </head>
 <body>
 
-<header class="topbar">
-  <div class="wrap topbar-inner">
-    <div class="logo">ACERVO</div>
-    <div class="crumb">SETOR: <b>JURÍDICO</b> // <span id="crumb-total">—</span> REGISTROS</div>
-    <div class="topbar-right" id="user-chip"></div>
+<!-- ===== LOGIN ===== -->
+<div id="scr-login">
+  <div class="login-box">
+    <div class="login-logo">ACERVO</div>
+    <div class="login-sub">Acesso Restrito</div>
+    <label for="email">Usuário</label>
+    <input id="email" type="email" autocomplete="username" placeholder="seu@email.com">
+    <label for="senha">Senha</label>
+    <input id="senha" type="password" autocomplete="current-password" placeholder="********">
+    <button class="login-btn" id="btn-entrar">Entrar</button>
+    <div class="login-erro" id="login-erro"></div>
   </div>
-</header>
+</div>
 
-<main class="wrap">
-
-  <section class="hero">
-    <h1>Consulta de Registro</h1>
-    <div class="search-shell">
-      <input id="busca" type="text" placeholder="CONSULTAR REGISTRO — digite o nome..." autocomplete="off" aria-label="Buscar documento por nome">
+<!-- ===== APP ===== -->
+<div id="app">
+  <header class="topbar">
+    <div class="wrap topbar-inner">
+      <div class="logo">ACERVO</div>
+      <div class="crumb">SETOR: <b>JURÍDICO</b> // <span id="crumb-total">—</span> REGISTROS</div>
+      <div class="topbar-right">
+        <span class="user" id="user-chip"></span>
+        <button class="btn-sair" id="btn-sair">Sair</button>
+      </div>
     </div>
-    <div class="resultados" id="resultados"></div>
-  </section>
+  </header>
 
-  <section class="stats" id="stats">
-    <div class="stat"><div class="stat-num skel-num" style="height:26px;width:80px;margin:0 auto;background:var(--panel-2)"></div><div class="stat-lbl">Documentos</div></div>
-    <div class="stat"><div class="stat-num skel-num" style="height:26px;width:80px;margin:0 auto;background:var(--panel-2)"></div><div class="stat-lbl">Caixas</div></div>
-    <div class="stat"><div class="stat-num skel-num" style="height:26px;width:80px;margin:0 auto;background:var(--panel-2)"></div><div class="stat-lbl">Na lixeira</div></div>
-    <div class="stat"><div class="stat-num skel-num" style="height:26px;width:80px;margin:0 auto;background:var(--panel-2)"></div><div class="stat-lbl">Estantes</div></div>
-  </section>
+  <main class="wrap">
+    <section class="hero">
+      <h1>Consulta de Registro</h1>
+      <div class="search-shell">
+        <input id="busca" type="text" placeholder="CONSULTAR REGISTRO — digite o nome..." autocomplete="off" aria-label="Buscar documento por nome">
+      </div>
+      <div class="resultados" id="resultados"></div>
+    </section>
 
-  <section>
-    <div class="secao-titulo">Estantes</div>
-    <div class="grid-estantes" id="grid-estantes">
-      <div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>
-    </div>
-    <div class="painel" id="painel"></div>
-  </section>
+    <section class="stats" id="stats">
+      <div class="stat"><div class="stat-num">—</div><div class="stat-lbl">Documentos</div></div>
+      <div class="stat"><div class="stat-num">—</div><div class="stat-lbl">Caixas</div></div>
+      <div class="stat"><div class="stat-num">—</div><div class="stat-lbl">Na lixeira</div></div>
+      <div class="stat"><div class="stat-num">—</div><div class="stat-lbl">Estantes</div></div>
+    </section>
 
-</main>
+    <section>
+      <div class="secao-titulo">Estantes</div>
+      <div class="grid-estantes" id="grid-estantes">
+        <div class="skel"></div><div class="skel"></div><div class="skel"></div><div class="skel"></div>
+      </div>
+      <div class="painel" id="painel"></div>
+    </section>
+  </main>
 
-<footer>ACERVO JURÍDICO — SISTEMA DE GESTÃO DE ACERVO FÍSICO DIGITALIZADO</footer>
+  <footer>ACERVO — SISTEMA DE GESTÃO DE ARQUIVOS FÍSICOS</footer>
+</div>
 
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
 <script>
 const firebaseConfig = {
@@ -267,11 +337,55 @@ function corDe(nome){
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function normalizar(s){ return (s==null?'':String(s)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
 
-let docs = [];        // cache de todos os documentos
-let estantes = [];    // cache de estantes
+let docs = [];
+let estantes = [];
 let estanteAberta = null;
 let caixaAberta = null;
 
+/* ===== AUTENTICAÇÃO ===== */
+const scrLogin = document.getElementById('scr-login');
+const app = document.getElementById('app');
+
+firebase.auth().onAuthStateChanged(function(user){
+  if(user){
+    scrLogin.style.display = 'none';
+    app.style.display = 'block';
+    document.getElementById('user-chip').textContent = user.email;
+    carregar();
+  } else {
+    app.style.display = 'none';
+    scrLogin.style.display = 'flex';
+  }
+});
+
+function entrar(){
+  const email = document.getElementById('email').value.trim();
+  const senha = document.getElementById('senha').value;
+  const erro = document.getElementById('login-erro');
+  erro.textContent = '';
+  if(!email || !senha){ erro.textContent = 'Preencha usuário e senha.'; return; }
+  firebase.auth().signInWithEmailAndPassword(email, senha).catch(function(err){
+    if(err.code === 'auth/invalid-credential' || err.code === 'auth/wrong-password' || err.code === 'auth/user-not-found'){
+      erro.textContent = 'Usuário ou senha incorretos.';
+    } else if(err.code === 'auth/too-many-requests'){
+      erro.textContent = 'Muitas tentativas. Aguarde um momento.';
+    } else {
+      erro.textContent = 'Erro: ' + err.message;
+    }
+  });
+}
+document.getElementById('btn-entrar').addEventListener('click', entrar);
+document.getElementById('senha').addEventListener('keydown', function(ev){
+  if(ev.key === 'Enter') entrar();
+});
+document.getElementById('email').addEventListener('keydown', function(ev){
+  if(ev.key === 'Enter') document.getElementById('senha').focus();
+});
+document.getElementById('btn-sair').addEventListener('click', function(){
+  firebase.auth().signOut().then(function(){ location.reload(); });
+});
+
+/* ===== DADOS ===== */
 async function carregar(){
   try{
     const [snapDocs, snapEst] = await Promise.all([
@@ -282,7 +396,6 @@ async function carregar(){
     snapDocs.forEach(d => docs.push(d.data()));
     estantes = [];
     snapEst.forEach(d => estantes.push(Object.assign({id:d.id}, d.data())));
-
     renderStats();
     renderEstantes();
   }catch(err){
@@ -302,14 +415,13 @@ function renderStats(){
   nums[1].textContent = caixas.size;
   nums[2].textContent = naLixeira().length;
   nums[3].textContent = estantes.length;
-  nums[0].style.cssText = nums[1].style.cssText = nums[2].style.cssText = nums[3].style.cssText = '';
   document.getElementById('crumb-total').textContent = a.length.toLocaleString('pt-BR');
 }
 
 function renderEstantes(){
   const grid = document.getElementById('grid-estantes');
   const a = ativos();
-  grid.innerHTML = estantes.map((e,i) => {
+  grid.innerHTML = estantes.map(function(e,i){
     const nome = e.nome || e.id;
     const meus = a.filter(d => (d.estante||'').toUpperCase() === nome.toUpperCase());
     const cx = new Set(meus.map(d => d.caixa).filter(Boolean));
@@ -319,14 +431,14 @@ function renderEstantes(){
       '<div class="gaveta-count">' + cx.size + ' CAIXAS · ' + meus.length + ' DOCS</div>' +
       '</div>';
   }).join('');
-  grid.querySelectorAll('.gaveta').forEach(g => {
-    const abrir = () => abrirEstante(g.dataset.estante, g);
+  grid.querySelectorAll('.gaveta').forEach(function(g){
+    const abrir = function(){ abrirEstante(g.dataset.estante); };
     g.addEventListener('click', abrir);
-    g.addEventListener('keydown', ev => { if(ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); abrir(); } });
+    g.addEventListener('keydown', function(ev){ if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); abrir(); } });
   });
 }
 
-function abrirEstante(nome, elRef){
+function abrirEstante(nome){
   estanteAberta = nome; caixaAberta = null;
   renderPainel();
   const painel = document.getElementById('painel');
@@ -339,34 +451,34 @@ function renderPainel(){
   const a = ativos().filter(d => (d.estante||'').toUpperCase() === (estanteAberta||'').toUpperCase());
   if(!caixaAberta){
     const mapa = {};
-    a.forEach(d => { if(d.caixa){ (mapa[d.caixa] = mapa[d.caixa] || []).push(d); } });
-    const cods = Object.keys(mapa).sort((x,y) => String(x).localeCompare(String(y), undefined, {numeric:true}));
+    a.forEach(function(d){ if(d.caixa){ (mapa[d.caixa] = mapa[d.caixa] || []).push(d); } });
+    const cods = Object.keys(mapa).sort(function(x,y){ return String(x).localeCompare(String(y), undefined, {numeric:true}); });
     painel.innerHTML =
       '<button class="voltar" onclick="fecharPainel()">Fechar</button>' +
       '<h3>' + esc(estanteAberta) + ' — Caixas</h3>' +
-      cods.map(c =>
-        '<div class="caixa-item" data-caixa="' + esc(c) + '" tabindex="0" role="button">' +
-        '<span class="caixa-cod">' + esc(c) + '</span>' +
-        '<span class="caixa-n">' + mapa[c].length + ' DOCS</span></div>'
-      ).join('') +
+      cods.map(function(c){
+        return '<div class="caixa-item" data-caixa="' + esc(c) + '" tabindex="0" role="button">' +
+          '<span class="caixa-cod">' + esc(c) + '</span>' +
+          '<span class="caixa-n">' + mapa[c].length + ' DOCS</span></div>';
+      }).join('') +
       (cods.length === 0 ? '<div class="msg-busca">Nenhuma caixa nesta estante.</div>' : '');
-    painel.querySelectorAll('.caixa-item').forEach(ci => {
-      const abrir = () => { caixaAberta = ci.dataset.caixa; renderPainel(); };
+    painel.querySelectorAll('.caixa-item').forEach(function(ci){
+      const abrir = function(){ caixaAberta = ci.dataset.caixa; renderPainel(); };
       ci.addEventListener('click', abrir);
-      ci.addEventListener('keydown', ev => { if(ev.key === 'Enter' || ev.key === ' ') { ev.preventDefault(); abrir(); } });
+      ci.addEventListener('keydown', function(ev){ if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); abrir(); } });
     });
   } else {
     const lista = a.filter(d => d.caixa === caixaAberta)
-      .sort((x,y) => String(x.nome||'').localeCompare(String(y.nome||'')));
+      .sort(function(x,y){ return String(x.nome||'').localeCompare(String(y.nome||'')); });
     painel.innerHTML =
       '<button class="voltar" onclick="caixaAberta=null;renderPainel()">Voltar às caixas</button>' +
       '<h3>' + esc(estanteAberta) + ' · ' + esc(caixaAberta) + '</h3>' +
-      lista.map(d =>
-        '<div class="doc-item">' +
-        '<span class="doc-nome">' + esc(d.nome || '(sem nome)') + '</span>' +
-        '<span class="doc-meta">' + esc(d.tipo || '') + (d.data ? ' · ' + esc(d.data) : '') + '</span>' +
-        '</div>'
-      ).join('') +
+      lista.map(function(d){
+        return '<div class="doc-item">' +
+          '<span class="doc-nome">' + esc(d.nome || '(sem nome)') + '</span>' +
+          '<span class="doc-meta">' + esc(d.tipo || '') + (d.data ? ' · ' + esc(d.data) : '') + '</span>' +
+          '</div>';
+      }).join('') +
       (lista.length === 0 ? '<div class="msg-busca">Nenhum documento nesta caixa.</div>' : '');
   }
 }
@@ -380,7 +492,7 @@ function fecharPainel(){
 const input = document.getElementById('busca');
 const box = document.getElementById('resultados');
 let timer = null;
-input.addEventListener('input', () => {
+input.addEventListener('input', function(){
   clearTimeout(timer);
   timer = setTimeout(buscar, 250);
 });
@@ -390,7 +502,7 @@ function buscar(){
   box.innerHTML = '';
   if(termo.length < 3) return;
   const a = ativos();
-  const achados = a.filter(d => {
+  const achados = a.filter(function(d){
     const alvo = normalizar(d.nomeBusca || d.nome || '');
     return alvo.indexOf(termo) >= 0;
   });
@@ -398,16 +510,16 @@ function buscar(){
     box.innerHTML = '<div class="msg-busca">Nenhum registro encontrado para "' + esc(input.value) + '".</div>';
     return;
   }
-  box.innerHTML = achados.slice(0,20).map((f,i) =>
-    '<div class="ficha" style="animation-delay:' + (i*40) + 'ms">' +
-    '<div><div class="ficha-nome">' + esc(f.nome || '') + '</div>' +
-    '<div class="ficha-loc">' + esc((f.estante||'?').toUpperCase()) + ' · CAIXA ' + esc(f.caixa||'?') + '</div></div>' +
-    '<button class="ficha-btn" data-estante="' + esc(f.estante||'') + '">LOCALIZAR</button>' +
-    '</div>'
-  ).join('') +
+  box.innerHTML = achados.slice(0,20).map(function(f,i){
+    return '<div class="ficha" style="animation-delay:' + (i*40) + 'ms">' +
+      '<div><div class="ficha-nome">' + esc(f.nome || '') + '</div>' +
+      '<div class="ficha-loc">' + esc((f.estante||'?').toUpperCase()) + ' · CAIXA ' + esc(f.caixa||'?') + '</div></div>' +
+      '<button class="ficha-btn" data-estante="' + esc(f.estante||'') + '">LOCALIZAR</button>' +
+      '</div>';
+  }).join('') +
   (achados.length > 20 ? '<div class="msg-busca">+ ' + (achados.length-20) + ' resultados — refine a busca.</div>' : '');
-  box.querySelectorAll('.ficha-btn').forEach(b => {
-    b.addEventListener('click', () => localizar(b.dataset.estante));
+  box.querySelectorAll('.ficha-btn').forEach(function(b){
+    b.addEventListener('click', function(){ localizar(b.dataset.estante); });
   });
 }
 
@@ -417,10 +529,8 @@ function localizar(nomeEstante){
   if(!g) return;
   g.scrollIntoView({behavior:'smooth', block:'center'});
   g.classList.add('flash');
-  setTimeout(() => g.classList.remove('flash'), 2600);
+  setTimeout(function(){ g.classList.remove('flash'); }, 2600);
 }
-
-carregar();
 </script>
 </body>
 </html>

@@ -421,10 +421,16 @@ function renderStats(){
 function renderEstantes(){
   const grid = document.getElementById('grid-estantes');
   const a = ativos();
-  grid.innerHTML = estantes.map(function(e,i){
-    const nome = e.nome || e.id;
-    const meus = a.filter(d => (d.estante||'').toUpperCase() === nome.toUpperCase());
-    const cx = new Set(meus.map(d => d.caixa).filter(Boolean));
+  // deriva a lista de estantes dos documentos + junta com as cadastradas
+  const nomes = new Set();
+  a.forEach(function(d){ if(d.estante) nomes.add(String(d.estante).toUpperCase()); });
+  estantes.forEach(function(e){ if(e.nome) nomes.add(String(e.nome).toUpperCase()); });
+  const lista = Array.from(nomes).sort(function(x,y){
+    return String(x).localeCompare(String(y), undefined, {numeric:true});
+  });
+  grid.innerHTML = lista.map(function(nome,i){
+    const meus = a.filter(function(d){ return (d.estante||'').toUpperCase() === nome; });
+    const cx = new Set(meus.map(function(d){ return d.caixa; }).filter(Boolean));
     return '<div class="gaveta" data-estante="' + esc(nome) + '" style="animation-delay:' + (i*60) + 'ms" tabindex="0" role="button" aria-label="Abrir estante ' + esc(nome) + '">' +
       '<span class="gaveta-tag" style="background:' + corDe(nome) + '">' + esc(nome) + '</span>' +
       '<div class="gaveta-nome">' + esc(nome) + '</div>' +

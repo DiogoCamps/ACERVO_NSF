@@ -20,7 +20,6 @@ body{background:var(--bg);color:var(--txt);font-family:var(--body);min-height:10
   background-image:linear-gradient(rgba(255,255,255,.015) 1px,transparent 1px),linear-gradient(90deg,rgba(255,255,255,.015) 1px,transparent 1px);
   background-size:48px 48px;}
 .wrap{max-width:1200px;margin:0 auto;padding:0 24px}
-
 /* ===== LOGIN ===== */
 #scr-login{display:flex;align-items:center;justify-content:center;min-height:100vh;padding:24px}
 .login-box{background:var(--panel);border:1px solid var(--line);padding:40px 36px;width:100%;max-width:380px;position:relative}
@@ -32,8 +31,12 @@ body{background:var(--bg);color:var(--txt);font-family:var(--body);min-height:10
 .login-box input:focus{border-color:var(--amber);box-shadow:0 0 0 3px var(--amber-dim)}
 .login-btn{width:100%;padding:13px;font-family:var(--mono);font-size:12px;letter-spacing:.14em;text-transform:uppercase;font-weight:500;background:var(--amber);color:#12141A;border:none;cursor:pointer;transition:filter .15s}
 .login-btn:hover{filter:brightness(1.1)}
+.login-btn.google{background:var(--panel-2);color:var(--txt);border:1px solid var(--line)}
+.login-btn.google:hover{border-color:var(--amber);color:var(--amber)}
+.login-divisor{display:flex;align-items:center;gap:12px;margin:18px 0 6px}
+.login-divisor .traco{flex:1;height:1px;background:var(--line)}
+.login-divisor span{font-family:var(--mono);font-size:10px;color:var(--txt-faint);letter-spacing:.14em}
 .login-erro{font-family:var(--mono);font-size:11px;color:#E05252;margin-top:12px;text-align:center;min-height:14px}
-
 /* ===== APP ===== */
 #app{display:none}
 .topbar{border-bottom:1px solid var(--line);background:rgba(18,20,26,.92);position:sticky;top:0;z-index:50;backdrop-filter:blur(6px)}
@@ -47,7 +50,6 @@ body{background:var(--bg);color:var(--txt);font-family:var(--body);min-height:10
 .btn-top{font-family:var(--mono);font-size:10px;letter-spacing:.1em;background:none;border:1px solid var(--line);color:var(--txt-dim);padding:6px 12px;cursor:pointer;text-transform:uppercase;transition:border-color .15s,color .15s}
 .btn-top:hover{border-color:var(--amber);color:var(--amber)}
 .btn-top.sair:hover{border-color:#E05252;color:#E05252}
-
 /* ===== HERO ===== */
 .hero{padding:40px 0 8px;text-align:center}
 .hero h1{font-family:var(--disp);font-weight:600;font-size:15px;letter-spacing:.3em;text-transform:uppercase;color:var(--txt-dim);margin-bottom:20px}
@@ -66,14 +68,12 @@ body{background:var(--bg);color:var(--txt);font-family:var(--body);min-height:10
 .ficha-btn:hover{filter:brightness(1.1)}
 .msg-busca{font-family:var(--mono);font-size:12px;color:var(--txt-faint);padding:12px 4px}
 .msg-busca.erro{color:#E05252}
-
 /* ===== STATS ===== */
 .stats{display:flex;justify-content:center;margin:40px auto 0;max-width:860px;border-top:1px solid var(--line);border-bottom:1px solid var(--line)}
 .stat{flex:1;padding:20px 12px;text-align:center;border-left:1px solid var(--line)}
 .stat:first-child{border-left:none}
 .stat-num{font-family:var(--mono);font-size:26px;font-weight:500}
 .stat-lbl{font-family:var(--mono);font-size:10px;letter-spacing:.18em;color:var(--txt-faint);text-transform:uppercase;margin-top:6px}
-
 /* ===== SECOES ===== */
 .secao-titulo{font-family:var(--disp);font-weight:600;font-size:14px;letter-spacing:.28em;text-transform:uppercase;color:var(--txt-dim);margin:56px 0 20px;display:flex;align-items:center;gap:16px}
 .secao-titulo::after{content:'';flex:1;height:1px;background:var(--line)}
@@ -85,7 +85,6 @@ body{background:var(--bg);color:var(--txt);font-family:var(--body);min-height:10
 .gaveta-tag{display:inline-block;font-family:var(--mono);font-size:10px;letter-spacing:.12em;padding:3px 8px;color:#fff;text-transform:uppercase;margin-bottom:10px}
 .gaveta-nome{font-family:var(--disp);font-weight:600;font-size:18px;letter-spacing:.03em;text-transform:uppercase}
 .gaveta-count{font-family:var(--mono);font-size:11px;color:var(--txt-dim);margin-top:8px}
-
 /* ===== PAINEL ===== */
 .painel{background:var(--panel);border:1px solid var(--line);margin-top:14px;padding:20px;display:none}
 .painel.aberto{display:block;animation:slideIn .25s ease}
@@ -105,12 +104,10 @@ body{background:var(--bg);color:var(--txt);font-family:var(--body);min-height:10
 .btn-mini.del:hover{border-color:#E05252;color:#E05252}
 .voltar{font-family:var(--mono);font-size:11px;letter-spacing:.1em;color:var(--amber);background:none;border:1px solid var(--line);padding:6px 14px;cursor:pointer;text-transform:uppercase}
 .voltar:hover{border-color:var(--amber)}
-
 /* ===== COLABORADORES ===== */
 .colab-item{display:flex;align-items:center;gap:14px;padding:10px 14px;border:1px solid var(--line-soft);margin-bottom:6px;background:var(--panel-2)}
 .colab-email{font-family:var(--mono);font-size:13px}
 .colab-tags{font-family:var(--mono);font-size:10px;color:var(--txt-faint);margin-left:auto;text-align:right}
-
 /* ===== MODAL ===== */
 .modal-fundo{display:none;position:fixed;inset:0;background:rgba(10,12,16,.75);z-index:100;align-items:center;justify-content:center;padding:24px}
 .modal-fundo.aberto{display:flex}
@@ -126,7 +123,6 @@ body{background:var(--bg);color:var(--txt);font-family:var(--body);min-height:10
 .btn-cancelar{padding:12px 18px;font-family:var(--mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;background:none;border:1px solid var(--line);color:var(--txt-dim);cursor:pointer}
 .btn-cancelar:hover{border-color:#E05252;color:#E05252}
 .modal-erro{font-family:var(--mono);font-size:11px;color:#E05252;margin-top:10px;min-height:14px}
-
 @keyframes flash{0%,100%{box-shadow:none}30%{box-shadow:0 0 0 3px var(--amber)}}
 .flash{animation:flash 1.2s ease 2}
 .skel{height:90px;background:linear-gradient(90deg,var(--panel) 25%,var(--panel-2) 50%,var(--panel) 75%);background-size:200% 100%;animation:shimmer 1.4s infinite;border:1px solid var(--line)}
@@ -141,7 +137,6 @@ footer{margin-top:64px;padding:20px 0 32px;border-top:1px solid var(--line);font
 </style>
 </head>
 <body>
-
 <div id="scr-login">
   <div class="login-box">
     <div class="login-logo">ACERVO</div>
@@ -151,10 +146,15 @@ footer{margin-top:64px;padding:20px 0 32px;border-top:1px solid var(--line);font
     <label for="senha">Senha</label>
     <input id="senha" type="password" autocomplete="current-password" placeholder="********">
     <button class="login-btn" id="btn-entrar">Entrar</button>
+    <div class="login-divisor">
+      <div class="traco"></div>
+      <span>OU</span>
+      <div class="traco"></div>
+    </div>
+    <button class="login-btn google" id="btn-google">Entrar com Google</button>
     <div class="login-erro" id="login-erro"></div>
   </div>
 </div>
-
 <div id="app">
   <header class="topbar">
     <div class="wrap topbar-inner">
@@ -168,7 +168,6 @@ footer{margin-top:64px;padding:20px 0 32px;border-top:1px solid var(--line);font
       </div>
     </div>
   </header>
-
   <main class="wrap">
     <section class="hero">
       <h1>Pesquisar</h1>
@@ -177,14 +176,12 @@ footer{margin-top:64px;padding:20px 0 32px;border-top:1px solid var(--line);font
       </div>
       <div class="resultados" id="resultados"></div>
     </section>
-
     <section class="stats" id="stats">
       <div class="stat"><div class="stat-num">—</div><div class="stat-lbl">Documentos</div></div>
       <div class="stat"><div class="stat-num">—</div><div class="stat-lbl">Caixas</div></div>
       <div class="stat"><div class="stat-num">—</div><div class="stat-lbl">Na lixeira</div></div>
       <div class="stat"><div class="stat-num">—</div><div class="stat-lbl">Estantes</div></div>
     </section>
-
     <section>
       <div class="secao-titulo">Estantes</div>
       <div class="grid-estantes" id="grid-estantes">
@@ -192,16 +189,13 @@ footer{margin-top:64px;padding:20px 0 32px;border-top:1px solid var(--line);font
       </div>
       <div class="painel" id="painel"></div>
     </section>
-
     <section id="sec-colab" style="display:none">
       <div class="secao-titulo">Colaboradores <button class="btn-top" id="btn-novo-colab">Novo Colaborador</button></div>
       <div id="lista-colabs"></div>
     </section>
   </main>
-
   <footer>ACERVO — SISTEMA DE GESTÃO DE ARQUIVOS FÍSICOS</footer>
 </div>
-
 <!-- ===== MODAL GENERICO ===== -->
 <div class="modal-fundo" id="modal-fundo">
   <div class="modal">
@@ -214,7 +208,6 @@ footer{margin-top:64px;padding:20px 0 32px;border-top:1px solid var(--line);font
     <div class="modal-erro" id="modal-erro"></div>
   </div>
 </div>
-
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-auth-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.12.0/firebase-firestore-compat.js"></script>
@@ -229,7 +222,6 @@ const firebaseConfig = {
 };
 firebase.initializeApp(firebaseConfig);
 const db = firebase.firestore();
-
 const CORES = {'ARMARIO':'#E11D2E','ARMÁRIO':'#E11D2E','A':'#1D4ED8','B':'#059669','C':'#EA580C','D':'#7C3AED'};
 function corDe(nome){
   const n = (nome||'').toUpperCase();
@@ -239,14 +231,12 @@ function corDe(nome){
 }
 function esc(s){ return String(s==null?'':s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;'); }
 function normalizar(s){ return (s==null?'':String(s)).toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').trim(); }
-
 let docs = [];        // {_id, ...campos}
 let estantes = [];    // {_id, nome, tipo, setor}
 let usuarios = [];    // {_id, email, setores, adminDe, ativo}
 let estanteAberta = null;
 let caixaAberta = null;
 let usuarioLogado = null;
-
 /* ===== AUTH ===== */
 const scrLogin = document.getElementById('scr-login');
 const app = document.getElementById('app');
@@ -276,11 +266,27 @@ function entrar(){
     } else { erro.textContent = 'Erro: ' + err.message; }
   });
 }
+function entrarGoogle(){
+  const erro = document.getElementById('login-erro');
+  erro.textContent = '';
+  const provider = new firebase.auth.GoogleAuthProvider();
+  firebase.auth().signInWithPopup(provider).catch(function(err){
+    if(err.code === 'auth/popup-blocked'){
+      erro.textContent = 'O navegador bloqueou a janela. Permita pop-ups neste site.';
+    } else if(err.code === 'auth/operation-not-allowed' || err.code === 'auth/unauthorized-domain'){
+      erro.textContent = 'Login com Google desativado no Firebase. Ative em Authentication > Sign-in method.';
+    } else if(err.code === 'auth/cancelled-popup-request' || err.code === 'auth/popup-closed-by-user'){
+      erro.textContent = '';
+    } else {
+      erro.textContent = 'Erro: ' + err.message;
+    }
+  });
+}
 document.getElementById('btn-entrar').addEventListener('click', entrar);
+document.getElementById('btn-google').addEventListener('click', entrarGoogle);
 document.getElementById('senha').addEventListener('keydown', function(ev){ if(ev.key === 'Enter') entrar(); });
 document.getElementById('email').addEventListener('keydown', function(ev){ if(ev.key === 'Enter') document.getElementById('senha').focus(); });
 document.getElementById('btn-sair').addEventListener('click', function(){ firebase.auth().signOut().then(function(){ location.reload(); }); });
-
 /* ===== CARREGAMENTO ===== */
 async function carregar(){
   try{
@@ -298,9 +304,7 @@ async function carregar(){
       '<div class="msg-busca erro">Erro ao carregar dados: ' + esc(err.message) + '</div>';
   }
 }
-
 function ativos(){ return docs.filter(function(d){ return !d.excluidoEm; }); }
-
 function renderStats(){
   const a = ativos();
   const caixas = new Set(a.map(function(d){ return (d.estante||'') + '|' + (d.caixa||''); }).filter(function(x){ return x !== '|'; }));
@@ -311,7 +315,6 @@ function renderStats(){
   nums[3].textContent = estantes.length;
   document.getElementById('crumb-total').textContent = a.length.toLocaleString('pt-BR');
 }
-
 /* ===== ESTANTES ===== */
 function renderEstantes(){
   const grid = document.getElementById('grid-estantes');
@@ -334,7 +337,6 @@ function renderEstantes(){
     g.addEventListener('keydown', function(ev){ if(ev.key === 'Enter' || ev.key === ' '){ ev.preventDefault(); abrir(); } });
   });
 }
-
 function abrirEstante(nome){
   estanteAberta = nome; caixaAberta = null;
   renderPainel();
@@ -342,7 +344,6 @@ function abrirEstante(nome){
   painel.classList.add('aberto');
   painel.scrollIntoView({behavior:'smooth', block:'nearest'});
 }
-
 function renderPainel(){
   const painel = document.getElementById('painel');
   const a = ativos().filter(function(d){ return (d.estante||'').toUpperCase() === (estanteAberta||'').toUpperCase(); });
@@ -386,12 +387,10 @@ function renderPainel(){
       (lista.length === 0 ? '<div class="msg-busca">Nenhum documento nesta caixa.</div>' : '');
   }
 }
-
 function fecharPainel(){
   estanteAberta = null; caixaAberta = null;
   document.getElementById('painel').classList.remove('aberto');
 }
-
 /* ===== MODAL ===== */
 const modalFundo = document.getElementById('modal-fundo');
 let acaoSalvar = null;
@@ -412,7 +411,6 @@ function campo(id, label, tipo, valor, extra){
   return '<label for="' + id + '">' + label + '</label>' +
     '<input id="' + id + '" type="' + (tipo||'text') + '" value="' + esc(valor||'') + '" ' + (extra||'') + '>';
 }
-
 /* ===== NOVA ESTANTE ===== */
 document.getElementById('btn-nova-estante').addEventListener('click', function(){
   abrirModal('Nova Estante',
@@ -428,7 +426,6 @@ document.getElementById('btn-nova-estante').addEventListener('click', function()
       }catch(err){ document.getElementById('modal-erro').textContent = 'Erro: ' + err.message; }
     });
 });
-
 /* ===== NOVA CAIXA (cria o primeiro documento da caixa) ===== */
 function modalNovaCaixa(){
   abrirModal('Nova Caixa — ' + estanteAberta,
@@ -448,7 +445,6 @@ function modalNovaCaixa(){
       }catch(err){ document.getElementById('modal-erro').textContent = 'Erro: ' + err.message; }
     });
 }
-
 /* ===== NOVO / EDITAR DOCUMENTO ===== */
 function modalDoc(idDoc, caixaPre){
   const d = idDoc ? docs.find(function(x){ return x._id === idDoc; }) : null;
@@ -496,7 +492,6 @@ function modalDoc(idDoc, caixaPre){
       }catch(err){ document.getElementById('modal-erro').textContent = 'Erro: ' + err.message; }
     });
 }
-
 /* ===== EXCLUIR (vai pra lixeira) ===== */
 async function excluirDoc(idDoc){
   if(!confirm('Excluir este documento? Ele irá para a lixeira.')) return;
@@ -507,7 +502,6 @@ async function excluirDoc(idDoc){
     await carregar(); renderPainel();
   }catch(err){ alert('Erro ao excluir: ' + err.message); }
 }
-
 /* ===== COLABORADORES ===== */
 document.getElementById('btn-colaboradores').addEventListener('click', function(){
   const sec = document.getElementById('sec-colab');
@@ -545,7 +539,6 @@ document.getElementById('btn-novo-colab').addEventListener('click', function(){
       }catch(err){ document.getElementById('modal-erro').textContent = 'Erro: ' + err.message; }
     });
 });
-
 /* ===== BUSCA ===== */
 const input = document.getElementById('busca');
 const box = document.getElementById('resultados');
